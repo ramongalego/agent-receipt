@@ -16,11 +16,11 @@ function createClient(options) {
         async track(sessionId, event) {
             return ingest.send({ sessionId, event });
         },
-        wrapOpenAI(client) {
-            return (0, openai_1.wrapOpenAI)(client, ingest);
+        wrapOpenAI(client, opts) {
+            return (0, openai_1.wrapOpenAI)(client, ingest, opts);
         },
-        wrapAnthropic(client) {
-            return (0, anthropic_1.wrapAnthropic)(client, ingest);
+        wrapAnthropic(client, opts) {
+            return (0, anthropic_1.wrapAnthropic)(client, ingest, opts);
         },
     };
 }

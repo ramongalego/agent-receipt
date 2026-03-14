@@ -92,8 +92,7 @@ export default async function SessionsListPage({
                               href={`/dashboard/projects/${projectId}/sessions/${s.id}`}
                               className="text-sm font-medium text-foreground hover:underline"
                             >
-                              {s.name ||
-                                "Untitled session"}
+                              {s.name || "Untitled session"}
                             </Link>
                           </td>
                           <td className="px-6 py-4 text-sm text-muted-foreground">

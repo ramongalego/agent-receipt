@@ -44,9 +44,12 @@ export type Session = {
     trackDecision: (name: string, reasoning: string, outcome: string) => Promise<void>;
     end: () => Promise<void>;
 };
+export type WrapperOptions = {
+    sessionName?: string;
+};
 export type Client = {
     startSession: (name?: string) => Session;
     track: (sessionId: string, event: TrackEventInput) => Promise<Result<string>>;
-    wrapOpenAI: <T extends object>(client: T) => T;
-    wrapAnthropic: <T extends object>(client: T) => T;
+    wrapOpenAI: <T extends object>(client: T, options?: WrapperOptions) => T;
+    wrapAnthropic: <T extends object>(client: T, options?: WrapperOptions) => T;
 };

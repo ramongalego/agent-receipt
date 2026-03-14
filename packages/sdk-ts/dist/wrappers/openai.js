@@ -7,7 +7,65 @@ function isAsyncIterable(value) {
         typeof value === "object" &&
         Symbol.asyncIterator in value);
 }
-function wrapStream(stream, ingest, sessionId, params, start) {
+function tryParseStructuredOutput(params, result) {
+    if (!result || typeof result !== "object")
+        return { output: result };
+    const fmt = params?.response_format;
+    if (fmt?.type !== "json_object" && fmt?.type !== "json_schema") {
+        return { output: result };
+    }
+    const res = result;
+    const content = res.choices?.[0]?.message?.content;
+    if (typeof content !== "string")
+        return { output: result };
+    try {
+        const parsed = JSON.parse(content);
+        const patched = {
+            ...res,
+            choices: res.choices.map((c, i) => i === 0 ? { ...c, message: { ...c.message, content: parsed } } : c),
+        };
+        return { output: patched, metadata: { structured: true } };
+    }
+    catch {
+        return { output: result };
+    }
+}
+function extractToolCalls(result) {
+    if (!result || typeof result !== "object")
+        return [];
+    const res = result;
+    const toolCalls = res.choices?.[0]?.message?.tool_calls;
+    if (!Array.isArray(toolCalls))
+        return [];
+    return toolCalls.filter((tc) => typeof tc === "object" &&
+        tc !== null &&
+        tc.type === "function");
+}
+function sendToolCallEvents(toolCalls, ingest, sessionId, sessionName, durationMs) {
+    for (const tc of toolCalls) {
+        let parsedArgs;
+        try {
+            parsedArgs = JSON.parse(tc.function.arguments);
+        }
+        catch {
+            parsedArgs = tc.function.arguments;
+        }
+        ingest
+            .send({
+            sessionId,
+            sessionName,
+            event: {
+                type: "tool_call",
+                name: tc.function.name,
+                input: parsedArgs,
+                output: { toolCallId: tc.id },
+                durationMs,
+            },
+        })
+            .catch(() => { });
+    }
+}
+function wrapStream(stream, ingest, sessionId, sessionName, params, start) {
     return {
         [Symbol.asyncIterator]() {
             const iterator = stream[Symbol.asyncIterator]();
@@ -23,6 +81,7 @@ function wrapStream(stream, ingest, sessionId, params, start) {
                         ingest
                             .send({
                             sessionId,
+                            sessionName,
                             event: {
                                 type: "llm_call",
                                 name: params?.model ?? "openai",
@@ -45,13 +104,12 @@ function wrapStream(stream, ingest, sessionId, params, start) {
         },
     };
 }
-function wrapOpenAI(client, ingest) {
-    // Each wrapped client gets one session that groups all its calls
+function wrapOpenAI(client, ingest, options) {
     const sessionId = (0, crypto_1.randomUUID)();
+    const sessionName = options?.sessionName;
     const handler = {
         get(target, prop, receiver) {
             const value = Reflect.get(target, prop, receiver);
-            // Intercept chat.completions.create
             if (prop === "chat") {
                 return new Proxy(value, {
                     get(chatTarget, chatProp, chatReceiver) {
@@ -68,22 +126,26 @@ function wrapOpenAI(client, ingest) {
                                             try {
                                                 const result = await compValue.apply(compTarget, args);
                                                 const durationMs = Date.now() - start;
-                                                // Handle streaming responses
                                                 if (params?.stream && isAsyncIterable(result)) {
-                                                    return wrapStream(result, ingest, sessionId, params, start);
+                                                    return wrapStream(result, ingest, sessionId, sessionName, params, start);
                                                 }
+                                                const structured = tryParseStructuredOutput(params, result);
                                                 ingest
                                                     .send({
                                                     sessionId,
+                                                    sessionName,
                                                     event: {
                                                         type: "llm_call",
                                                         name: params?.model ?? "openai",
                                                         input: params,
-                                                        output: result,
+                                                        output: structured.output,
                                                         durationMs,
+                                                        metadata: structured.metadata,
                                                     },
                                                 })
                                                     .catch(() => { });
+                                                const toolCalls = extractToolCalls(result);
+                                                sendToolCallEvents(toolCalls, ingest, sessionId, sessionName, durationMs);
                                                 return result;
                                             }
                                             catch (e) {
@@ -91,6 +153,7 @@ function wrapOpenAI(client, ingest) {
                                                 ingest
                                                     .send({
                                                     sessionId,
+                                                    sessionName,
                                                     event: {
                                                         type: "error",
                                                         name: params?.model ?? "openai",

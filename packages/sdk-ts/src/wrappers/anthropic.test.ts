@@ -457,4 +457,54 @@ describe("wrapAnthropic", () => {
       expect(payload.sessionName).toBeUndefined();
     });
   });
+
+  describe("structured output", () => {
+    it("parses text content that is valid JSON and sets structured: true", async () => {
+      const ingest = createMockIngest();
+      const response = {
+        id: "msg_json",
+        content: [{ type: "text", text: '{"name":"Acme","amount":4500}' }],
+      };
+      const mockCreate = jest.fn().mockResolvedValue(response);
+      const client = { messages: { create: mockCreate } };
+      const wrapped = wrapAnthropic(client, ingest);
+
+      await wrapped.messages.create({
+        model: "claude-sonnet-4-20250514",
+        messages: [],
+      });
+      await tick();
+
+      const payload = (ingest.send as jest.Mock).mock.calls[0][0];
+      expect(payload.event.type).toBe("llm_call");
+      expect(payload.event.output.content[0].text).toEqual({
+        name: "Acme",
+        amount: 4500,
+      });
+      expect(payload.event.metadata).toEqual({ structured: true });
+    });
+
+    it("stores text content as normal string when it is not JSON", async () => {
+      const ingest = createMockIngest();
+      const response = {
+        id: "msg_plain",
+        content: [{ type: "text", text: "Hello, this is plain text." }],
+      };
+      const mockCreate = jest.fn().mockResolvedValue(response);
+      const client = { messages: { create: mockCreate } };
+      const wrapped = wrapAnthropic(client, ingest);
+
+      await wrapped.messages.create({
+        model: "claude-sonnet-4-20250514",
+        messages: [],
+      });
+      await tick();
+
+      const payload = (ingest.send as jest.Mock).mock.calls[0][0];
+      expect(payload.event.output.content[0].text).toBe(
+        "Hello, this is plain text.",
+      );
+      expect(payload.event.metadata).toBeUndefined();
+    });
+  });
 });

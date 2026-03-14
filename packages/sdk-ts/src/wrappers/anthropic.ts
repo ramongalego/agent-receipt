@@ -19,6 +19,44 @@ type AnthropicToolUse = {
   input: unknown;
 };
 
+type StructuredOutput = {
+  output: unknown;
+  metadata?: Record<string, unknown>;
+};
+
+function tryParseStructuredOutput(result: unknown): StructuredOutput {
+  if (!result || typeof result !== "object") return { output: result };
+  const msg = result as { content?: unknown[] };
+  if (!Array.isArray(msg.content)) return { output: result };
+
+  let hasStructured = false;
+  const parsedContent = msg.content.map((block) => {
+    if (
+      typeof block === "object" &&
+      block !== null &&
+      (block as { type?: string }).type === "text"
+    ) {
+      const text = (block as { text?: string }).text;
+      if (typeof text === "string" && text.trim().startsWith("{")) {
+        try {
+          const parsed = JSON.parse(text);
+          hasStructured = true;
+          return { ...block, text: parsed };
+        } catch {
+          return block;
+        }
+      }
+    }
+    return block;
+  });
+
+  if (!hasStructured) return { output: result };
+  return {
+    output: { ...msg, content: parsedContent },
+    metadata: { structured: true },
+  };
+}
+
 function extractToolCalls(result: unknown): AnthropicToolUse[] {
   if (!result || typeof result !== "object") return [];
   const msg = result as { content?: unknown[] };
@@ -87,6 +125,7 @@ export function wrapAnthropic<T extends object>(
                   if (params?.stream && hasOnMethod(result)) {
                     result.on("finalMessage", (message: unknown) => {
                       const finalDurationMs = Date.now() - start;
+                      const structured = tryParseStructuredOutput(message);
                       ingest
                         .send({
                           sessionId,
@@ -95,8 +134,9 @@ export function wrapAnthropic<T extends object>(
                             type: "llm_call",
                             name: (params?.model as string) ?? "anthropic",
                             input: params,
-                            output: message,
+                            output: structured.output,
                             durationMs: finalDurationMs,
+                            metadata: structured.metadata,
                           },
                         })
                         .catch(() => {});
@@ -113,6 +153,7 @@ export function wrapAnthropic<T extends object>(
                     return result;
                   }
 
+                  const structured = tryParseStructuredOutput(result);
                   ingest
                     .send({
                       sessionId,
@@ -121,8 +162,9 @@ export function wrapAnthropic<T extends object>(
                         type: "llm_call",
                         name: (params?.model as string) ?? "anthropic",
                         input: params,
-                        output: result,
+                        output: structured.output,
                         durationMs,
+                        metadata: structured.metadata,
                       },
                     })
                     .catch(() => {});
@@ -171,6 +213,7 @@ export function wrapAnthropic<T extends object>(
                 if (hasOnMethod(result)) {
                   result.on("finalMessage", (message: unknown) => {
                     const durationMs = Date.now() - start;
+                    const structured = tryParseStructuredOutput(message);
                     ingest
                       .send({
                         sessionId,
@@ -179,8 +222,9 @@ export function wrapAnthropic<T extends object>(
                           type: "llm_call",
                           name: (params?.model as string) ?? "anthropic",
                           input: params,
-                          output: message,
+                          output: structured.output,
                           durationMs,
+                          metadata: structured.metadata,
                         },
                       })
                       .catch(() => {});

@@ -408,4 +408,97 @@ describe("wrapOpenAI", () => {
       expect(payload.sessionName).toBeUndefined();
     });
   });
+
+  describe("structured output", () => {
+    it("parses json_object response and sets structured: true", async () => {
+      const ingest = createMockIngest();
+      const response = {
+        id: "chatcmpl-json",
+        choices: [{ message: { content: '{"name":"Acme","amount":4500}' } }],
+      };
+      const mockCreate = jest.fn().mockResolvedValue(response);
+      const client = { chat: { completions: { create: mockCreate } } };
+      const wrapped = wrapOpenAI(client, ingest);
+
+      await wrapped.chat.completions.create({
+        model: "gpt-4o",
+        messages: [],
+        response_format: { type: "json_object" },
+      });
+      await tick();
+
+      const payload = (ingest.send as jest.Mock).mock.calls[0][0];
+      expect(payload.event.output.choices[0].message.content).toEqual({
+        name: "Acme",
+        amount: 4500,
+      });
+      expect(payload.event.metadata).toEqual({ structured: true });
+    });
+
+    it("parses json_schema response the same way", async () => {
+      const ingest = createMockIngest();
+      const response = {
+        id: "chatcmpl-schema",
+        choices: [{ message: { content: '{"status":"approved"}' } }],
+      };
+      const mockCreate = jest.fn().mockResolvedValue(response);
+      const client = { chat: { completions: { create: mockCreate } } };
+      const wrapped = wrapOpenAI(client, ingest);
+
+      await wrapped.chat.completions.create({
+        model: "gpt-4o",
+        messages: [],
+        response_format: {
+          type: "json_schema",
+          json_schema: { name: "decision", schema: {} },
+        },
+      });
+      await tick();
+
+      const payload = (ingest.send as jest.Mock).mock.calls[0][0];
+      expect(payload.event.output.choices[0].message.content).toEqual({
+        status: "approved",
+      });
+      expect(payload.event.metadata).toEqual({ structured: true });
+    });
+
+    it("falls back to raw string when JSON parsing fails", async () => {
+      const ingest = createMockIngest();
+      const response = {
+        id: "chatcmpl-bad",
+        choices: [{ message: { content: "not valid json {{{" } }],
+      };
+      const mockCreate = jest.fn().mockResolvedValue(response);
+      const client = { chat: { completions: { create: mockCreate } } };
+      const wrapped = wrapOpenAI(client, ingest);
+
+      await wrapped.chat.completions.create({
+        model: "gpt-4o",
+        messages: [],
+        response_format: { type: "json_object" },
+      });
+      await tick();
+
+      const payload = (ingest.send as jest.Mock).mock.calls[0][0];
+      expect(payload.event.output.choices[0].message.content).toBe(
+        "not valid json {{{",
+      );
+      expect(payload.event.metadata).toBeUndefined();
+    });
+
+    it("does not parse when response_format is not json", async () => {
+      const ingest = createMockIngest();
+      const { client } = createMockClient();
+      const wrapped = wrapOpenAI(client, ingest);
+
+      await wrapped.chat.completions.create({
+        model: "gpt-4o",
+        messages: [],
+      });
+      await tick();
+
+      const payload = (ingest.send as jest.Mock).mock.calls[0][0];
+      expect(payload.event.metadata).toBeUndefined();
+    });
+  });
 });

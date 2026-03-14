@@ -15,6 +15,41 @@ type OpenAIToolCall = {
   function: { name: string; arguments: string };
 };
 
+type StructuredOutput = {
+  output: unknown;
+  metadata?: Record<string, unknown>;
+};
+
+function tryParseStructuredOutput(
+  params: Record<string, unknown>,
+  result: unknown,
+): StructuredOutput {
+  if (!result || typeof result !== "object") return { output: result };
+  const fmt = params?.response_format as { type?: string } | undefined;
+  if (fmt?.type !== "json_object" && fmt?.type !== "json_schema") {
+    return { output: result };
+  }
+
+  const res = result as {
+    choices?: { message?: { content?: string } }[];
+  };
+  const content = res.choices?.[0]?.message?.content;
+  if (typeof content !== "string") return { output: result };
+
+  try {
+    const parsed = JSON.parse(content);
+    const patched = {
+      ...res,
+      choices: res.choices!.map((c, i) =>
+        i === 0 ? { ...c, message: { ...c.message, content: parsed } } : c,
+      ),
+    };
+    return { output: patched, metadata: { structured: true } };
+  } catch {
+    return { output: result };
+  }
+}
+
 function extractToolCalls(result: unknown): OpenAIToolCall[] {
   if (!result || typeof result !== "object") return [];
   const res = result as {
@@ -162,6 +197,10 @@ export function wrapOpenAI<T extends object>(
                           );
                         }
 
+                        const structured = tryParseStructuredOutput(
+                          params,
+                          result,
+                        );
                         ingest
                           .send({
                             sessionId,
@@ -170,8 +209,9 @@ export function wrapOpenAI<T extends object>(
                               type: "llm_call",
                               name: (params?.model as string) ?? "openai",
                               input: params,
-                              output: result,
+                              output: structured.output,
                               durationMs,
+                              metadata: structured.metadata,
                             },
                           })
                           .catch(() => {});

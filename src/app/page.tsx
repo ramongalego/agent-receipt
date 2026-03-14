@@ -1,65 +1,590 @@
-import Image from "next/image";
+import Link from "next/link";
+import { getPlanLimits } from "@/lib/billing";
+import { PublicNav } from "@/components/layout/public-nav";
 
-export default function Home() {
+const PLANS = [
+  {
+    name: "Free",
+    price: "$0",
+    period: "forever",
+    plan: "free" as const,
+    cta: "Start for free",
+    href: "/sign-in",
+  },
+  {
+    name: "Pro",
+    price: "$29",
+    period: "/month",
+    plan: "pro" as const,
+    cta: "Start free trial",
+    href: "/sign-in",
+    highlighted: true,
+  },
+  {
+    name: "Business",
+    price: "$99",
+    period: "/month",
+    plan: "business" as const,
+    cta: "Start for free",
+    href: "/sign-in",
+  },
+];
+
+const PROBLEMS = [
+  {
+    icon: (
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+        <line x1="12" y1="9" x2="12" y2="13" />
+        <line x1="12" y1="17" x2="12.01" y2="17" />
+      </svg>
+    ),
+    title: "Agents take real actions",
+    description:
+      "Your AI agents approve expenses, send emails, update records, and trigger payments. These are not suggestions. They are real actions with real consequences.",
+  },
+  {
+    icon: (
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
+    ),
+    title: "No readable record exists",
+    description:
+      "When something goes wrong, there is no log a non-technical person can read. No receipt you can hand to your compliance team or your customer.",
+  },
+  {
+    icon: (
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
+    ),
+    title: "Audits need answers",
+    description:
+      "Wrong payment to the wrong vendor. An email sent to the wrong customer. Your audit asks what your AI did last Tuesday. You need to be able to answer.",
+  },
+];
+
+export default function LandingPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="min-h-screen bg-background text-foreground">
+      <PublicNav />
+
+      {/* Hero */}
+      <section className="relative overflow-hidden px-6 pb-32 pt-24 sm:pb-40 sm:pt-32">
+        {/* Radial gradient glow */}
+        <div
+          className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2"
+          style={{
+            width: "800px",
+            height: "600px",
+            background:
+              "radial-gradient(ellipse at center, rgba(99, 102, 241, 0.08) 0%, rgba(99, 102, 241, 0.03) 40%, transparent 70%)",
+          }}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+        <div className="relative mx-auto max-w-3xl text-center">
+          <p className="mb-6 text-sm font-medium uppercase tracking-widest text-indigo-500 dark:text-indigo-400">
+            Audit trails for AI agents
           </p>
+          <h1 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+            Know exactly what your AI agent did
+          </h1>
+          <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+            Your agents send emails, trigger payments, and modify data. When
+            something goes wrong, you need a clear record of what happened.
+            AgentReceipt gives you an immutable audit trail of every action.
+          </p>
+          <div className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <Link
+              href="/sign-in"
+              className="inline-flex w-full items-center justify-center rounded-lg bg-foreground px-8 py-3.5 text-sm font-semibold text-background transition-colors hover:bg-foreground/85 sm:w-auto"
+            >
+              Start for free
+            </Link>
+            <Link
+              href="/demo"
+              className="inline-flex w-full items-center justify-center rounded-lg border border-border px-8 py-3.5 text-sm font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground sm:w-auto"
+            >
+              See a sample receipt
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Problem */}
+      <section className="bg-surface px-6 py-24 sm:py-32">
+        <div className="mx-auto max-w-5xl">
+          <p className="mb-4 text-center text-sm font-medium uppercase tracking-widest text-muted-foreground">
+            The problem
+          </p>
+          <h2 className="mb-16 text-center text-2xl font-bold tracking-tight sm:text-3xl">
+            Agents act. Nobody knows what they did.
+          </h2>
+          <div className="grid gap-8 sm:grid-cols-3">
+            {PROBLEMS.map((problem) => (
+              <div
+                key={problem.title}
+                className="rounded-xl border border-border bg-card p-7"
+              >
+                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                  {problem.icon}
+                </div>
+                <h3 className="mb-2 text-base font-semibold">
+                  {problem.title}
+                </h3>
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  {problem.description}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
-      </main>
+      </section>
+
+      {/* How it works */}
+      <section className="px-6 py-24 sm:py-32">
+        <div className="mx-auto max-w-5xl">
+          <p className="mb-4 text-center text-sm font-medium uppercase tracking-widest text-muted-foreground">
+            How it works
+          </p>
+          <h2 className="mb-20 text-center text-2xl font-bold tracking-tight sm:text-3xl">
+            Three steps. Five minutes.
+          </h2>
+          <div className="grid gap-12 md:grid-cols-3 md:gap-10">
+            {/* Step 1 */}
+            <div>
+              <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-muted font-mono text-sm font-bold text-muted-foreground">
+                1
+              </div>
+              <h3 className="mb-3 text-lg font-semibold">
+                Add three lines of code
+              </h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Install the SDK and wrap your AI client. No config files, no
+                extra infrastructure. Three lines and you are capturing every
+                action.
+              </p>
+            </div>
+
+            {/* Step 2 */}
+            <div>
+              <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-muted font-mono text-sm font-bold text-muted-foreground">
+                2
+              </div>
+              <h3 className="mb-3 text-lg font-semibold">
+                Your agent runs as usual
+              </h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Every LLM call, tool call, and decision is captured
+                automatically. Your agent code does not change. If the SDK
+                cannot reach our servers, it fails silently. Your agent keeps
+                running.
+              </p>
+            </div>
+
+            {/* Step 3 */}
+            <div>
+              <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-muted font-mono text-sm font-bold text-muted-foreground">
+                3
+              </div>
+              <h3 className="mb-3 text-lg font-semibold">View the receipt</h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Open the dashboard and see a human-readable timeline of
+                everything your agent did. Each event is hash-chained so you can
+                prove nothing was altered after the fact.
+              </p>
+            </div>
+          </div>
+
+          {/* Code snippet — full width below the steps */}
+          <div className="mx-auto mt-16 max-w-2xl overflow-hidden rounded-2xl border border-border bg-[#1e1e2e] shadow-lg dark:bg-[#1e1e2e]">
+            <div className="flex items-center gap-1.5 border-b border-white/[0.06] px-4 py-3">
+              <div className="h-3 w-3 rounded-full bg-[#ff5f57]" />
+              <div className="h-3 w-3 rounded-full bg-[#febc2e]" />
+              <div className="h-3 w-3 rounded-full bg-[#28c840]" />
+              <span className="ml-3 text-xs text-white/40">agent.ts</span>
+            </div>
+            <pre className="p-6 font-mono text-sm leading-[1.8]">
+              <code>
+                <span className="text-[#c678dd]">import</span>
+                <span className="text-[#cdd6f4]">{" { "}</span>
+                <span className="text-[#e5c07b]">createClient</span>
+                <span className="text-[#cdd6f4]">{" } "}</span>
+                <span className="text-[#c678dd]">from</span>
+                <span className="text-[#98c379]">{' "@agentreceipt/sdk"'}</span>
+                <span className="text-[#cdd6f4]">;</span>
+                {"\n\n"}
+                <span className="text-[#c678dd]">const</span>
+                <span className="text-[#e06c75]"> ar</span>
+                <span className="text-[#cdd6f4]"> = </span>
+                <span className="text-[#61afef]">createClient</span>
+                <span className="text-[#cdd6f4]">{"({ "}</span>
+                <span className="text-[#e06c75]">apiKey</span>
+                <span className="text-[#cdd6f4]">{": "}</span>
+                <span className="text-[#98c379]">{'"ar_..."'}</span>
+                <span className="text-[#cdd6f4]">{" });"}</span>
+                {"\n"}
+                <span className="text-[#c678dd]">const</span>
+                <span className="text-[#e06c75]"> openai</span>
+                <span className="text-[#cdd6f4]"> = </span>
+                <span className="text-[#e06c75]">ar</span>
+                <span className="text-[#cdd6f4]">.</span>
+                <span className="text-[#61afef]">wrapOpenAI</span>
+                <span className="text-[#cdd6f4]">(</span>
+                <span className="text-[#c678dd]">new</span>
+                <span className="text-[#e5c07b]"> OpenAI</span>
+                <span className="text-[#cdd6f4]">());</span>
+              </code>
+            </pre>
+          </div>
+        </div>
+      </section>
+
+      {/* Trust section */}
+      <section className="bg-surface px-6 py-24 sm:py-32">
+        <div className="mx-auto max-w-5xl">
+          <p className="mb-4 text-center text-sm font-medium uppercase tracking-widest text-muted-foreground">
+            Built for trust
+          </p>
+          <h2 className="mb-20 text-center text-2xl font-bold tracking-tight sm:text-3xl">
+            Every receipt is tamper-proof
+          </h2>
+          <div className="grid gap-6 sm:grid-cols-3">
+            {/* Card 1 */}
+            <div className="rounded-xl border border-border bg-card p-8">
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-muted-foreground"
+                >
+                  <path d="M13.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8.5L13.5 2Z" />
+                  <path d="M14 2v6h6" />
+                  <path d="m9 15 2 2 4-4" />
+                </svg>
+              </div>
+              <h3 className="mb-2 text-base font-semibold">
+                Immutable hash chain
+              </h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Every event is linked to the one before it via SHA-256 hashing.
+                If any event is modified, the chain breaks. You will know.
+              </p>
+            </div>
+
+            {/* Card 2 */}
+            <div className="rounded-xl border border-border bg-card p-8">
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-muted-foreground"
+                >
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                </svg>
+              </div>
+              <h3 className="mb-2 text-base font-semibold">
+                Tamper-proof audit trail
+              </h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Receipts are append-only. No one can edit or delete events after
+                the fact. Not even you.
+              </p>
+            </div>
+
+            {/* Card 3 */}
+            <div className="rounded-xl border border-border bg-card p-8">
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-muted-foreground"
+                >
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+              </div>
+              <h3 className="mb-2 text-base font-semibold">
+                Built for compliance
+              </h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Hand a receipt to your auditor, your legal team, or your
+                customer. Plain English, verifiable, timestamped.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section id="pricing" className="px-6 py-24 sm:py-32">
+        <div className="mx-auto max-w-5xl">
+          <p className="mb-4 text-center text-sm font-medium uppercase tracking-widest text-muted-foreground">
+            Pricing
+          </p>
+          <h2 className="mb-4 text-center text-2xl font-bold tracking-tight sm:text-3xl">
+            Simple, predictable pricing
+          </h2>
+          <p className="mx-auto mb-20 max-w-lg text-center text-sm text-muted-foreground">
+            Start free. Upgrade when you need more sessions or longer retention.
+          </p>
+          <div className="grid gap-6 sm:grid-cols-3">
+            {PLANS.map((plan) => {
+              const limits = getPlanLimits(plan.plan);
+              return (
+                <div
+                  key={plan.name}
+                  className={`relative flex flex-col rounded-2xl border p-8 ${
+                    plan.highlighted
+                      ? "border-indigo-400/50 bg-gradient-to-b from-indigo-50 to-card shadow-md ring-1 ring-indigo-400/20 dark:border-indigo-500/40 dark:from-indigo-950/20 dark:to-card dark:shadow-[0_0_40px_-12px_rgba(99,102,241,0.15)] dark:ring-indigo-500/10"
+                      : "border-border bg-card"
+                  }`}
+                >
+                  {plan.highlighted && (
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-indigo-500 px-4 py-1 text-xs font-semibold text-white">
+                      Most popular
+                    </span>
+                  )}
+                  <h3 className="text-lg font-semibold">{plan.name}</h3>
+                  <p className="mt-4 flex items-baseline gap-1">
+                    <span className="text-4xl font-bold tracking-tight">
+                      {plan.price}
+                    </span>
+                    <span className="text-sm text-muted-foreground">
+                      {plan.period}
+                    </span>
+                  </p>
+                  <ul className="mt-8 flex-1 space-y-4 text-sm text-muted-foreground">
+                    <li className="flex items-center gap-3">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="shrink-0"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      {limits.sessionsPerMonth.toLocaleString()} sessions/month
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="shrink-0"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      {limits.retentionDays} day retention
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="shrink-0"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      Hash chain verification
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="shrink-0"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      Unlimited projects
+                    </li>
+                  </ul>
+                  <Link
+                    href={plan.href}
+                    className={`mt-10 block w-full rounded-xl py-3 text-center text-sm font-semibold transition-colors ${
+                      plan.highlighted
+                        ? "bg-indigo-500 text-white hover:bg-indigo-600"
+                        : "border border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground"
+                    }`}
+                  >
+                    {plan.cta}
+                  </Link>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="bg-surface px-6 py-24 sm:py-32">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+            Start capturing agent actions today
+          </h2>
+          <p className="mx-auto mt-6 max-w-lg text-base text-muted-foreground">
+            Free plan includes 100 sessions per month. No credit card required.
+            Set up in under five minutes.
+          </p>
+          <div className="mt-10">
+            <Link
+              href="/sign-in"
+              className="inline-flex rounded-xl bg-foreground px-8 py-3.5 text-sm font-semibold text-background transition-colors hover:bg-foreground/85"
+            >
+              Get started for free
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-border px-6 py-16">
+        <div className="mx-auto max-w-6xl">
+          <div className="flex flex-col gap-12 sm:flex-row sm:justify-between">
+            <div>
+              <span className="text-base font-semibold tracking-tight">
+                AgentReceipt
+              </span>
+              <p className="mt-3 max-w-xs text-sm text-muted-foreground">
+                Immutable audit trails for AI agent actions. Know what happened,
+                when, and why.
+              </p>
+            </div>
+            <div className="flex gap-16">
+              <div>
+                <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Product
+                </p>
+                <ul className="space-y-3 text-sm text-muted-foreground">
+                  <li>
+                    <Link
+                      href="/demo"
+                      className="transition-colors hover:text-foreground"
+                    >
+                      Demo
+                    </Link>
+                  </li>
+                  <li>
+                    <a
+                      href="#pricing"
+                      className="transition-colors hover:text-foreground"
+                    >
+                      Pricing
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="#"
+                      className="transition-colors hover:text-foreground"
+                    >
+                      Docs
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Company
+                </p>
+                <ul className="space-y-3 text-sm text-muted-foreground">
+                  <li>
+                    <a
+                      href="#"
+                      className="transition-colors hover:text-foreground"
+                    >
+                      GitHub
+                    </a>
+                  </li>
+                  <li>
+                    <Link
+                      href="/sign-in"
+                      className="transition-colors hover:text-foreground"
+                    >
+                      Sign in
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div className="mt-16 border-t border-border pt-8">
+            <p className="text-xs text-muted-foreground/60">
+              &copy; {new Date().getFullYear()} AgentReceipt. All rights
+              reserved.
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

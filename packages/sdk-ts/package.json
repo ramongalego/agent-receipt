@@ -1,0 +1,30 @@
+{
+  "name": "@agentreceipt/sdk",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for AgentReceipt, capture immutable audit trails of AI agent actions",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src/"
+  },
+  "keywords": [
+    "ai",
+    "agent",
+    "audit",
+    "receipt",
+    "observability"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "jest": "^30.3.0",
+    "ts-jest": "^29.4.6",
+    "typescript": "^5.0.0"
+  }
+}

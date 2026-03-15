@@ -69,8 +69,8 @@ export default async function BillingPage() {
                   Sessions this month
                 </span>
                 <span className="font-medium text-foreground">
-                  {usage.toLocaleString()} /{" "}
-                  {limits.sessionsPerMonth.toLocaleString()}
+                  {usage.toLocaleString("en-US")} /{" "}
+                  {limits.sessionsPerMonth.toLocaleString("en-US")}
                 </span>
               </div>
               <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted">
@@ -137,7 +137,7 @@ export default async function BillingPage() {
                       >
                         <path d="M5 13l4 4L19 7" />
                       </svg>
-                      {planLimits.sessionsPerMonth.toLocaleString()}{" "}
+                      {planLimits.sessionsPerMonth.toLocaleString("en-US")}{" "}
                       sessions/month
                     </li>
                     <li className="flex items-center gap-2">

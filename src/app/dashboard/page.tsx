@@ -4,6 +4,7 @@ import { getProjectsByUser } from "@/db/queries/projects";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { FormattedDate } from "@/components/ui/formatted-date";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -58,11 +59,10 @@ export default async function DashboardPage() {
                   </h3>
                   <p className="mt-1 text-xs text-muted-foreground">
                     Created{" "}
-                    {new Date(project.createdAt).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
+                    <FormattedDate
+                      date={project.createdAt}
+                      format="date-short"
+                    />
                   </p>
                   <div className="mt-4 flex items-center gap-3">
                     <span className="text-xs text-muted-foreground">

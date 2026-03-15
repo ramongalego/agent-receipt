@@ -14,6 +14,9 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // SDK compiled output
     "packages/sdk-ts/dist/**",
+    // Test harness build output and dependencies
+    "packages/test-harness/.next/**",
+    "packages/test-harness/node_modules/**",
   ]),
 ]);
 

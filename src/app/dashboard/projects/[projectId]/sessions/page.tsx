@@ -7,6 +7,7 @@ import { computeSessionStatus } from "@/lib/session-status";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { FormattedDate } from "@/components/ui/formatted-date";
 
 const PAGE_SIZE = 20;
 
@@ -96,7 +97,7 @@ export default async function SessionsListPage({
                             </Link>
                           </td>
                           <td className="px-6 py-4 text-sm text-muted-foreground">
-                            {new Date(s.startedAt).toLocaleString()}
+                            <FormattedDate date={s.startedAt} />
                           </td>
                           <td className="px-6 py-4 text-sm text-muted-foreground">
                             {formatDuration(s.startedAt, s.lastEventAt)}

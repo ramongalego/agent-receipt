@@ -7,6 +7,7 @@ import { computeSessionStatus } from "@/lib/session-status";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
+import { FormattedDate } from "@/components/ui/formatted-date";
 
 export default async function ProjectDetailPage({
   params,
@@ -53,12 +54,7 @@ export default async function ProjectDetailPage({
               </p>
             )}
             <p className="mt-2 text-xs text-muted-foreground">
-              Created{" "}
-              {new Date(project.createdAt).toLocaleDateString("en-US", {
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-              })}
+              Created <FormattedDate date={project.createdAt} format="date" />
             </p>
           </div>
           <Link
@@ -111,7 +107,7 @@ export default async function ProjectDetailPage({
                           {s.name || "Untitled session"}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {new Date(s.startedAt).toLocaleString()}
+                          <FormattedDate date={s.startedAt} />
                         </p>
                       </div>
                       <div className="flex items-center gap-4">

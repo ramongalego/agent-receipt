@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useTransition } from "react";
+import { useState, useActionState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { updateProjectAction, deleteProjectAction } from "../../../actions";
@@ -16,8 +17,20 @@ export function ProjectSettingsForm({
   initialName,
   initialDescription,
 }: ProjectSettingsFormProps) {
+  const router = useRouter();
+  const [name, setName] = useState(initialName ?? "");
+  const [description, setDescription] = useState(initialDescription ?? "");
   const boundUpdate = updateProjectAction.bind(null, projectId);
-  const [state, action, updating] = useActionState(boundUpdate, {});
+  const [state, formAction, updating] = useActionState(
+    async (...args: Parameters<typeof boundUpdate>) => {
+      const result = await boundUpdate(...args);
+      if (!result.error && !result.fieldErrors) {
+        router.refresh();
+      }
+      return result;
+    },
+    {},
+  );
 
   return (
     <Card className="mb-8">
@@ -25,7 +38,7 @@ export function ProjectSettingsForm({
         <h2 className="font-semibold text-card-foreground">General</h2>
       </CardHeader>
       <CardContent>
-        <form action={action} className="space-y-5">
+        <form action={formAction} className="space-y-5">
           {state.error && <p className="text-sm text-red-600">{state.error}</p>}
 
           <div>
@@ -39,7 +52,8 @@ export function ProjectSettingsForm({
               id="name"
               name="name"
               type="text"
-              defaultValue={initialName}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               className="mt-1.5 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground transition-colors focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
             />
             {state.fieldErrors?.name && (
@@ -60,7 +74,8 @@ export function ProjectSettingsForm({
               id="description"
               name="description"
               rows={3}
-              defaultValue={initialDescription ?? ""}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               className="mt-1.5 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground transition-colors focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
             />
             {state.fieldErrors?.description && (

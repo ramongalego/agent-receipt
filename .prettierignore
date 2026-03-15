@@ -3,3 +3,5 @@ node_modules
 drizzle
 package-lock.json
 packages/sdk-ts/dist
+packages/test-harness/.next
+packages/test-harness/node_modules

@@ -64,7 +64,7 @@ export async function updateProjectAction(
     return { fieldErrors: parsed.error.flatten().fieldErrors };
   }
 
-  const updated = await updateProject(session.user.id, projectId, {
+  const updated = await updateProject(projectId, session.user.id, {
     name: parsed.data.name,
     description: parsed.data.description || undefined,
   });
@@ -73,7 +73,7 @@ export async function updateProjectAction(
     return { error: "Project not found." };
   }
 
-  redirect(`/dashboard/projects/${projectId}`);
+  return {};
 }
 
 export async function deleteProjectAction(

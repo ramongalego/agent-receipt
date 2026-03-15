@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { EventTimeline } from "./event-timeline";
 import { ReceiptSummary } from "./receipt-summary";
+import { FormattedDate } from "@/components/ui/formatted-date";
 
 export default async function SessionDetailPage({
   params,
@@ -103,12 +104,12 @@ export default async function SessionDetailPage({
                   {formatDuration(totalDuration)} total
                 </span>
                 <span className="text-xs text-muted-foreground/70">
-                  {agentSession.startedAt.toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                  , {agentSession.startedAt.toLocaleTimeString()}
+                  <FormattedDate
+                    date={agentSession.startedAt}
+                    format="date-short"
+                  />
+                  ,{" "}
+                  <FormattedDate date={agentSession.startedAt} format="time" />
                 </span>
               </div>
             </div>

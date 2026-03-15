@@ -6,17 +6,73 @@ import { signOut } from "next-auth/react";
 import { useState } from "react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
-type DashboardLayoutProps = {
-  children: React.ReactNode;
-};
-
 const navItems = [
   { label: "Projects", href: "/dashboard", icon: ProjectsIcon },
   { label: "Billing", href: "/dashboard/billing", icon: BillingIcon },
   { label: "Settings", href: "/dashboard/settings", icon: SettingsIcon },
 ];
 
-export function DashboardLayout({ children }: DashboardLayoutProps) {
+export function DesktopSidebar() {
+  const pathname = usePathname();
+
+  function isActive(href: string) {
+    return (
+      pathname === href ||
+      (href === "/dashboard" && pathname.startsWith("/dashboard/projects"))
+    );
+  }
+
+  return (
+    <aside className="hidden w-60 shrink-0 border-r border-border bg-card md:block">
+      <div className="sticky top-0 flex h-screen flex-col justify-between overflow-y-auto">
+        <div>
+          <div className="flex items-center justify-between px-5 py-5">
+            <Link
+              href="/dashboard"
+              className="text-lg font-semibold text-foreground tracking-tight"
+            >
+              AgentReceipt
+            </Link>
+            <ThemeToggle />
+          </div>
+          <nav className="px-3 space-y-1">
+            {navItems.map((item) => {
+              const active = isActive(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                    active
+                      ? "bg-accent text-accent-foreground"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  }`}
+                >
+                  {active && (
+                    <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-accent-foreground" />
+                  )}
+                  <item.icon />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+        <div className="border-t border-border px-3 py-4">
+          <button
+            onClick={() => signOut({ callbackUrl: "/" })}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <SignOutIcon />
+            Sign out
+          </button>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+export function MobileHeader() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -28,8 +84,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Mobile header */}
+    <>
       <header className="flex items-center justify-between border-b border-border bg-card px-4 py-3 md:hidden">
         <Link
           href="/dashboard"
@@ -60,7 +115,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </div>
       </header>
 
-      {/* Mobile nav drawer */}
       {mobileOpen && (
         <nav className="border-b border-border bg-card px-3 py-3 md:hidden">
           <div className="space-y-1">
@@ -94,60 +148,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
         </nav>
       )}
-
-      <div className="flex">
-        {/* Desktop sidebar */}
-        <aside className="hidden w-60 shrink-0 border-r border-border bg-card md:block">
-          <div className="sticky top-0 flex h-screen flex-col justify-between overflow-y-auto">
-            <div>
-              <div className="flex items-center justify-between px-5 py-5">
-                <Link
-                  href="/dashboard"
-                  className="text-lg font-semibold text-foreground tracking-tight"
-                >
-                  AgentReceipt
-                </Link>
-                <ThemeToggle />
-              </div>
-              <nav className="px-3 space-y-1">
-                {navItems.map((item) => {
-                  const active = isActive(item.href);
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={`relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
-                        active
-                          ? "bg-accent text-accent-foreground"
-                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                      }`}
-                    >
-                      {active && (
-                        <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-accent-foreground" />
-                      )}
-                      <item.icon />
-                      {item.label}
-                    </Link>
-                  );
-                })}
-              </nav>
-            </div>
-            <div className="border-t border-border px-3 py-4">
-              <button
-                onClick={() => signOut({ callbackUrl: "/" })}
-                className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              >
-                <SignOutIcon />
-                Sign out
-              </button>
-            </div>
-          </div>
-        </aside>
-
-        {/* Main content */}
-        <main className="min-h-screen flex-1">{children}</main>
-      </div>
-    </div>
+    </>
   );
 }
 

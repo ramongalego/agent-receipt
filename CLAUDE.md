@@ -366,10 +366,24 @@ packages/sdk-ts/
 ```typescript
 type ClientOptions = { apiKey: string; baseUrl?: string };
 
+type WrapperOptions = { sessionName?: string };
+
+type VercelAIFunctions = {
+  generateText?: (...args: unknown[]) => Promise<unknown>;
+  streamText?: (...args: unknown[]) => Promise<unknown>;
+  generateObject?: (...args: unknown[]) => Promise<unknown>;
+  streamObject?: (...args: unknown[]) => Promise<unknown>;
+};
+
 type Client = {
   startSession: (name?: string) => Session;
-  wrapOpenAI: <T>(client: T) => T;
-  wrapAnthropic: <T>(client: T) => T;
+  wrapOpenAI: <T>(client: T, options?: WrapperOptions) => T;
+  wrapAnthropic: <T>(client: T, options?: WrapperOptions) => T;
+  wrapVercelAI: <T extends VercelAIFunctions>(
+    fns: T,
+    options?: WrapperOptions,
+  ) => T;
+  wrapGemini: <T>(client: T, options?: WrapperOptions) => T;
   track: (
     sessionId: string,
     event: TrackEventInput,

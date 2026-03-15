@@ -2,12 +2,16 @@ import { createIngestClient } from "./ingest";
 import { createSession } from "./session";
 import { wrapOpenAI } from "./wrappers/openai";
 import { wrapAnthropic } from "./wrappers/anthropic";
+import { wrapVercelAI } from "./wrappers/vercel-ai";
+import { wrapGemini } from "./wrappers/gemini";
+import { wrapMistral } from "./wrappers/mistral";
 import type {
   ClientOptions,
   Client,
   TrackEventInput,
   Result,
   WrapperOptions,
+  VercelAIFunctions,
 } from "./types";
 
 const DEFAULT_BASE_URL = "https://agentreceipt.com";
@@ -34,6 +38,21 @@ export function createClient(options: ClientOptions): Client {
 
     wrapAnthropic<T extends object>(client: T, opts?: WrapperOptions): T {
       return wrapAnthropic(client, ingest, opts);
+    },
+
+    wrapVercelAI<T extends VercelAIFunctions>(
+      fns: T,
+      opts?: WrapperOptions,
+    ): T {
+      return wrapVercelAI(fns, ingest, opts);
+    },
+
+    wrapGemini<T extends object>(client: T, opts?: WrapperOptions): T {
+      return wrapGemini(client, ingest, opts);
+    },
+
+    wrapMistral<T extends object>(client: T, opts?: WrapperOptions): T {
+      return wrapMistral(client, ingest, opts);
     },
   };
 }

@@ -9,4 +9,5 @@ export type {
   EventType,
   Result,
   WrapperOptions,
+  VercelAIFunctions,
 } from "./types";

@@ -55,9 +55,22 @@ export type WrapperOptions = {
   sessionName?: string;
 };
 
+export type VercelAIFunctions = {
+  generateText?: (...args: unknown[]) => Promise<unknown>;
+  streamText?: (...args: unknown[]) => Promise<unknown>;
+  generateObject?: (...args: unknown[]) => Promise<unknown>;
+  streamObject?: (...args: unknown[]) => Promise<unknown>;
+};
+
 export type Client = {
   startSession: (name?: string) => Session;
   track: (sessionId: string, event: TrackEventInput) => Promise<Result<string>>;
   wrapOpenAI: <T extends object>(client: T, options?: WrapperOptions) => T;
   wrapAnthropic: <T extends object>(client: T, options?: WrapperOptions) => T;
+  wrapVercelAI: <T extends VercelAIFunctions>(
+    fns: T,
+    options?: WrapperOptions,
+  ) => T;
+  wrapGemini: <T extends object>(client: T, options?: WrapperOptions) => T;
+  wrapMistral: <T extends object>(client: T, options?: WrapperOptions) => T;
 };

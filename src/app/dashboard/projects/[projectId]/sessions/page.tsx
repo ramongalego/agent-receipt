@@ -4,10 +4,8 @@ import { auth } from "@/lib/auth";
 import { getProjectById } from "@/db/queries/projects";
 import { getSessionsByProject } from "@/db/queries/sessions";
 import { computeSessionStatus } from "@/lib/session-status";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
-import { FormattedDate } from "@/components/ui/formatted-date";
+import { SessionsTable } from "./sessions-table";
 
 const PAGE_SIZE = 20;
 
@@ -44,6 +42,20 @@ export default async function SessionsListPage({
     return `${Math.round(ms / 60_000)}m`;
   }
 
+  const sessionRows = sessions.map((s) => ({
+    id: s.id,
+    name: s.name,
+    startedAt: s.startedAt,
+    lastEventAt: s.lastEventAt,
+    eventCount: s.eventCount,
+    status: computeSessionStatus({
+      lastEventAt: s.lastEventAt,
+      hasError: s.hasError ?? false,
+      hasLimitReached: s.hasLimitReached ?? false,
+    }),
+    duration: formatDuration(s.startedAt, s.lastEventAt),
+  }));
+
   return (
     <div className="px-6 py-8 md:px-10 md:py-10">
       <div className="mx-auto max-w-6xl">
@@ -64,67 +76,7 @@ export default async function SessionsListPage({
           />
         ) : (
           <>
-            <Card>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-border text-left text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                      <th className="px-6 py-3">Name</th>
-                      <th className="px-6 py-3">Started</th>
-                      <th className="px-6 py-3">Duration</th>
-                      <th className="px-6 py-3">Events</th>
-                      <th className="px-6 py-3">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {sessions.map((s) => {
-                      const status = computeSessionStatus({
-                        lastEventAt: s.lastEventAt,
-                        hasError: s.hasError ?? false,
-                        hasLimitReached: s.hasLimitReached ?? false,
-                      });
-                      return (
-                        <tr
-                          key={s.id}
-                          className="transition-colors hover:bg-muted/50"
-                        >
-                          <td className="px-6 py-4">
-                            <Link
-                              href={`/dashboard/projects/${projectId}/sessions/${s.id}`}
-                              className="text-sm font-medium text-foreground hover:underline"
-                            >
-                              {s.name || "Untitled session"}
-                            </Link>
-                          </td>
-                          <td className="px-6 py-4 text-sm text-muted-foreground">
-                            <FormattedDate date={s.startedAt} />
-                          </td>
-                          <td className="px-6 py-4 text-sm text-muted-foreground">
-                            {formatDuration(s.startedAt, s.lastEventAt)}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-muted-foreground">
-                            {s.eventCount}
-                          </td>
-                          <td className="px-6 py-4">
-                            <Badge
-                              variant={
-                                status === "complete"
-                                  ? "success"
-                                  : status === "error"
-                                    ? "error"
-                                    : "info"
-                              }
-                            >
-                              {status}
-                            </Badge>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </Card>
+            <SessionsTable sessions={sessionRows} projectId={projectId} />
 
             {/* Pagination */}
             {totalPages > 1 && (

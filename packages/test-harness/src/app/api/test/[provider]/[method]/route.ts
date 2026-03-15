@@ -409,7 +409,8 @@ async function runVercelAI(method: string) {
         partialObjectStream: AsyncIterable<unknown>;
         object: Promise<unknown>;
       };
-      for await (const _chunk of res.partialObjectStream) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      for await (const _ of res.partialObjectStream) {
         // consume stream to drive it to completion
       }
       const obj = await res.object;

@@ -16,7 +16,7 @@ const PLANS = [
     price: "$29",
     period: "/month",
     plan: "pro" as const,
-    cta: "Start free trial",
+    cta: "Get started",
     href: "/sign-in",
     highlighted: true,
   },
@@ -25,7 +25,7 @@ const PLANS = [
     price: "$99",
     period: "/month",
     plan: "business" as const,
-    cta: "Start for free",
+    cta: "Get started",
     href: "/sign-in",
   },
 ];
@@ -174,99 +174,119 @@ export default function LandingPage() {
 
       {/* How it works */}
       <section className="px-6 py-24 sm:py-32">
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-3xl">
           <p className="mb-4 text-center text-sm font-medium uppercase tracking-widest text-muted-foreground">
             How it works
           </p>
           <h2 className="mb-20 text-center text-2xl font-bold tracking-tight sm:text-3xl">
             Three steps. Five minutes.
           </h2>
-          <div className="grid gap-12 md:grid-cols-3 md:gap-10">
+
+          <div className="relative">
+            {/* Vertical connector line */}
+            <div className="absolute left-[21px] top-[44px] bottom-[44px] w-px bg-border" />
+
             {/* Step 1 */}
-            <div>
-              <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-muted font-mono text-sm font-bold text-muted-foreground">
+            <div className="relative flex gap-6 pb-14">
+              <div className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-muted font-mono text-sm font-bold text-muted-foreground">
                 1
               </div>
-              <h3 className="mb-3 text-lg font-semibold">
-                Add three lines of code
-              </h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                Install the SDK and wrap your AI client. No config files, no
-                extra infrastructure. Three lines and you are capturing every
-                action.
-              </p>
+              <div className="flex-1 pt-1.5">
+                <h3 className="mb-2 text-lg font-semibold">
+                  Add three lines of code
+                </h3>
+                <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
+                  Install the SDK and wrap your AI client. No config files, no
+                  extra infrastructure. Three lines and you are capturing every
+                  action.
+                </p>
+                <div className="overflow-hidden rounded-2xl border border-border bg-[#1e1e2e] shadow-lg">
+                  <div className="flex items-center gap-1.5 border-b border-white/[0.06] px-4 py-3">
+                    <div className="h-3 w-3 rounded-full bg-[#ff5f57]" />
+                    <div className="h-3 w-3 rounded-full bg-[#febc2e]" />
+                    <div className="h-3 w-3 rounded-full bg-[#28c840]" />
+                    <span className="ml-3 text-xs text-white/40">agent.ts</span>
+                  </div>
+                  <pre className="p-6 font-mono text-sm leading-[1.8]">
+                    <code>
+                      <span className="text-[#c678dd]">import</span>
+                      <span className="text-[#cdd6f4]">{" { "}</span>
+                      <span className="text-[#e5c07b]">createClient</span>
+                      <span className="text-[#cdd6f4]">{" } "}</span>
+                      <span className="text-[#c678dd]">from</span>
+                      <span className="text-[#98c379]">
+                        {' "@agentreceipt/sdk"'}
+                      </span>
+                      <span className="text-[#cdd6f4]">;</span>
+                      {"\n\n"}
+                      <span className="text-[#c678dd]">const</span>
+                      <span className="text-[#e06c75]"> ar</span>
+                      <span className="text-[#cdd6f4]"> = </span>
+                      <span className="text-[#61afef]">createClient</span>
+                      <span className="text-[#cdd6f4]">{"({ "}</span>
+                      <span className="text-[#e06c75]">apiKey</span>
+                      <span className="text-[#cdd6f4]">{": "}</span>
+                      <span className="text-[#98c379]">{'"ar_..."'}</span>
+                      <span className="text-[#cdd6f4]">{" });"}</span>
+                      {"\n"}
+                      <span className="text-[#c678dd]">const</span>
+                      <span className="text-[#e06c75]"> openai</span>
+                      <span className="text-[#cdd6f4]"> = </span>
+                      <span className="text-[#e06c75]">ar</span>
+                      <span className="text-[#cdd6f4]">.</span>
+                      <span className="text-[#61afef]">wrapOpenAI</span>
+                      <span className="text-[#cdd6f4]">(</span>
+                      <span className="text-[#c678dd]">new</span>
+                      <span className="text-[#e5c07b]"> OpenAI</span>
+                      <span className="text-[#cdd6f4]">(), {"{ "}</span>
+                      <span className="text-[#e06c75]">sessionName</span>
+                      <span className="text-[#cdd6f4]">{": "}</span>
+                      <span className="text-[#98c379]">
+                        {'"Process invoice #441"'}
+                      </span>
+                      <span className="text-[#cdd6f4]">{" });"}</span>
+                    </code>
+                  </pre>
+                </div>
+                <p className="mt-4 text-center text-xs text-muted-foreground">
+                  Works with OpenAI, Anthropic, Gemini, Mistral, and the Vercel
+                  AI SDK.
+                </p>
+              </div>
             </div>
 
             {/* Step 2 */}
-            <div>
-              <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-muted font-mono text-sm font-bold text-muted-foreground">
+            <div className="relative flex gap-6 pb-14">
+              <div className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-muted font-mono text-sm font-bold text-muted-foreground">
                 2
               </div>
-              <h3 className="mb-3 text-lg font-semibold">
-                Your agent runs as usual
-              </h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                Every LLM call, tool call, and decision is captured
-                automatically. Your agent code does not change. If the SDK
-                cannot reach our servers, it fails silently. Your agent keeps
-                running.
-              </p>
+              <div className="flex-1 pt-1.5">
+                <h3 className="mb-2 text-lg font-semibold">
+                  Your agent runs as usual
+                </h3>
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  Every LLM call, tool call, and decision is captured
+                  automatically. Your agent code does not change. If the SDK
+                  cannot reach our servers, it fails silently. Your agent keeps
+                  running.
+                </p>
+              </div>
             </div>
 
             {/* Step 3 */}
-            <div>
-              <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-muted font-mono text-sm font-bold text-muted-foreground">
+            <div className="relative flex gap-6">
+              <div className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-muted font-mono text-sm font-bold text-muted-foreground">
                 3
               </div>
-              <h3 className="mb-3 text-lg font-semibold">View the receipt</h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                Open the dashboard and see a human-readable timeline of
-                everything your agent did. Each event is hash-chained so you can
-                prove nothing was altered after the fact.
-              </p>
+              <div className="flex-1 pt-1.5">
+                <h3 className="mb-2 text-lg font-semibold">View the receipt</h3>
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  Open the dashboard and see a human-readable timeline of
+                  everything your agent did. Each event is hash-chained so you
+                  can prove nothing was altered after the fact.
+                </p>
+              </div>
             </div>
-          </div>
-
-          {/* Code snippet — full width below the steps */}
-          <div className="mx-auto mt-16 max-w-2xl overflow-hidden rounded-2xl border border-border bg-[#1e1e2e] shadow-lg dark:bg-[#1e1e2e]">
-            <div className="flex items-center gap-1.5 border-b border-white/[0.06] px-4 py-3">
-              <div className="h-3 w-3 rounded-full bg-[#ff5f57]" />
-              <div className="h-3 w-3 rounded-full bg-[#febc2e]" />
-              <div className="h-3 w-3 rounded-full bg-[#28c840]" />
-              <span className="ml-3 text-xs text-white/40">agent.ts</span>
-            </div>
-            <pre className="p-6 font-mono text-sm leading-[1.8]">
-              <code>
-                <span className="text-[#c678dd]">import</span>
-                <span className="text-[#cdd6f4]">{" { "}</span>
-                <span className="text-[#e5c07b]">createClient</span>
-                <span className="text-[#cdd6f4]">{" } "}</span>
-                <span className="text-[#c678dd]">from</span>
-                <span className="text-[#98c379]">{' "@agentreceipt/sdk"'}</span>
-                <span className="text-[#cdd6f4]">;</span>
-                {"\n\n"}
-                <span className="text-[#c678dd]">const</span>
-                <span className="text-[#e06c75]"> ar</span>
-                <span className="text-[#cdd6f4]"> = </span>
-                <span className="text-[#61afef]">createClient</span>
-                <span className="text-[#cdd6f4]">{"({ "}</span>
-                <span className="text-[#e06c75]">apiKey</span>
-                <span className="text-[#cdd6f4]">{": "}</span>
-                <span className="text-[#98c379]">{'"ar_..."'}</span>
-                <span className="text-[#cdd6f4]">{" });"}</span>
-                {"\n"}
-                <span className="text-[#c678dd]">const</span>
-                <span className="text-[#e06c75]"> openai</span>
-                <span className="text-[#cdd6f4]"> = </span>
-                <span className="text-[#e06c75]">ar</span>
-                <span className="text-[#cdd6f4]">.</span>
-                <span className="text-[#61afef]">wrapOpenAI</span>
-                <span className="text-[#cdd6f4]">(</span>
-                <span className="text-[#c678dd]">new</span>
-                <span className="text-[#e5c07b]"> OpenAI</span>
-                <span className="text-[#cdd6f4]">());</span>
-              </code>
-            </pre>
           </div>
         </div>
       </section>

@@ -374,9 +374,13 @@ async function runVercelAI(method: string) {
         maxTokens: 20,
         prompt: "Reply with exactly three words.",
       });
-      const text = await (r as { text: Promise<string> }).text;
+      let output = "";
+      for await (const chunk of (r as { textStream: AsyncIterable<string> })
+        .textStream) {
+        output += chunk;
+      }
       await new Promise((resolve) => setTimeout(resolve, 3000));
-      return { output: text };
+      return { output };
     }
     case "structured-output": {
       const { z } = await import("zod");
@@ -401,7 +405,14 @@ async function runVercelAI(method: string) {
         }),
         prompt: "Pick a random word and count its letters.",
       });
-      const obj = await (r as { object: Promise<unknown> }).object;
+      const res = r as {
+        partialObjectStream: AsyncIterable<unknown>;
+        object: Promise<unknown>;
+      };
+      for await (const _chunk of res.partialObjectStream) {
+        // consume stream to drive it to completion
+      }
+      const obj = await res.object;
       await new Promise((resolve) => setTimeout(resolve, 3000));
       return { output: obj };
     }

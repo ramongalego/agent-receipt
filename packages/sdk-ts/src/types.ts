@@ -81,10 +81,10 @@ export type WrapperOptions = {
 };
 
 export type VercelAIFunctions = {
-  generateText?: (...args: unknown[]) => Promise<unknown>;
-  streamText?: (...args: unknown[]) => Promise<unknown>;
-  generateObject?: (...args: unknown[]) => Promise<unknown>;
-  streamObject?: (...args: unknown[]) => Promise<unknown>;
+  generateText: (...args: unknown[]) => Promise<unknown>;
+  streamText: (...args: unknown[]) => Promise<unknown>;
+  generateObject: (...args: unknown[]) => Promise<unknown>;
+  streamObject: (...args: unknown[]) => Promise<unknown>;
 };
 
 export type Client = {

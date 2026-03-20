@@ -59,9 +59,11 @@ jest.mock("@/db/queries/api-keys", () => ({
   updateApiKeyLastUsed: jest.fn(),
 }));
 
-import { insertSystemErrorEvent } from "./ingest";
+import { insertSystemErrorEvent, processIngestEvent } from "./ingest";
+import { putPayload } from "./r2";
 import { db } from "@/db";
 
+const mockPutPayload = putPayload as jest.MockedFunction<typeof putPayload>;
 const mockDb = db as unknown as {
   insert: jest.Mock;
   values: jest.Mock;
@@ -69,6 +71,70 @@ const mockDb = db as unknown as {
 
 beforeEach(() => {
   jest.clearAllMocks();
+});
+
+describe("processIngestEvent", () => {
+  it("skips R2 upload for human_review events", async () => {
+    // First call: session lookup returns empty (new session)
+    // Second call: previous events lookup returns empty (no chain)
+    mockLimit
+      .mockResolvedValueOnce([]) // session lookup
+      .mockResolvedValueOnce([]); // previous events
+
+    // Mock insert().values().returning()
+    mockValues.mockReturnValue({
+      returning: jest.fn().mockResolvedValue([{ id: "evt-hr-1" }]),
+    });
+
+    const input = {
+      sessionId: "550e8400-e29b-41d4-a716-446655440000",
+      event: {
+        type: "human_review" as const,
+        name: "human_review",
+        input: "",
+        output: "",
+        durationMs: 0,
+        metadata: {
+          reviewer: "test@example.com",
+          decision: "approved" as const,
+        },
+      },
+    };
+
+    await processIngestEvent("proj-1", "key-1", input);
+
+    expect(mockPutPayload).not.toHaveBeenCalled();
+  });
+
+  it("uploads to R2 for non-human_review events", async () => {
+    mockLimit
+      .mockResolvedValueOnce([]) // session lookup
+      .mockResolvedValueOnce([]); // previous events
+
+    mockValues.mockReturnValue({
+      returning: jest.fn().mockResolvedValue([{ id: "evt-tc-1" }]),
+    });
+
+    mockPutPayload.mockResolvedValue({ ok: true, value: undefined });
+
+    const input = {
+      sessionId: "550e8400-e29b-41d4-a716-446655440000",
+      event: {
+        type: "tool_call" as const,
+        name: "test-tool",
+        input: { foo: "bar" },
+        output: { result: true },
+        durationMs: 100,
+      },
+    };
+
+    await processIngestEvent("proj-1", "key-1", input);
+
+    expect(mockPutPayload).toHaveBeenCalledWith("evt-tc-1", {
+      input: { foo: "bar" },
+      output: { result: true },
+    });
+  });
 });
 
 describe("insertSystemErrorEvent", () => {

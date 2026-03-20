@@ -95,6 +95,53 @@ describe("Session", () => {
         dataCategory: "health",
       });
     });
+
+    it("trackDecision passes compliance metadata through to the ingest call", async () => {
+      const session = createSession(ingest, "Test");
+
+      await session.trackDecision(
+        "approve-referral",
+        "Patient meets criteria",
+        "approved",
+        { compliance: { containsPII: true, dataCategory: "health" } },
+      );
+
+      await session.end();
+
+      expect(mockFetch).toHaveBeenCalled();
+      const calls = mockFetch.mock.calls;
+      const lastCall = calls[calls.length - 1];
+      const body = JSON.parse(lastCall[1].body);
+
+      const payload = Array.isArray(body) ? body[body.length - 1] : body;
+      expect(payload.event.compliance).toEqual({
+        containsPII: true,
+        dataCategory: "health",
+      });
+    });
+
+    it("trackHumanReview passes compliance metadata through to the ingest call", async () => {
+      const session = createSession(ingest, "Test");
+
+      await session.trackHumanReview({
+        reviewer: "dr.smith@hospital.org",
+        decision: "approved",
+        compliance: { containsPII: false, dataCategory: "health" },
+      });
+
+      await session.end();
+
+      expect(mockFetch).toHaveBeenCalled();
+      const calls = mockFetch.mock.calls;
+      const lastCall = calls[calls.length - 1];
+      const body = JSON.parse(lastCall[1].body);
+
+      const payload = Array.isArray(body) ? body[body.length - 1] : body;
+      expect(payload.event.compliance).toEqual({
+        containsPII: false,
+        dataCategory: "health",
+      });
+    });
   });
 
   describe("trackHumanReview", () => {

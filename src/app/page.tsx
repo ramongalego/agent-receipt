@@ -374,11 +374,13 @@ export default function LandingPage() {
                 </svg>
               </div>
               <h3 className="mb-2 text-base font-semibold">
-                Built for compliance
+                Ready for the EU AI Act
               </h3>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                Hand a receipt to your auditor, your legal team, or your
-                customer. Plain English, verifiable, timestamped.
+                The EU AI Act (Article 19) requires high-risk AI systems to
+                retain logs for at least six months. AgentReceipt stores your
+                receipts with configurable retention and an immutable hash
+                chain. Enforcement starts August 2026.
               </p>
             </div>
           </div>
@@ -397,9 +399,24 @@ export default function LandingPage() {
           <p className="mx-auto mb-20 max-w-lg text-center text-sm text-muted-foreground">
             Start free. Upgrade when you need more sessions or longer retention.
           </p>
-          <div className="grid gap-6 sm:grid-cols-3">
+          <div className="grid gap-6 sm:grid-cols-4">
             {PLANS.map((plan) => {
               const limits = getPlanLimits(plan.plan);
+              const CheckIcon = () => (
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="shrink-0"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              );
               return (
                 <div
                   key={plan.name}
@@ -425,67 +442,19 @@ export default function LandingPage() {
                   </p>
                   <ul className="mt-8 flex-1 space-y-4 text-sm text-muted-foreground">
                     <li className="flex items-center gap-3">
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="shrink-0"
-                      >
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
+                      <CheckIcon />
                       {limits.sessionsPerMonth.toLocaleString()} sessions/month
                     </li>
                     <li className="flex items-center gap-3">
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="shrink-0"
-                      >
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
+                      <CheckIcon />
                       {limits.retentionDays} day retention
                     </li>
                     <li className="flex items-center gap-3">
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="shrink-0"
-                      >
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
+                      <CheckIcon />
                       Hash chain verification
                     </li>
                     <li className="flex items-center gap-3">
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="shrink-0"
-                      >
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
+                      <CheckIcon />
                       Unlimited projects
                     </li>
                   </ul>
@@ -502,6 +471,88 @@ export default function LandingPage() {
                 </div>
               );
             })}
+
+            {/* Enterprise */}
+            <div className="relative flex flex-col rounded-2xl border border-border bg-card p-8">
+              <h3 className="text-lg font-semibold">Enterprise</h3>
+              <p className="mt-4 flex items-baseline gap-1">
+                <span className="text-4xl font-bold tracking-tight">
+                  Custom
+                </span>
+              </p>
+              <ul className="mt-8 flex-1 space-y-4 text-sm text-muted-foreground">
+                <li className="flex items-center gap-3">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="shrink-0"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  Unlimited sessions
+                </li>
+                <li className="flex items-center gap-3">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="shrink-0"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  Custom retention (up to 7 years)
+                </li>
+                <li className="flex items-center gap-3">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="shrink-0"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  Hash chain verification
+                </li>
+                <li className="flex items-center gap-3">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="shrink-0"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  Unlimited projects
+                </li>
+              </ul>
+              <Link
+                href="mailto:sales@agentreceipt.com"
+                className="mt-10 block w-full rounded-xl border border-border py-3 text-center text-sm font-semibold text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+              >
+                Contact sales
+              </Link>
+            </div>
           </div>
         </div>
       </section>

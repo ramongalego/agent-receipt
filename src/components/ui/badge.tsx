@@ -1,4 +1,10 @@
-type BadgeVariant = "default" | "success" | "error" | "warning" | "info";
+type BadgeVariant =
+  | "default"
+  | "success"
+  | "error"
+  | "warning"
+  | "info"
+  | "purple";
 
 type BadgeProps = {
   variant?: BadgeVariant;
@@ -14,6 +20,8 @@ const variantStyles: Record<BadgeVariant, string> = {
   warning:
     "bg-yellow-50 text-yellow-700 border border-yellow-200 dark:bg-yellow-950/40 dark:text-yellow-400 dark:border-yellow-900",
   info: "bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900",
+  purple:
+    "bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-950/40 dark:text-purple-400 dark:border-purple-900",
 };
 
 export function Badge({ variant = "default", children }: BadgeProps) {

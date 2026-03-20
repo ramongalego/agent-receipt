@@ -153,6 +153,12 @@ export default async function SessionDetailPage({
               </span>
             </div>
           </div>
+          <p className="mt-3 text-xs text-muted-foreground/60">
+            Event metadata and hash records are immutable. Raw payload content
+            is stored separately and can be deleted on request to comply with
+            GDPR Article 17. Contact support to request payload deletion for a
+            session.
+          </p>
         </div>
 
         {/* Receipt Summary — only shown for complete/error sessions */}
@@ -220,7 +226,16 @@ export default async function SessionDetailPage({
               <h2 className="text-base font-semibold">Event timeline</h2>
             </div>
           </CardHeader>
-          <EventTimeline events={events} />
+          <EventTimeline
+            events={events.map((e) => ({
+              ...e,
+              metadata: e.metadata as
+                | Record<string, unknown>
+                | null
+                | undefined,
+              compliance: e.compliance ?? null,
+            }))}
+          />
         </Card>
       </div>
     </div>

@@ -380,6 +380,144 @@ describe("POST /api/ingest", () => {
     });
   });
 
+  describe("human_review events", () => {
+    it("accepts human_review with valid decision values", async () => {
+      setupHappyPath();
+
+      const body = {
+        sessionId: "550e8400-e29b-41d4-a716-446655440000",
+        event: {
+          type: "human_review" as const,
+          name: "human_review",
+          input: "",
+          output: "",
+          durationMs: 0,
+          metadata: {
+            reviewer: "sarah@acmecorp.com",
+            decision: "approved",
+            notes: "Looks good",
+          },
+        },
+      };
+
+      const req = createRequest({
+        body,
+        headers: { authorization: `Bearer ${VALID_API_KEY}` },
+      });
+      const res = await POST(req);
+
+      expect(res.status).toBe(201);
+    });
+
+    it("rejects human_review with an invalid decision value", async () => {
+      setupHappyPath();
+
+      const body = {
+        sessionId: "550e8400-e29b-41d4-a716-446655440000",
+        event: {
+          type: "human_review" as const,
+          name: "human_review",
+          input: "",
+          output: "",
+          durationMs: 0,
+          metadata: {
+            reviewer: "sarah@acmecorp.com",
+            decision: "maybe",
+          },
+        },
+      };
+
+      const req = createRequest({
+        body,
+        headers: { authorization: `Bearer ${VALID_API_KEY}` },
+      });
+      const res = await POST(req);
+      const json = await res.json();
+
+      expect(res.status).toBe(400);
+      expect(json.code).toBe("VALIDATION_ERROR");
+    });
+
+    it("rejects human_review without reviewer", async () => {
+      setupHappyPath();
+
+      const body = {
+        sessionId: "550e8400-e29b-41d4-a716-446655440000",
+        event: {
+          type: "human_review" as const,
+          name: "human_review",
+          input: "",
+          output: "",
+          durationMs: 0,
+          metadata: {
+            decision: "approved",
+          },
+        },
+      };
+
+      const req = createRequest({
+        body,
+        headers: { authorization: `Bearer ${VALID_API_KEY}` },
+      });
+      const res = await POST(req);
+      const json = await res.json();
+
+      expect(res.status).toBe(400);
+      expect(json.code).toBe("VALIDATION_ERROR");
+    });
+  });
+
+  describe("compliance metadata", () => {
+    it("stores compliance metadata correctly when provided", async () => {
+      setupHappyPath();
+
+      const body = {
+        ...VALID_BODY,
+        event: {
+          ...VALID_BODY.event,
+          compliance: {
+            containsPII: true,
+            dataCategory: "health",
+            retentionOverride: 365,
+          },
+        },
+      };
+
+      const req = createRequest({
+        body,
+        headers: { authorization: `Bearer ${VALID_API_KEY}` },
+      });
+      const res = await POST(req);
+
+      expect(res.status).toBe(201);
+      expect(mockProcessIngestEvent).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(String),
+        expect.objectContaining({
+          event: expect.objectContaining({
+            compliance: {
+              containsPII: true,
+              dataCategory: "health",
+              retentionOverride: 365,
+            },
+          }),
+        }),
+      );
+    });
+
+    it("succeeds when compliance field is absent", async () => {
+      setupHappyPath();
+
+      const req = createRequest({
+        body: VALID_BODY,
+        headers: { authorization: `Bearer ${VALID_API_KEY}` },
+      });
+      const res = await POST(req);
+
+      expect(res.status).toBe(201);
+    });
+  });
+
   describe("processing errors", () => {
     it("returns 500 when processIngestEvent fails", async () => {
       mockValidateApiKey.mockResolvedValue(VALID_KEY_RESULT);

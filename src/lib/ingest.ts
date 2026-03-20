@@ -95,30 +95,37 @@ export async function processIngestEvent(
       durationMs: input.event.durationMs,
       hash,
       previousHash,
+      compliance: input.event.compliance ?? null,
     })
     .returning({ id: events.id });
 
   console.log("[ingest] Event inserted", { eventId: insertedEvent.id });
 
-  // Store raw payloads in R2
-  console.log("[ingest] Uploading payload to R2...");
-  const r2Result = await putPayload(insertedEvent.id, {
-    input: input.event.input,
-    output: input.event.output,
-  });
-
-  if (!r2Result.ok) {
-    console.error("[ingest] R2 upload failed", {
-      eventId: insertedEvent.id,
-      error: r2Result.error,
+  // Store raw payloads in R2 (skip for human_review events which have no payload)
+  if (input.event.type !== "human_review") {
+    console.log("[ingest] Uploading payload to R2...");
+    const r2Result = await putPayload(insertedEvent.id, {
+      input: input.event.input,
+      output: input.event.output,
     });
-    return err(
-      `Failed to store event payload in R2: ${r2Result.error}`,
-      "R2_UPLOAD_ERROR",
-    );
-  }
 
-  console.log("[ingest] R2 upload done", { eventId: insertedEvent.id });
+    if (!r2Result.ok) {
+      console.error("[ingest] R2 upload failed", {
+        eventId: insertedEvent.id,
+        error: r2Result.error,
+      });
+      return err(
+        `Failed to store event payload in R2: ${r2Result.error}`,
+        "R2_UPLOAD_ERROR",
+      );
+    }
+
+    console.log("[ingest] R2 upload done", { eventId: insertedEvent.id });
+  } else {
+    console.log("[ingest] Skipping R2 upload for human_review event", {
+      eventId: insertedEvent.id,
+    });
+  }
 
   // Update API key last used
   await updateApiKeyLastUsed(keyId);

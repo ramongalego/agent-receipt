@@ -105,7 +105,14 @@ export const events = pgTable("events", {
     .references(() => agentSessions.id, { onDelete: "cascade" })
     .notNull(),
   type: text("type", {
-    enum: ["llm_call", "tool_call", "decision", "error", "custom"],
+    enum: [
+      "llm_call",
+      "tool_call",
+      "decision",
+      "error",
+      "custom",
+      "human_review",
+    ],
   }).notNull(),
   name: text("name").notNull(),
   input: jsonb("input"),
@@ -114,5 +121,10 @@ export const events = pgTable("events", {
   durationMs: integer("duration_ms"),
   hash: text("hash").notNull(),
   previousHash: text("previous_hash"),
+  compliance: jsonb("compliance").$type<{
+    containsPII?: boolean;
+    dataCategory?: string;
+    retentionOverride?: number;
+  }>(),
   timestamp: timestamp("timestamp", { mode: "date" }).defaultNow().notNull(),
 });

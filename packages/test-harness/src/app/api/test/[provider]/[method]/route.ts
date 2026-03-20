@@ -422,6 +422,147 @@ async function runVercelAI(method: string) {
   }
 }
 
+async function runFeatures(method: string) {
+  const ar = getAR();
+
+  switch (method) {
+    case "human-review": {
+      const session = ar.startSession("TestLord: Human review (approved)");
+      await session.trackHumanReview({
+        reviewer: "qa-tester@example.com",
+        decision: "approved",
+        notes: "Approved during TestLord run",
+      });
+      await session.end();
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      return {
+        output: {
+          sessionId: session.id,
+          event: "human_review",
+          decision: "approved",
+          reviewer: "qa-tester@example.com",
+        },
+      };
+    }
+    case "human-review-rejected": {
+      const session = ar.startSession(
+        "TestLord: Human review (rejected with notes)",
+      );
+      await session.trackHumanReview({
+        reviewer: "compliance-officer@example.com",
+        decision: "rejected",
+        notes: "Amount exceeds policy limit. Needs VP approval.",
+      });
+      await session.end();
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      return {
+        output: {
+          sessionId: session.id,
+          event: "human_review",
+          decision: "rejected",
+          reviewer: "compliance-officer@example.com",
+          notes: "Amount exceeds policy limit. Needs VP approval.",
+        },
+      };
+    }
+    case "pii-compliance": {
+      const session = ar.startSession("TestLord: PII compliance metadata");
+      await session.trackTool(
+        "read-patient-record",
+        { patientId: "test-patient-001" },
+        async () => ({
+          name: "Jane Doe",
+          condition: "test-data",
+          redacted: true,
+        }),
+        {
+          compliance: {
+            containsPII: true,
+            dataCategory: "health",
+            retentionOverride: 2190,
+          },
+        },
+      );
+      await session.end();
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      return {
+        output: {
+          sessionId: session.id,
+          event: "tool_call with compliance",
+          compliance: {
+            containsPII: true,
+            dataCategory: "health",
+            retentionOverride: 2190,
+          },
+        },
+      };
+    }
+    case "combined": {
+      const session = ar.startSession(
+        "TestLord: Full session with human review and PII",
+      );
+
+      // Step 1: Tool call with PII
+      const record = await session.trackTool(
+        "fetch-financial-record",
+        { accountId: "acct-test-42" },
+        async () => ({
+          accountHolder: "Test User",
+          balance: 12500,
+          currency: "USD",
+        }),
+        {
+          compliance: {
+            containsPII: true,
+            dataCategory: "financial",
+          },
+        },
+      );
+
+      // Step 2: Decision
+      await session.trackDecision(
+        "approve-transfer",
+        `Balance is ${record.balance} ${record.currency}. Transfer amount within limits.`,
+        "approved",
+      );
+
+      // Step 3: Human review
+      await session.trackHumanReview({
+        reviewer: "manager@example.com",
+        decision: "modified",
+        notes: "Approved with reduced amount. Changed from $12,500 to $10,000.",
+        compliance: {
+          containsPII: false,
+          dataCategory: "financial",
+        },
+      });
+
+      // Step 4: Final tool call
+      await session.trackTool(
+        "execute-transfer",
+        { amount: 10000, currency: "USD", to: "acct-test-99" },
+        async () => ({ transferId: "txn-test-001", status: "completed" }),
+      );
+
+      await session.end();
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      return {
+        output: {
+          sessionId: session.id,
+          events: [
+            "tool_call (fetch-financial-record, PII)",
+            "decision (approve-transfer)",
+            "human_review (modified)",
+            "tool_call (execute-transfer)",
+          ],
+        },
+      };
+    }
+    default:
+      throw new Error(`Unknown method: ${method}`);
+  }
+}
+
 const runners: Record<
   string,
   (method: string) => Promise<{ output: unknown }>
@@ -431,6 +572,7 @@ const runners: Record<
   gemini: runGemini,
   mistral: runMistral,
   "vercel-ai": runVercelAI,
+  features: runFeatures,
 };
 
 export async function POST(

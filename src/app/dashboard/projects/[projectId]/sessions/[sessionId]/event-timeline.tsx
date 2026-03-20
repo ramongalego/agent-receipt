@@ -12,19 +12,31 @@ type TimelineEvent = {
   durationMs: number | null;
   timestamp: Date;
   hash: string;
+  metadata?: Record<string, unknown> | null;
+  compliance?: {
+    containsPII?: boolean;
+    dataCategory?: string;
+    retentionOverride?: number;
+  } | null;
 };
 
 type EventTimelineProps = {
   events: TimelineEvent[];
 };
 
-type EventTypeBadgeVariant = "info" | "default" | "warning" | "error";
+type EventTypeBadgeVariant =
+  | "info"
+  | "default"
+  | "warning"
+  | "error"
+  | "purple";
 
 const eventTypeBadge: Record<string, EventTypeBadgeVariant> = {
   llm_call: "info",
   tool_call: "default",
   decision: "warning",
   error: "error",
+  human_review: "purple",
 };
 
 const eventTypeLabel: Record<string, string> = {
@@ -32,6 +44,7 @@ const eventTypeLabel: Record<string, string> = {
   tool_call: "Tool Call",
   decision: "Decision",
   error: "Error",
+  human_review: "Human Review",
 };
 
 const STRING_LIMIT = 500;
@@ -132,6 +145,66 @@ function TruncatedJson({ data }: { data: unknown }) {
   );
 }
 
+const decisionColor: Record<string, string> = {
+  approved: "text-green-600 dark:text-green-400",
+  rejected: "text-red-600 dark:text-red-400",
+  modified: "text-yellow-600 dark:text-yellow-400",
+};
+
+function HumanReviewDetail({
+  metadata,
+}: {
+  metadata?: Record<string, unknown> | null;
+}) {
+  if (!metadata) return null;
+  const reviewer = metadata.reviewer as string | undefined;
+  const decision = metadata.decision as string | undefined;
+  const notes = metadata.notes as string | undefined;
+
+  return (
+    <div className="space-y-3">
+      <div>
+        <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Reviewer
+        </p>
+        <p className="text-sm text-foreground">{reviewer ?? "Unknown"}</p>
+      </div>
+      <div>
+        <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Decision
+        </p>
+        <p
+          className={`text-sm font-medium ${decision ? (decisionColor[decision] ?? "text-foreground") : "text-foreground"}`}
+        >
+          {decision ?? "Unknown"}
+        </p>
+      </div>
+      {notes && (
+        <div>
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Notes
+          </p>
+          <p className="text-sm text-foreground">{notes}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PiiBadge({ dataCategory }: { dataCategory?: string }) {
+  const label = `Contains personally identifiable information${dataCategory ? `. Category: ${dataCategory}` : ""}`;
+  return (
+    <span className="group relative">
+      <span className="rounded border border-purple-200 bg-purple-50 px-1.5 py-0.5 text-[10px] font-medium text-purple-700 dark:border-purple-900 dark:bg-purple-950/40 dark:text-purple-400">
+        PII
+      </span>
+      <span className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-1.5 hidden -translate-x-1/2 whitespace-nowrap rounded bg-foreground px-2 py-1 text-[11px] text-background group-hover:block">
+        {label}
+      </span>
+    </span>
+  );
+}
+
 export function EventTimeline({ events }: EventTimelineProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [payload, setPayload] = useState<{
@@ -194,6 +267,10 @@ export function EventTimeline({ events }: EventTimelineProps) {
               <span className="text-sm font-medium text-foreground">
                 {event.name}
               </span>
+              {(event.compliance?.containsPII ||
+                event.compliance?.dataCategory) && (
+                <PiiBadge dataCategory={event.compliance.dataCategory} />
+              )}
             </div>
             <div className="flex items-center gap-3">
               {event.durationMs !== null && event.durationMs > 0 && (
@@ -222,7 +299,9 @@ export function EventTimeline({ events }: EventTimelineProps) {
 
           {expandedId === event.id && (
             <div className="border-t border-border bg-muted/50 px-5 py-4">
-              {loadingPayload ? (
+              {event.type === "human_review" ? (
+                <HumanReviewDetail metadata={event.metadata} />
+              ) : loadingPayload ? (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <svg
                     className="h-4 w-4 animate-spin"

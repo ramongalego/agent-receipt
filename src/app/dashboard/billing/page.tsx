@@ -101,7 +101,7 @@ export default async function BillingPage() {
           <h2 className="text-lg font-semibold text-foreground">Plans</h2>
           <div className="h-px flex-1 bg-border" />
         </div>
-        <div className="grid gap-5 sm:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-4">
           {PLANS.map((p) => {
             const planKey = p.name.toLowerCase() as "free" | "pro" | "business";
             const planLimits = getPlanLimits(planKey);
@@ -157,6 +157,46 @@ export default async function BillingPage() {
               </Card>
             );
           })}
+
+          {/* Enterprise */}
+          <Card className="transition-colors hover:border-muted-foreground/30">
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-card-foreground">
+                  Enterprise
+                </h3>
+              </div>
+              <p className="mt-2 text-2xl font-bold text-card-foreground">
+                Custom
+              </p>
+              <ul className="mt-5 space-y-2.5 text-sm text-muted-foreground">
+                <li className="flex items-center gap-2">
+                  <svg
+                    className="h-4 w-4 shrink-0 text-green-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path d="M5 13l4 4L19 7" />
+                  </svg>
+                  Unlimited sessions
+                </li>
+                <li className="flex items-center gap-2">
+                  <svg
+                    className="h-4 w-4 shrink-0 text-green-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path d="M5 13l4 4L19 7" />
+                  </svg>
+                  Custom retention (up to 7 years)
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

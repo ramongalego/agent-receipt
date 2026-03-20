@@ -63,6 +63,7 @@ export function getEventsBySession(sessionId: string) {
       metadata: events.metadata,
       hash: events.hash,
       previousHash: events.previousHash,
+      compliance: events.compliance,
       timestamp: events.timestamp,
     })
     .from(events)

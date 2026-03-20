@@ -70,4 +70,91 @@ describe("Session", () => {
       }),
     ).rejects.toThrow("tool failed");
   });
+
+  describe("compliance metadata", () => {
+    it("trackTool passes compliance metadata through to the ingest call", async () => {
+      const session = createSession(ingest, "Test");
+
+      await session.trackTool(
+        "read-patient-record",
+        { patientId: "123" },
+        async () => ({ data: "sensitive" }),
+        { compliance: { containsPII: true, dataCategory: "health" } },
+      );
+
+      await session.end();
+
+      expect(mockFetch).toHaveBeenCalled();
+      const calls = mockFetch.mock.calls;
+      const lastCall = calls[calls.length - 1];
+      const body = JSON.parse(lastCall[1].body);
+
+      const payload = Array.isArray(body) ? body[body.length - 1] : body;
+      expect(payload.event.compliance).toEqual({
+        containsPII: true,
+        dataCategory: "health",
+      });
+    });
+  });
+
+  describe("trackHumanReview", () => {
+    it("sends event with correct type and metadata", async () => {
+      const session = createSession(ingest, "Test");
+
+      await session.trackHumanReview({
+        reviewer: "sarah@acmecorp.com",
+        decision: "approved",
+        notes: "Looks good",
+      });
+
+      // Flush to ensure the event is sent
+      await session.end();
+
+      expect(mockFetch).toHaveBeenCalled();
+      const calls = mockFetch.mock.calls;
+      const lastCall = calls[calls.length - 1];
+      const body = JSON.parse(lastCall[1].body);
+
+      // The batch sends an array of payloads
+      const payload = Array.isArray(body) ? body[body.length - 1] : body;
+      expect(payload.event.type).toBe("human_review");
+      expect(payload.event.name).toBe("human_review");
+      expect(payload.event.durationMs).toBe(0);
+      expect(payload.event.metadata.reviewer).toBe("sarah@acmecorp.com");
+      expect(payload.event.metadata.decision).toBe("approved");
+      expect(payload.event.metadata.notes).toBe("Looks good");
+    });
+
+    it("does not throw if ingest fails", async () => {
+      mockFetch.mockRejectedValue(new Error("Network error"));
+
+      const session = createSession(ingest);
+      await expect(
+        session.trackHumanReview({
+          reviewer: "test@example.com",
+          decision: "rejected",
+        }),
+      ).resolves.not.toThrow();
+    });
+
+    it("sends empty strings for input and output (no R2 upload needed)", async () => {
+      const session = createSession(ingest, "Test");
+
+      await session.trackHumanReview({
+        reviewer: "test@example.com",
+        decision: "modified",
+      });
+
+      await session.end();
+
+      expect(mockFetch).toHaveBeenCalled();
+      const calls = mockFetch.mock.calls;
+      const lastCall = calls[calls.length - 1];
+      const body = JSON.parse(lastCall[1].body);
+
+      const payload = Array.isArray(body) ? body[body.length - 1] : body;
+      expect(payload.event.input).toBe("");
+      expect(payload.event.output).toBe("");
+    });
+  });
 });

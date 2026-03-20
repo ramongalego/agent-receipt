@@ -157,6 +157,35 @@ const PROVIDERS: { name: string; tests: TestDef[] }[] = [
       },
     ],
   },
+  {
+    name: "AgentReceipt Features",
+    tests: [
+      {
+        id: "features-human-review",
+        label: "trackHumanReview (approved)",
+        provider: "features",
+        method: "human-review",
+      },
+      {
+        id: "features-human-review-rejected",
+        label: "trackHumanReview (rejected with notes)",
+        provider: "features",
+        method: "human-review-rejected",
+      },
+      {
+        id: "features-pii-compliance",
+        label: "trackTool with PII compliance metadata",
+        provider: "features",
+        method: "pii-compliance",
+      },
+      {
+        id: "features-combined",
+        label: "Full session: tool + human review + PII",
+        provider: "features",
+        method: "combined",
+      },
+    ],
+  },
 ];
 
 export default function TestPanel() {

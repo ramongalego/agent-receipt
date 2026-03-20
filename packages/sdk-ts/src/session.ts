@@ -1,5 +1,11 @@
 import { randomUUID } from "crypto";
-import type { IngestClient, Session, TrackEventInput } from "./types";
+import type {
+  IngestClient,
+  Session,
+  TrackEventInput,
+  TrackOptions,
+  HumanReviewParams,
+} from "./types";
 
 export function createSession(ingest: IngestClient, name?: string): Session {
   const id = randomUUID();
@@ -8,6 +14,7 @@ export function createSession(ingest: IngestClient, name?: string): Session {
     toolName: string,
     input: unknown,
     fn: () => Promise<T>,
+    options?: TrackOptions,
   ): Promise<T> {
     const start = Date.now();
     let output: unknown;
@@ -30,6 +37,7 @@ export function createSession(ingest: IngestClient, name?: string): Session {
           ? { error: error instanceof Error ? error.message : String(error) }
           : output,
         durationMs,
+        compliance: options?.compliance,
       };
 
       // Fire and forget. Never block the caller.
@@ -49,6 +57,7 @@ export function createSession(ingest: IngestClient, name?: string): Session {
     decisionName: string,
     reasoning: string,
     outcome: string,
+    options?: TrackOptions,
   ): Promise<void> {
     await ingest
       .send({
@@ -60,6 +69,37 @@ export function createSession(ingest: IngestClient, name?: string): Session {
           input: { reasoning },
           output: { outcome },
           durationMs: 0,
+          compliance: options?.compliance,
+        },
+      })
+      .catch(() => {
+        // Silently ignore ingest errors
+      });
+  }
+
+  async function trackHumanReview(
+    params: HumanReviewParams & TrackOptions,
+  ): Promise<void> {
+    const metadata: Record<string, unknown> = {
+      reviewer: params.reviewer,
+      decision: params.decision,
+    };
+    if (params.notes !== undefined) {
+      metadata.notes = params.notes;
+    }
+
+    await ingest
+      .send({
+        sessionId: id,
+        sessionName: name,
+        event: {
+          type: "human_review",
+          name: "human_review",
+          input: "",
+          output: "",
+          durationMs: 0,
+          metadata,
+          compliance: params.compliance,
         },
       })
       .catch(() => {
@@ -80,6 +120,7 @@ export function createSession(ingest: IngestClient, name?: string): Session {
     },
     trackTool,
     trackDecision,
+    trackHumanReview,
     end,
   };
 }

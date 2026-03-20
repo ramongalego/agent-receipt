@@ -1,4 +1,15 @@
-export type EventType = "llm_call" | "tool_call" | "decision" | "error";
+export type EventType =
+  | "llm_call"
+  | "tool_call"
+  | "decision"
+  | "error"
+  | "human_review";
+
+export type ComplianceMetadata = {
+  containsPII?: boolean;
+  dataCategory?: string;
+  retentionOverride?: number;
+};
 
 export type TrackEventInput = {
   type: EventType;
@@ -7,6 +18,7 @@ export type TrackEventInput = {
   output: unknown;
   durationMs: number;
   metadata?: Record<string, unknown>;
+  compliance?: ComplianceMetadata;
 };
 
 export type IngestPayload = {
@@ -35,6 +47,16 @@ export type IngestClient = {
   destroy: () => void;
 };
 
+export type HumanReviewParams = {
+  reviewer: string;
+  decision: "approved" | "rejected" | "modified";
+  notes?: string;
+};
+
+export type TrackOptions = {
+  compliance?: ComplianceMetadata;
+};
+
 export type Session = {
   readonly id: string;
   readonly name: string | undefined;
@@ -42,12 +64,15 @@ export type Session = {
     name: string,
     input: unknown,
     fn: () => Promise<T>,
+    options?: TrackOptions,
   ) => Promise<T>;
   trackDecision: (
     name: string,
     reasoning: string,
     outcome: string,
+    options?: TrackOptions,
   ) => Promise<void>;
+  trackHumanReview: (params: HumanReviewParams & TrackOptions) => Promise<void>;
   end: () => Promise<void>;
 };
 

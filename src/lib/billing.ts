@@ -13,8 +13,8 @@ type PlanLimits = {
 
 const PLAN_LIMITS: Record<PlanName, PlanLimits> = {
   free: { sessionsPerMonth: 100, retentionDays: 7 },
-  pro: { sessionsPerMonth: 5_000, retentionDays: 90 },
-  business: { sessionsPerMonth: 50_000, retentionDays: 365 },
+  pro: { sessionsPerMonth: 2_500, retentionDays: 90 },
+  business: { sessionsPerMonth: 15_000, retentionDays: 365 },
 };
 
 // Map Stripe price IDs to plan names. Set actual values in env.

@@ -17,14 +17,14 @@ describe("getPlanLimits", () => {
 
   it("returns correct limits for pro plan", () => {
     expect(getPlanLimits("pro")).toEqual({
-      sessionsPerMonth: 5_000,
+      sessionsPerMonth: 2_500,
       retentionDays: 90,
     });
   });
 
   it("returns correct limits for business plan", () => {
     expect(getPlanLimits("business")).toEqual({
-      sessionsPerMonth: 50_000,
+      sessionsPerMonth: 15_000,
       retentionDays: 365,
     });
   });

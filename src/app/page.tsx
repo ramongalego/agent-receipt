@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getPlanLimits } from "@/lib/billing";
 import { PublicNav } from "@/components/layout/public-nav";
+import { PricingCards } from "@/components/pricing-toggle";
 
 export const metadata: Metadata = {
   description:
@@ -21,8 +22,8 @@ const jsonLd = {
   url: "https://agentreceipt.co",
   offers: [
     { "@type": "Offer", price: "0", priceCurrency: "USD", name: "Free" },
-    { "@type": "Offer", price: "29", priceCurrency: "USD", name: "Pro" },
-    { "@type": "Offer", price: "99", priceCurrency: "USD", name: "Business" },
+    { "@type": "Offer", price: "49", priceCurrency: "USD", name: "Pro" },
+    { "@type": "Offer", price: "199", priceCurrency: "USD", name: "Business" },
   ],
 };
 
@@ -38,22 +39,28 @@ const PLANS = [
   },
   {
     name: "Pro",
-    price: "$29",
+    price: "$49",
     period: "/month",
     plan: "pro" as const,
     cta: "Get started",
     href: "/sign-in",
     highlighted: true,
     audience: "For small teams shipping agents in production.",
+    yearlyPrice: "$39",
+    yearlyTotal: "$470",
+    yearlySavings: "$118",
   },
   {
     name: "Business",
-    price: "$99",
+    price: "$199",
     period: "/month",
     plan: "business" as const,
     cta: "Get started",
     href: "/sign-in",
     audience: "For teams running agents across multiple workflows.",
+    yearlyPrice: "$159",
+    yearlyTotal: "$1,910",
+    yearlySavings: "$478",
   },
 ];
 
@@ -532,175 +539,16 @@ export default function LandingPage() {
           <h2 className="mb-4 text-center text-2xl font-bold tracking-tight sm:text-3xl">
             Simple, predictable pricing
           </h2>
-          <p className="mx-auto mb-20 max-w-lg text-center text-sm text-muted-foreground">
+          <p className="mx-auto mb-10 max-w-lg text-center text-sm text-muted-foreground">
             Start free. Upgrade when you need more sessions or longer retention.
           </p>
-          <div className="grid gap-6 sm:grid-cols-4">
-            {PLANS.map((plan) => {
-              const limits = getPlanLimits(plan.plan);
-              const CheckIcon = () => (
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="shrink-0"
-                  aria-hidden="true"
-                >
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-              );
-              return (
-                <article
-                  key={plan.name}
-                  className={`relative flex flex-col rounded-2xl border p-8 ${
-                    plan.highlighted
-                      ? "border-indigo-400/50 bg-gradient-to-b from-indigo-50 to-card shadow-md ring-1 ring-indigo-400/20 dark:border-indigo-500/40 dark:from-indigo-950/20 dark:to-card dark:shadow-[0_0_40px_-12px_rgba(99,102,241,0.15)] dark:ring-indigo-500/10"
-                      : "border-border bg-card"
-                  }`}
-                >
-                  {plan.highlighted && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-indigo-500 px-4 py-1 text-xs font-semibold text-white">
-                      Most popular
-                    </span>
-                  )}
-                  <h3 className="text-lg font-semibold">{plan.name}</h3>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {plan.audience}
-                  </p>
-                  <p className="mt-4 flex items-baseline gap-1">
-                    <span className="text-4xl font-bold tracking-tight">
-                      {plan.price}
-                    </span>
-                    <span className="text-sm text-muted-foreground">
-                      {plan.period}
-                    </span>
-                  </p>
-                  <ul className="mt-8 flex-1 space-y-4 text-sm text-muted-foreground">
-                    <li className="flex items-center gap-3">
-                      <CheckIcon />
-                      {limits.sessionsPerMonth.toLocaleString()} sessions/month
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <CheckIcon />
-                      {limits.retentionDays} day retention
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <CheckIcon />
-                      Hash chain verification
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <CheckIcon />
-                      Unlimited projects
-                    </li>
-                  </ul>
-                  <Link
-                    href={plan.href}
-                    className={`mt-10 block w-full rounded-xl py-3 text-center text-sm font-semibold transition-colors ${
-                      plan.highlighted
-                        ? "bg-indigo-500 text-white hover:bg-indigo-600"
-                        : "border border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground"
-                    }`}
-                  >
-                    {plan.cta}
-                  </Link>
-                </article>
-              );
-            })}
-
-            {/* Enterprise */}
-            <article className="relative flex flex-col rounded-2xl border border-border bg-card p-8">
-              <h3 className="text-lg font-semibold">Enterprise</h3>
-              <p className="mt-1 text-xs text-muted-foreground">
-                For regulated industries and large-scale deployments.
-              </p>
-              <p className="mt-4 flex items-baseline gap-1">
-                <span className="text-4xl font-bold tracking-tight">
-                  Custom
-                </span>
-              </p>
-              <ul className="mt-8 flex-1 space-y-4 text-sm text-muted-foreground">
-                <li className="flex items-center gap-3">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="shrink-0"
-                    aria-hidden="true"
-                  >
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                  Unlimited sessions
-                </li>
-                <li className="flex items-center gap-3">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="shrink-0"
-                    aria-hidden="true"
-                  >
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                  Custom retention (up to 7 years)
-                </li>
-                <li className="flex items-center gap-3">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="shrink-0"
-                    aria-hidden="true"
-                  >
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                  Hash chain verification
-                </li>
-                <li className="flex items-center gap-3">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="shrink-0"
-                    aria-hidden="true"
-                  >
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                  Unlimited projects
-                </li>
-              </ul>
-              <Link
-                href="mailto:sales@agentreceipt.com"
-                className="mt-10 block w-full rounded-xl border border-border py-3 text-center text-sm font-semibold text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
-              >
-                Contact sales
-              </Link>
-            </article>
-          </div>
+          <PricingCards
+            plans={PLANS.map((plan) => ({
+              ...plan,
+              sessionsPerMonth: getPlanLimits(plan.plan).sessionsPerMonth,
+              retentionDays: getPlanLimits(plan.plan).retentionDays,
+            }))}
+          />
         </div>
       </section>
 
@@ -849,20 +697,28 @@ export default function LandingPage() {
                 </p>
                 <ul className="space-y-3 text-sm text-muted-foreground">
                   <li>
-                    <a
-                      href="#"
-                      className="transition-colors hover:text-foreground"
-                    >
-                      GitHub
-                    </a>
-                  </li>
-                  <li>
                     <Link
                       href="/sign-in"
                       className="transition-colors hover:text-foreground"
                     >
                       Sign in
                     </Link>
+                  </li>
+                  <li>
+                    <a
+                      href="#"
+                      className="transition-colors hover:text-foreground"
+                    >
+                      Privacy Policy
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="#"
+                      className="transition-colors hover:text-foreground"
+                    >
+                      Terms of Service
+                    </a>
                   </li>
                 </ul>
               </div>

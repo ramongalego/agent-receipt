@@ -473,14 +473,14 @@ export default function DemoPage() {
             <Link href="#" className="transition-colors hover:text-foreground">
               Docs
             </Link>
-            <Link href="#" className="transition-colors hover:text-foreground">
-              GitHub
-            </Link>
             <Link
               href="/sign-in"
               className="transition-colors hover:text-foreground"
             >
               Sign in
+            </Link>
+            <Link href="#" className="transition-colors hover:text-foreground">
+              Privacy
             </Link>
           </div>
         </div>

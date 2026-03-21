@@ -8,21 +8,28 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { UpgradeButton } from "./upgrade-button";
 import { ManageBillingButton } from "./manage-billing-button";
+import { BillingPlanToggle } from "./billing-plan-toggle";
 
 export const metadata: Metadata = {
   title: "Billing",
 };
 
 const PLANS = [
-  { name: "Free" as const, price: "$0/month", priceId: null },
+  { name: "Free" as const, monthlyPrice: "$0/month", priceId: null },
   {
     name: "Pro" as const,
-    price: "$29/month",
+    monthlyPrice: "$49/month",
+    yearlyPrice: "$39/month",
+    yearlyTotal: "$470/year",
+    yearlySavings: "Save $118/yr",
     priceId: process.env.STRIPE_PRICE_PRO ?? "",
   },
   {
     name: "Business" as const,
-    price: "$99/month",
+    monthlyPrice: "$199/month",
+    yearlyPrice: "$159/month",
+    yearlyTotal: "$1,910/year",
+    yearlySavings: "Save $478/yr",
     priceId: process.env.STRIPE_PRICE_BUSINESS ?? "",
   },
 ];
@@ -108,103 +115,7 @@ export default async function BillingPage() {
           <h2 className="text-lg font-semibold text-foreground">Plans</h2>
           <div className="h-px flex-1 bg-border" />
         </div>
-        <div className="grid gap-5 sm:grid-cols-4">
-          {PLANS.map((p) => {
-            const planKey = p.name.toLowerCase() as "free" | "pro" | "business";
-            const planLimits = getPlanLimits(planKey);
-            const isCurrent = plan === planKey;
-
-            return (
-              <Card
-                key={p.name}
-                className={
-                  isCurrent
-                    ? "ring-2 ring-accent"
-                    : "transition-colors hover:border-muted-foreground/30"
-                }
-              >
-                <CardContent>
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-card-foreground">
-                      {p.name}
-                    </h3>
-                    {isCurrent && <Badge variant="default">Current</Badge>}
-                  </div>
-                  <p className="mt-2 text-2xl font-bold text-card-foreground">
-                    {p.price}
-                  </p>
-                  <ul className="mt-5 space-y-2.5 text-sm text-muted-foreground">
-                    <li className="flex items-center gap-2">
-                      <svg
-                        className="h-4 w-4 shrink-0 text-green-500"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                      >
-                        <path d="M5 13l4 4L19 7" />
-                      </svg>
-                      {planLimits.sessionsPerMonth.toLocaleString("en-US")}{" "}
-                      sessions/month
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <svg
-                        className="h-4 w-4 shrink-0 text-green-500"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                      >
-                        <path d="M5 13l4 4L19 7" />
-                      </svg>
-                      {planLimits.retentionDays} day retention
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-            );
-          })}
-
-          {/* Enterprise */}
-          <Card className="transition-colors hover:border-muted-foreground/30">
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-card-foreground">
-                  Enterprise
-                </h3>
-              </div>
-              <p className="mt-2 text-2xl font-bold text-card-foreground">
-                Custom
-              </p>
-              <ul className="mt-5 space-y-2.5 text-sm text-muted-foreground">
-                <li className="flex items-center gap-2">
-                  <svg
-                    className="h-4 w-4 shrink-0 text-green-500"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path d="M5 13l4 4L19 7" />
-                  </svg>
-                  Unlimited sessions
-                </li>
-                <li className="flex items-center gap-2">
-                  <svg
-                    className="h-4 w-4 shrink-0 text-green-500"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path d="M5 13l4 4L19 7" />
-                  </svg>
-                  Custom retention (up to 7 years)
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-        </div>
+        <BillingPlanToggle plans={PLANS} currentPlan={plan} />
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { eq, and } from "drizzle-orm";
 import { db } from "@/db";
 import { teams, teamMembers } from "@/db/schema";
@@ -31,6 +32,8 @@ export async function getUserTeam(userId: string): Promise<Team> {
 
   return membership;
 }
+
+export const getUserTeamCached = cache((userId: string) => getUserTeam(userId));
 
 export async function assertTeamMember(
   userId: string,

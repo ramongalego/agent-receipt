@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
-import { getUserTeam } from "@/lib/access";
+import { getUserTeamCached } from "@/lib/access";
 import { DesktopSidebar, MobileHeader } from "@/components/layout/sidebar-nav";
 
 export default async function DashboardLayout({
@@ -17,7 +17,7 @@ export default async function DashboardLayout({
 
   let workspaceName: string | undefined;
   try {
-    const team = await getUserTeam(session.user.id!);
+    const team = await getUserTeamCached(session.user.id!);
     workspaceName = team.name;
   } catch {
     // Team may not exist yet for brand new users mid-creation

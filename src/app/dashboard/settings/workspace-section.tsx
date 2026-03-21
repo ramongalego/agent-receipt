@@ -128,7 +128,7 @@ function WorkspaceNameCard({
       </CardHeader>
       <CardContent>
         {editing && isOwner ? (
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -137,23 +137,25 @@ function WorkspaceNameCard({
                 if (e.key === "Escape") handleCancel();
               }}
               autoFocus
-              className="block w-full max-w-xs rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground transition-colors focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+              className="block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground transition-colors focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring sm:max-w-xs"
             />
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={handleSave}
-              loading={isPending}
-            >
-              Save
-            </Button>
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="text-xs text-muted-foreground transition-colors hover:text-foreground"
-            >
-              Cancel
-            </button>
+            <div className="flex items-center gap-3">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleSave}
+                loading={isPending}
+              >
+                Save
+              </Button>
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         ) : (
           <div className="flex items-center gap-3">
@@ -283,10 +285,10 @@ function MembersCard({
             return (
               <div
                 key={m.id}
-                className="flex items-center justify-between py-1.5 text-sm"
+                className="flex flex-col gap-1 py-1.5 text-sm sm:flex-row sm:items-center sm:justify-between"
               >
                 <div className="flex items-center gap-2">
-                  <span className="text-foreground">
+                  <span className="truncate text-foreground">
                     {m.userName || m.userEmail}
                     {isCurrentUser && (
                       <span className="ml-1 text-muted-foreground">(you)</span>
@@ -298,7 +300,7 @@ function MembersCard({
                 </div>
 
                 {isOwner && !isCurrentUser && (
-                  <div className="flex items-center gap-3">
+                  <div className="flex shrink-0 items-center gap-3">
                     {m.role === "viewer" ? (
                       <button
                         type="button"
@@ -342,10 +344,10 @@ function MembersCard({
           {pendingInvites.map((inv) => (
             <div
               key={inv.id}
-              className="flex items-center justify-between py-1.5 text-sm"
+              className="flex flex-col gap-1 py-1.5 text-sm sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="flex items-center gap-2">
-                <span className="text-foreground">{inv.email}</span>
+                <span className="truncate text-foreground">{inv.email}</span>
                 <Badge variant="warning">Pending</Badge>
               </div>
               {isOwner && (
@@ -411,7 +413,10 @@ function InviteCard({
         <h2 className="font-semibold text-card-foreground">Invite members</h2>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="flex items-end gap-3">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-3 sm:flex-row sm:items-end"
+        >
           <div className="flex-1">
             <label
               htmlFor="invite-email"

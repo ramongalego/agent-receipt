@@ -1,13 +1,18 @@
+import { cache } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getProjectById } from "@/db/queries/projects";
-import { getUserTeam } from "@/lib/access";
+import { getUserTeamCached } from "@/lib/access";
 import { getSessionsByProject } from "@/db/queries/sessions";
 import { computeSessionStatus } from "@/lib/session-status";
 import { EmptyState } from "@/components/ui/empty-state";
 import { SessionsTable } from "./sessions-table";
+
+const getCachedProject = cache((projectId: string, teamId: string) =>
+  getProjectById(projectId, teamId),
+);
 
 export async function generateMetadata({
   params,
@@ -17,8 +22,8 @@ export async function generateMetadata({
   const { projectId } = await params;
   const session = await auth();
   if (!session?.user?.id) return { title: "Sessions" };
-  const team = await getUserTeam(session.user.id);
-  const project = await getProjectById(projectId, team.id);
+  const team = await getUserTeamCached(session.user.id);
+  const project = await getCachedProject(projectId, team.id);
   return { title: `Sessions \u00B7 ${project?.name ?? "Project"}` };
 }
 
@@ -34,19 +39,16 @@ export default async function SessionsListPage({
   const { projectId } = await params;
   const { page: pageParam } = await searchParams;
   const session = await auth();
-  const team = await getUserTeam(session!.user!.id!);
-  const project = await getProjectById(projectId, team.id);
+  const team = await getUserTeamCached(session!.user!.id!);
+  const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
+  const [project, { rows: sessions, total }] = await Promise.all([
+    getCachedProject(projectId, team.id),
+    getSessionsByProject(projectId, page, PAGE_SIZE),
+  ]);
 
   if (!project) {
     notFound();
   }
-
-  const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
-  const { rows: sessions, total } = await getSessionsByProject(
-    projectId,
-    page,
-    PAGE_SIZE,
-  );
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   function formatDuration(start: Date, end: Date | string | null) {

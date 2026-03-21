@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
-import { getUserTeam, getUserRole } from "@/lib/access";
+import { getUserTeamCached, getUserRole } from "@/lib/access";
 
 export default async function NewProjectLayout({
   children,
@@ -12,7 +12,7 @@ export default async function NewProjectLayout({
     redirect("/sign-in");
   }
 
-  const team = await getUserTeam(session.user.id);
+  const team = await getUserTeamCached(session.user.id);
   const role = await getUserRole(session.user.id, team.id);
 
   if (role !== "owner") {

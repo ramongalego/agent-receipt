@@ -21,7 +21,7 @@ function getSnapshot() {
 }
 
 function getServerSnapshot() {
-  return false;
+  return true;
 }
 
 export function ThemeToggle() {

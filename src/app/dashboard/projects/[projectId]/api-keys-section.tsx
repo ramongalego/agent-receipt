@@ -98,7 +98,7 @@ export function ApiKeysSection({
                 Copy your API key now. It will not be shown again.
               </p>
               <div className="mt-3 flex items-center gap-2">
-                <code className="rounded-md bg-yellow-100 px-3 py-1.5 font-mono text-xs text-yellow-900 dark:bg-yellow-900/50 dark:text-yellow-100">
+                <code className="break-all rounded-md bg-yellow-100 px-3 py-1.5 font-mono text-xs text-yellow-900 dark:bg-yellow-900/50 dark:text-yellow-100">
                   {newKey}
                 </code>
                 <CopyButton text={newKey} />
@@ -146,7 +146,7 @@ export function ApiKeysSection({
               {activeKeys.map((key) => (
                 <div
                   key={key.id}
-                  className="flex items-center justify-between px-6 py-4"
+                  className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6"
                 >
                   <div>
                     <code className="rounded bg-muted px-2 py-1 font-mono text-sm text-foreground">
@@ -177,7 +177,7 @@ export function ApiKeysSection({
               {revokedKeys.map((key) => (
                 <div
                   key={key.id}
-                  className="flex items-center justify-between px-6 py-4 opacity-40"
+                  className="flex flex-col gap-3 px-4 py-4 opacity-40 sm:flex-row sm:items-center sm:justify-between sm:px-6"
                 >
                   <div>
                     <code className="rounded bg-muted px-2 py-1 font-mono text-sm text-muted-foreground line-through">

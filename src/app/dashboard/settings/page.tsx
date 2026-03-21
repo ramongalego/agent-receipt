@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
-import { getUserTeam, getUserRole } from "@/lib/access";
+import { getUserTeamCached, getUserRole } from "@/lib/access";
 import { getTeamMembers, getPendingInvites } from "@/db/queries/invites";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { WorkspaceSection } from "./workspace-section";
@@ -17,11 +17,13 @@ export default async function GeneralSettingsPage() {
     redirect("/sign-in");
   }
 
-  const team = await getUserTeam(session.user.id!);
-  const role = await getUserRole(session.user.id!, team.id);
-  const members = await getTeamMembers(team.id);
-  const pendingInvites =
-    role === "owner" ? await getPendingInvites(team.id) : [];
+  const team = await getUserTeamCached(session.user.id!);
+  const [role, members, allInvites] = await Promise.all([
+    getUserRole(session.user.id!, team.id),
+    getTeamMembers(team.id),
+    getPendingInvites(team.id),
+  ]);
+  const pendingInvites = role === "owner" ? allInvites : [];
 
   // Filter out expired invites on the server
   const activeInvites = pendingInvites.filter(

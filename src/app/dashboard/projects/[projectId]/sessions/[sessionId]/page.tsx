@@ -1,9 +1,10 @@
+import { cache } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { getProjectById } from "@/db/queries/projects";
-import { getUserTeam } from "@/lib/access";
+import { getUserTeamCached } from "@/lib/access";
 import { getSessionById, getEventsBySession } from "@/db/queries/sessions";
 import { verifyChain } from "@/lib/hash";
 import { computeSessionStatus } from "@/lib/session-status";
@@ -13,6 +14,13 @@ import { EventTimeline } from "./event-timeline";
 import { ReceiptSummary } from "./receipt-summary";
 import { FormattedDate } from "@/components/ui/formatted-date";
 
+const getCachedProject = cache((projectId: string, teamId: string) =>
+  getProjectById(projectId, teamId),
+);
+const getCachedSession = cache((sessionId: string, projectId: string) =>
+  getSessionById(sessionId, projectId),
+);
+
 export async function generateMetadata({
   params,
 }: {
@@ -21,10 +29,10 @@ export async function generateMetadata({
   const { projectId, sessionId } = await params;
   const session = await auth();
   if (!session?.user?.id) return { title: "Session" };
-  const team = await getUserTeam(session.user.id);
-  const project = await getProjectById(projectId, team.id);
+  const team = await getUserTeamCached(session.user.id);
+  const project = await getCachedProject(projectId, team.id);
   if (!project) return { title: "Session" };
-  const agentSession = await getSessionById(sessionId, projectId);
+  const agentSession = await getCachedSession(sessionId, projectId);
   return { title: agentSession?.name ?? agentSession?.id ?? "Session" };
 }
 
@@ -35,19 +43,20 @@ export default async function SessionDetailPage({
 }) {
   const { projectId, sessionId } = await params;
   const userSession = await auth();
-  const team = await getUserTeam(userSession!.user!.id!);
-  const project = await getProjectById(projectId, team.id);
+  const team = await getUserTeamCached(userSession!.user!.id!);
+  const [project, agentSession, events] = await Promise.all([
+    getCachedProject(projectId, team.id),
+    getCachedSession(sessionId, projectId),
+    getEventsBySession(sessionId),
+  ]);
 
   if (!project) {
     notFound();
   }
 
-  const agentSession = await getSessionById(sessionId, projectId);
   if (!agentSession) {
     notFound();
   }
-
-  const events = await getEventsBySession(sessionId);
 
   const chainValid = verifyChain(events);
 

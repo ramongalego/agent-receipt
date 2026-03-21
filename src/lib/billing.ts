@@ -65,21 +65,23 @@ export async function getUsageThisMonth(userId: string): Promise<number> {
 }
 
 export async function isOverLimit(userId: string): Promise<boolean> {
-  const user = await db
-    .select({
-      stripePriceId: users.stripePriceId,
-      stripeCurrentPeriodEnd: users.stripeCurrentPeriodEnd,
-    })
-    .from(users)
-    .where(eq(users.id, userId))
-    .limit(1)
-    .then((rows) => rows[0] ?? null);
+  const [user, usage] = await Promise.all([
+    db
+      .select({
+        stripePriceId: users.stripePriceId,
+        stripeCurrentPeriodEnd: users.stripeCurrentPeriodEnd,
+      })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1)
+      .then((rows) => rows[0] ?? null),
+    getUsageThisMonth(userId),
+  ]);
 
   if (!user) return true;
 
   const plan = getUserPlan(user);
   const limits = getPlanLimits(plan);
-  const usage = await getUsageThisMonth(userId);
 
   return usage >= limits.sessionsPerMonth;
 }

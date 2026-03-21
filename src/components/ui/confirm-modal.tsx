@@ -56,7 +56,7 @@ export function ConfirmModal({
         className="fixed inset-0 bg-black/20 dark:bg-black/40"
         onClick={onCancel}
       />
-      <div className="relative w-full max-w-sm rounded-xl border border-border bg-card px-6 py-5 shadow-lg">
+      <div className="relative mx-4 w-full max-w-sm rounded-xl border border-border bg-card px-5 py-5 shadow-lg sm:mx-0 sm:px-6">
         <h3 className="text-sm font-semibold text-card-foreground">{title}</h3>
         <p className="mt-2 text-sm text-muted-foreground">{description}</p>
         <div className="mt-5 flex justify-end gap-2">

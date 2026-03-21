@@ -1,4 +1,4 @@
-import { eq, and, isNull, sql } from "drizzle-orm";
+import { eq, and, isNull, sql, inArray } from "drizzle-orm";
 import { randomBytes } from "crypto";
 import { db } from "@/db";
 import { inviteTokens, teamMembers, teams, users, projects } from "@/db/schema";
@@ -74,18 +74,27 @@ export async function acceptInvite(token: string, userId: string) {
     .from(teams)
     .where(and(eq(teams.ownerId, userId), eq(teams.name, "Main Workspace")));
 
-  for (const soloTeam of soloTeams) {
-    if (soloTeam.id === invite.teamId) continue;
+  const candidateIds = soloTeams
+    .map((t) => t.id)
+    .filter((id) => id !== invite.teamId);
 
-    const projectCount = await db
-      .select({ count: sql<number>`cast(count(*) as int)` })
+  if (candidateIds.length > 0) {
+    const projectCounts = await db
+      .select({
+        teamId: projects.teamId,
+        count: sql<number>`cast(count(*) as int)`,
+      })
       .from(projects)
-      .where(eq(projects.teamId, soloTeam.id))
-      .then((r) => r[0]?.count ?? 0);
+      .where(inArray(projects.teamId, candidateIds))
+      .groupBy(projects.teamId);
 
-    if (projectCount === 0) {
-      await db.delete(teamMembers).where(eq(teamMembers.teamId, soloTeam.id));
-      await db.delete(teams).where(eq(teams.id, soloTeam.id));
+    const countMap = new Map(projectCounts.map((r) => [r.teamId, r.count]));
+
+    for (const id of candidateIds) {
+      if ((countMap.get(id) ?? 0) === 0) {
+        await db.delete(teamMembers).where(eq(teamMembers.teamId, id));
+        await db.delete(teams).where(eq(teams.id, id));
+      }
     }
   }
 

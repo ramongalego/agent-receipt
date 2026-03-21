@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { getProjectsByTeam } from "@/db/queries/projects";
-import { getUserTeam, getUserRole } from "@/lib/access";
+import { getUserTeamCached, getUserRole } from "@/lib/access";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -14,9 +14,11 @@ export const metadata: Metadata = {
 
 export default async function DashboardPage() {
   const session = await auth();
-  const team = await getUserTeam(session!.user!.id!);
-  const role = await getUserRole(session!.user!.id!, team.id);
-  const projects = await getProjectsByTeam(team.id);
+  const team = await getUserTeamCached(session!.user!.id!);
+  const [role, projects] = await Promise.all([
+    getUserRole(session!.user!.id!, team.id),
+    getProjectsByTeam(team.id),
+  ]);
   const isOwner = role === "owner";
 
   if (projects.length === 0) {

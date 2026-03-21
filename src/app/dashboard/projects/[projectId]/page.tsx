@@ -1,15 +1,20 @@
+import { cache } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { getProjectById } from "@/db/queries/projects";
-import { getUserTeam, getUserRole } from "@/lib/access";
+import { getUserTeamCached, getUserRole } from "@/lib/access";
 import { getSessionsByProject } from "@/db/queries/sessions";
 import { computeSessionStatus } from "@/lib/session-status";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { FormattedDate } from "@/components/ui/formatted-date";
+
+const getCachedProject = cache((projectId: string, teamId: string) =>
+  getProjectById(projectId, teamId),
+);
 
 export async function generateMetadata({
   params,
@@ -19,8 +24,8 @@ export async function generateMetadata({
   const { projectId } = await params;
   const session = await auth();
   if (!session?.user?.id) return { title: "Project" };
-  const team = await getUserTeam(session.user.id);
-  const project = await getProjectById(projectId, team.id);
+  const team = await getUserTeamCached(session.user.id);
+  const project = await getCachedProject(projectId, team.id);
   return { title: project?.name ?? "Project" };
 }
 
@@ -31,15 +36,16 @@ export default async function ProjectDetailPage({
 }) {
   const { projectId } = await params;
   const session = await auth();
-  const team = await getUserTeam(session!.user!.id!);
-  const role = await getUserRole(session!.user!.id!, team.id);
-  const project = await getProjectById(projectId, team.id);
+  const team = await getUserTeamCached(session!.user!.id!);
+  const [role, project, { rows: recentSessions }] = await Promise.all([
+    getUserRole(session!.user!.id!, team.id),
+    getCachedProject(projectId, team.id),
+    getSessionsByProject(projectId, 1, 10),
+  ]);
 
   if (!project) {
     notFound();
   }
-
-  const { rows: recentSessions } = await getSessionsByProject(projectId, 1, 10);
 
   function formatDuration(start: Date, end: Date | string | null) {
     if (!end) return null;

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getProjectById } from "@/db/queries/projects";
-import { getUserTeam, getUserRole } from "@/lib/access";
+import { getUserTeamCached, getUserRole } from "@/lib/access";
 import { getApiKeysByProject } from "@/db/queries/api-keys";
 import { ApiKeysSection } from "../api-keys-section";
 import { ProjectSettingsForm, DangerZone } from "./settings-form";
@@ -13,15 +13,16 @@ export default async function ProjectSettingsPage({
 }) {
   const { projectId } = await params;
   const session = await auth();
-  const team = await getUserTeam(session!.user!.id!);
-  const role = await getUserRole(session!.user!.id!, team.id);
-  const project = await getProjectById(projectId, team.id);
+  const team = await getUserTeamCached(session!.user!.id!);
+  const [role, project, apiKeys] = await Promise.all([
+    getUserRole(session!.user!.id!, team.id),
+    getProjectById(projectId, team.id),
+    getApiKeysByProject(projectId),
+  ]);
 
   if (!project) {
     notFound();
   }
-
-  const apiKeys = await getApiKeysByProject(projectId);
   const isOwner = role === "owner";
 
   return (

@@ -36,17 +36,25 @@ export async function processIngestEvent(
   keyId: string,
   input: IngestEventInput,
 ): Promise<Result<IngestResult>> {
-  // Upsert session
-  const existingSession = await db
-    .select({ id: agentSessions.id })
-    .from(agentSessions)
-    .where(
-      and(
-        eq(agentSessions.id, input.sessionId),
-        eq(agentSessions.projectId, projectId),
-      ),
-    )
-    .limit(1);
+  // Upsert session and get previous hash in parallel
+  const [existingSession, previousEvents] = await Promise.all([
+    db
+      .select({ id: agentSessions.id })
+      .from(agentSessions)
+      .where(
+        and(
+          eq(agentSessions.id, input.sessionId),
+          eq(agentSessions.projectId, projectId),
+        ),
+      )
+      .limit(1),
+    db
+      .select({ hash: events.hash })
+      .from(events)
+      .where(eq(events.sessionId, input.sessionId))
+      .orderBy(desc(events.timestamp))
+      .limit(1),
+  ]);
 
   if (existingSession.length === 0) {
     await db.insert(agentSessions).values({
@@ -55,22 +63,7 @@ export async function processIngestEvent(
       name: input.sessionName,
       status: "running",
     });
-    console.log("[ingest] Session upserted (new)", {
-      sessionId: input.sessionId,
-    });
-  } else {
-    console.log("[ingest] Session upserted (existing)", {
-      sessionId: input.sessionId,
-    });
   }
-
-  // Get previous event hash for chain
-  const previousEvents = await db
-    .select({ hash: events.hash })
-    .from(events)
-    .where(eq(events.sessionId, input.sessionId))
-    .orderBy(desc(events.timestamp))
-    .limit(1);
 
   const previousHash =
     previousEvents.length > 0 ? previousEvents[0].hash : null;
@@ -127,8 +120,8 @@ export async function processIngestEvent(
     });
   }
 
-  // Update API key last used
-  await updateApiKeyLastUsed(keyId);
+  // Update API key last used (fire-and-forget, non-critical)
+  void updateApiKeyLastUsed(keyId);
 
   return ok({ eventId: insertedEvent.id, sessionId: input.sessionId });
 }

@@ -31,20 +31,22 @@ export default async function BillingPage() {
   const session = await auth();
   const userId = session!.user!.id!;
 
-  const user = await db
-    .select({
-      stripePriceId: users.stripePriceId,
-      stripeCustomerId: users.stripeCustomerId,
-      stripeCurrentPeriodEnd: users.stripeCurrentPeriodEnd,
-    })
-    .from(users)
-    .where(eq(users.id, userId))
-    .limit(1)
-    .then((rows) => rows[0]!);
+  const [user, usage] = await Promise.all([
+    db
+      .select({
+        stripePriceId: users.stripePriceId,
+        stripeCustomerId: users.stripeCustomerId,
+        stripeCurrentPeriodEnd: users.stripeCurrentPeriodEnd,
+      })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1)
+      .then((rows) => rows[0]!),
+    getUsageThisMonth(userId),
+  ]);
 
   const plan = getUserPlan(user);
   const limits = getPlanLimits(plan);
-  const usage = await getUsageThisMonth(userId);
   const usagePercent = Math.min(
     100,
     Math.round((usage / limits.sessionsPerMonth) * 100),

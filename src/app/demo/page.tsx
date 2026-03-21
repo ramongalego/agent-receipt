@@ -272,6 +272,11 @@ export default function DemoPage() {
               </span>
             </div>
           </div>
+          <p className="mt-3 text-xs text-muted-foreground/60">
+            Event metadata and hash records are immutable. Raw payload content
+            is stored separately and can be deleted on request to comply with
+            GDPR Article 17.
+          </p>
         </div>
 
         {/* Summary */}
@@ -429,11 +434,6 @@ export default function DemoPage() {
                 View hash log
               </button>
             </div>
-            <p className="mt-4 text-xs text-muted-foreground/60">
-              Event metadata and hash records are immutable. Raw payload content
-              is stored separately and can be deleted on request to comply with
-              GDPR Article 17.
-            </p>
           </CardContent>
         </Card>
 

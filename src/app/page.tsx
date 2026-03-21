@@ -34,6 +34,7 @@ const PLANS = [
     plan: "free" as const,
     cta: "Start for free",
     href: "/sign-in",
+    audience: "For developers testing and building.",
   },
   {
     name: "Pro",
@@ -43,6 +44,7 @@ const PLANS = [
     cta: "Get started",
     href: "/sign-in",
     highlighted: true,
+    audience: "For small teams shipping agents in production.",
   },
   {
     name: "Business",
@@ -51,6 +53,7 @@ const PLANS = [
     plan: "business" as const,
     cta: "Get started",
     href: "/sign-in",
+    audience: "For teams running agents across multiple workflows.",
   },
 ];
 
@@ -152,10 +155,9 @@ export default function LandingPage() {
             Know exactly what your AI agent did
           </h1>
           <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-            Your agents send emails, trigger payments, and modify data. When
-            something goes wrong, you need a clear record of what happened.
-            AgentReceipt gives you an immutable audit trail for AI agents,
-            capturing every action for AI compliance and accountability.
+            Your agents send emails, trigger payments, and modify data.
+            AgentReceipt captures every action as a tamper-proof receipt. When
+            something goes wrong, you have proof.
           </p>
           <div className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
@@ -171,6 +173,17 @@ export default function LandingPage() {
               See a sample receipt
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* Social proof placeholder */}
+      <section className="px-6 py-10">
+        <div className="mx-auto max-w-3xl">
+          <div className="border-t border-border" />
+          <p className="py-8 text-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/60">
+            Trusted by developers building AI agents in production.
+          </p>
+          <div className="border-t border-border" />
         </div>
       </section>
 
@@ -328,7 +341,7 @@ export default function LandingPage() {
       <section className="bg-surface px-6 py-24 sm:py-32">
         <div className="mx-auto max-w-5xl">
           <p className="mb-4 text-center text-sm font-medium uppercase tracking-widest text-muted-foreground">
-            Built for trust
+            How receipts stay honest
           </p>
           <h2 className="mb-20 text-center text-2xl font-bold tracking-tight sm:text-3xl">
             Every receipt is tamper-proof
@@ -349,49 +362,21 @@ export default function LandingPage() {
                   className="text-muted-foreground"
                   aria-hidden="true"
                 >
-                  <path d="M13.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8.5L13.5 2Z" />
-                  <path d="M14 2v6h6" />
-                  <path d="m9 15 2 2 4-4" />
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  <polyline points="9 12 12 15 16 10" />
                 </svg>
               </div>
               <h3 className="mb-2 text-base font-semibold">
-                Immutable hash chain
+                Tamper-proof by design
               </h3>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                Every event is linked to the one before it via SHA-256 hashing,
-                forming an immutable audit trail. If any event is modified, the
-                chain breaks. You will know.
+                Every event is hash-chained to the one before it. Receipts are
+                append-only. Nobody can edit or delete events after the fact.
+                Not even you.
               </p>
             </section>
 
             {/* Card 2 */}
-            <section className="rounded-xl border border-border bg-card p-8">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="text-muted-foreground"
-                  aria-hidden="true"
-                >
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                </svg>
-              </div>
-              <h3 className="mb-2 text-base font-semibold">
-                Tamper-proof audit trail
-              </h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                Receipts are append-only. No one can edit or delete events after
-                the fact. Not even you.
-              </p>
-            </section>
-
-            {/* Card 3 */}
             <section className="rounded-xl border border-border bg-card p-8">
               <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
                 <svg
@@ -414,10 +399,124 @@ export default function LandingPage() {
                 EU AI Act compliance
               </h3>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                The EU AI Act (Article 19) requires high-risk AI systems to
-                retain logs for at least six months. AgentReceipt provides AI
-                agent monitoring with configurable retention and an immutable
-                hash chain. Enforcement starts August 2026.
+                Article 19 requires high-risk AI systems to retain logs for at
+                least six months. AgentReceipt stores receipts with configurable
+                retention and an immutable hash chain. Enforcement starts August
+                2026.
+              </p>
+            </section>
+
+            {/* Card 3 */}
+            <section className="rounded-xl border border-border bg-card p-8">
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-muted-foreground"
+                  aria-hidden="true"
+                >
+                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                  <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                </svg>
+              </div>
+              <h3 className="mb-2 text-base font-semibold">US compliance</h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                SOC 2 audits ask for activity logs. HIPAA requires six-year
+                retention for healthcare data. SOX and SEC rules require
+                financial agents to prove they followed execution rules. One
+                audit trail covers all of them.
+              </p>
+            </section>
+
+            {/* Card 4 */}
+            <section className="rounded-xl border border-border bg-card p-8">
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-muted-foreground"
+                  aria-hidden="true"
+                >
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <polyline points="16 11 18 13 22 9" />
+                </svg>
+              </div>
+              <h3 className="mb-2 text-base font-semibold">
+                Human review, captured
+              </h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Record approval steps alongside agent actions. When a person
+                signs off before the agent proceeds, that decision is part of
+                the receipt too.
+              </p>
+            </section>
+
+            {/* Card 5 */}
+            <section className="rounded-xl border border-border bg-card p-8">
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-muted-foreground"
+                  aria-hidden="true"
+                >
+                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </div>
+              <h3 className="mb-2 text-base font-semibold">PII flagging</h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Tag events that contain sensitive data. Mark health records,
+                financial data, or personal information so your compliance team
+                knows exactly which events to scrutinise.
+              </p>
+            </section>
+
+            {/* Card 6 */}
+            <section className="rounded-xl border border-border bg-card p-8">
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-muted-foreground"
+                  aria-hidden="true"
+                >
+                  <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                  <path d="M16 3h-8l-2 4h12l-2-4Z" />
+                </svg>
+              </div>
+              <h3 className="mb-2 text-base font-semibold">
+                Works with every major provider
+              </h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Wrap OpenAI, Anthropic, Gemini, Mistral, or the Vercel AI SDK
+                with one line of code. Switch providers without changing your
+                audit setup.
               </p>
             </section>
           </div>
@@ -470,6 +569,9 @@ export default function LandingPage() {
                     </span>
                   )}
                   <h3 className="text-lg font-semibold">{plan.name}</h3>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {plan.audience}
+                  </p>
                   <p className="mt-4 flex items-baseline gap-1">
                     <span className="text-4xl font-bold tracking-tight">
                       {plan.price}
@@ -513,6 +615,9 @@ export default function LandingPage() {
             {/* Enterprise */}
             <article className="relative flex flex-col rounded-2xl border border-border bg-card p-8">
               <h3 className="text-lg font-semibold">Enterprise</h3>
+              <p className="mt-1 text-xs text-muted-foreground">
+                For regulated industries and large-scale deployments.
+              </p>
               <p className="mt-4 flex items-baseline gap-1">
                 <span className="text-4xl font-bold tracking-tight">
                   Custom
@@ -599,15 +704,88 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Final CTA */}
+      {/* FAQ */}
       <section className="bg-surface px-6 py-24 sm:py-32">
+        <div className="mx-auto max-w-3xl">
+          <p className="mb-4 text-center text-sm font-medium uppercase tracking-widest text-muted-foreground">
+            FAQ
+          </p>
+          <h2 className="mb-16 text-center text-2xl font-bold tracking-tight sm:text-3xl">
+            Common questions
+          </h2>
+          <dl className="divide-y divide-border">
+            <div className="py-6">
+              <dt className="text-sm font-semibold text-foreground">
+                Will this slow down my agent?
+              </dt>
+              <dd className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                No. The SDK sends events asynchronously in batches. If it cannot
+                reach our servers, it fails silently. Your agent keeps running
+                regardless.
+              </dd>
+            </div>
+            <div className="py-6">
+              <dt className="text-sm font-semibold text-foreground">
+                Where is my data stored?
+              </dt>
+              <dd className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                Event metadata is stored in our database. Raw LLM inputs and
+                outputs are stored separately in Cloudflare R2. You can request
+                deletion of raw payloads at any time to comply with GDPR Article
+                17.
+              </dd>
+            </div>
+            <div className="py-6">
+              <dt className="text-sm font-semibold text-foreground">
+                Who can see my receipts?
+              </dt>
+              <dd className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                Only members of your workspace. You can invite your compliance
+                team, legal counsel, or any other stakeholder directly. They see
+                everything you see.
+              </dd>
+            </div>
+            <div className="py-6">
+              <dt className="text-sm font-semibold text-foreground">
+                What counts as a session?
+              </dt>
+              <dd className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                One end-to-end agent run. Processing one invoice, handling one
+                support ticket, running one scheduled job. Each session captures
+                up to 200 events.
+              </dd>
+            </div>
+            <div className="py-6">
+              <dt className="text-sm font-semibold text-foreground">
+                Which AI providers does it support?
+              </dt>
+              <dd className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                OpenAI, Anthropic, Gemini, Mistral, and the Vercel AI SDK. Each
+                takes one line of code to integrate.
+              </dd>
+            </div>
+            <div className="py-6">
+              <dt className="text-sm font-semibold text-foreground">
+                Do I need to change my agent code?
+              </dt>
+              <dd className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                No. You wrap your existing AI client with one line. The rest of
+                your code stays exactly as it is.
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="px-6 py-24 sm:py-32">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-            Start capturing agent actions today
+            Your agents are already taking actions.
           </h2>
           <p className="mx-auto mt-6 max-w-lg text-base text-muted-foreground">
-            Free plan includes 100 sessions per month. No credit card required.
-            Set up in under five minutes.
+            Start keeping a record of them. Free plan, no credit card, five
+            minutes to set up.
           </p>
           <div className="mt-10">
             <Link

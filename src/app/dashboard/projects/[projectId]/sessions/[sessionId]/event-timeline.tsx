@@ -205,6 +205,8 @@ function PiiBadge({ dataCategory }: { dataCategory?: string }) {
   );
 }
 
+const PAGE_SIZE = 50;
+
 export function EventTimeline({ events }: EventTimelineProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [payload, setPayload] = useState<{
@@ -212,6 +214,7 @@ export function EventTimeline({ events }: EventTimelineProps) {
     output?: unknown;
   } | null>(null);
   const [loadingPayload, setLoadingPayload] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   async function toggleExpand(eventId: string) {
     if (expandedId === eventId) {
@@ -245,105 +248,126 @@ export function EventTimeline({ events }: EventTimelineProps) {
     );
   }
 
+  const visibleEvents = events.slice(0, visibleCount);
+  const hasMore = visibleCount < events.length;
+
   return (
-    <div className="divide-y divide-border">
-      {events.map((event, index) => (
-        <div
-          key={event.id}
-          className={`${event.type === "error" ? "bg-red-50/50 dark:bg-red-950/10" : ""}`}
-        >
+    <div>
+      {events.length > PAGE_SIZE && (
+        <div className="border-b border-border px-5 py-2 text-xs text-muted-foreground">
+          Showing {visibleEvents.length} of {events.length} events
+        </div>
+      )}
+      <div className="divide-y divide-border">
+        {visibleEvents.map((event, index) => (
+          <div
+            key={event.id}
+            className={`${event.type === "error" ? "bg-red-50/50 dark:bg-red-950/10" : ""}`}
+          >
+            <button
+              type="button"
+              onClick={() => toggleExpand(event.id)}
+              className="flex w-full items-center justify-between px-5 py-3 text-left transition-colors hover:bg-muted/50"
+            >
+              <div className="flex items-center gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted font-mono text-[11px] font-medium text-muted-foreground">
+                  {index + 1}
+                </span>
+                <Badge variant={eventTypeBadge[event.type] ?? "default"}>
+                  {eventTypeLabel[event.type] ?? event.type}
+                </Badge>
+                <span className="text-sm font-medium text-foreground">
+                  {event.name}
+                </span>
+                {(event.compliance?.containsPII ||
+                  event.compliance?.dataCategory) && (
+                  <PiiBadge dataCategory={event.compliance.dataCategory} />
+                )}
+              </div>
+              <div className="flex items-center gap-3">
+                {event.durationMs !== null && event.durationMs > 0 && (
+                  <span className="hidden text-xs text-muted-foreground sm:inline">
+                    {event.durationMs}ms
+                  </span>
+                )}
+                <span className="hidden text-xs text-muted-foreground sm:inline">
+                  {new Date(event.timestamp).toLocaleTimeString()}
+                </span>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className={`text-muted-foreground transition-transform ${expandedId === event.id ? "rotate-180" : ""}`}
+                >
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </div>
+            </button>
+
+            {expandedId === event.id && (
+              <div className="border-t border-border bg-muted/50 px-5 py-4">
+                {event.type === "human_review" ? (
+                  <HumanReviewDetail metadata={event.metadata} />
+                ) : loadingPayload ? (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <svg
+                      className="h-4 w-4 animate-spin"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                      />
+                    </svg>
+                    Loading payload...
+                  </div>
+                ) : (
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div>
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        Input
+                      </p>
+                      <TruncatedJson data={payload?.input ?? null} />
+                    </div>
+                    <div>
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        Output
+                      </p>
+                      <TruncatedJson data={payload?.output ?? null} />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+      {hasMore && (
+        <div className="border-t border-border px-5 py-3 text-center">
           <button
             type="button"
-            onClick={() => toggleExpand(event.id)}
-            className="flex w-full items-center justify-between px-5 py-3 text-left transition-colors hover:bg-muted/50"
+            onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
+            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
-            <div className="flex items-center gap-3">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted font-mono text-[11px] font-medium text-muted-foreground">
-                {index + 1}
-              </span>
-              <Badge variant={eventTypeBadge[event.type] ?? "default"}>
-                {eventTypeLabel[event.type] ?? event.type}
-              </Badge>
-              <span className="text-sm font-medium text-foreground">
-                {event.name}
-              </span>
-              {(event.compliance?.containsPII ||
-                event.compliance?.dataCategory) && (
-                <PiiBadge dataCategory={event.compliance.dataCategory} />
-              )}
-            </div>
-            <div className="flex items-center gap-3">
-              {event.durationMs !== null && event.durationMs > 0 && (
-                <span className="hidden text-xs text-muted-foreground sm:inline">
-                  {event.durationMs}ms
-                </span>
-              )}
-              <span className="hidden text-xs text-muted-foreground sm:inline">
-                {new Date(event.timestamp).toLocaleTimeString()}
-              </span>
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className={`text-muted-foreground transition-transform ${expandedId === event.id ? "rotate-180" : ""}`}
-              >
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-            </div>
+            Show more events
           </button>
-
-          {expandedId === event.id && (
-            <div className="border-t border-border bg-muted/50 px-5 py-4">
-              {event.type === "human_review" ? (
-                <HumanReviewDetail metadata={event.metadata} />
-              ) : loadingPayload ? (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <svg
-                    className="h-4 w-4 animate-spin"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                    />
-                  </svg>
-                  Loading payload...
-                </div>
-              ) : (
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div>
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Input
-                    </p>
-                    <TruncatedJson data={payload?.input ?? null} />
-                  </div>
-                  <div>
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Output
-                    </p>
-                    <TruncatedJson data={payload?.output ?? null} />
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
         </div>
-      ))}
+      )}
     </div>
   );
 }

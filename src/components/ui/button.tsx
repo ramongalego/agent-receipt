@@ -1,6 +1,6 @@
 "use client";
 
-import { ButtonHTMLAttributes } from "react";
+import { forwardRef, ButtonHTMLAttributes } from "react";
 
 type ButtonVariant = "primary" | "secondary" | "danger" | "ghost";
 type ButtonSize = "sm" | "md" | "lg";
@@ -26,26 +26,32 @@ const sizeStyles: Record<ButtonSize, string> = {
   lg: "px-6 py-3 text-sm",
 };
 
-export function Button({
-  variant = "primary",
-  size = "md",
-  loading = false,
-  disabled,
-  children,
-  className = "",
-  ...props
-}: ButtonProps) {
-  return (
-    <button
-      disabled={disabled || loading}
-      className={`inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
-      {...props}
-    >
-      {loading && <Spinner />}
-      {children}
-    </button>
-  );
-}
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  function Button(
+    {
+      variant = "primary",
+      size = "md",
+      loading = false,
+      disabled,
+      children,
+      className = "",
+      ...props
+    },
+    ref,
+  ) {
+    return (
+      <button
+        ref={ref}
+        disabled={disabled || loading}
+        className={`inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
+        {...props}
+      >
+        {loading && <Spinner />}
+        {children}
+      </button>
+    );
+  },
+);
 
 function Spinner() {
   return (

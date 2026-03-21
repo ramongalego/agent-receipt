@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { auth } from "@/lib/auth";
-import { getProjectsByUser } from "@/db/queries/projects";
+import { getProjectsByTeam } from "@/db/queries/projects";
+import { getUserTeam, getUserRole } from "@/lib/access";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -8,7 +9,10 @@ import { FormattedDate } from "@/components/ui/formatted-date";
 
 export default async function DashboardPage() {
   const session = await auth();
-  const projects = await getProjectsByUser(session!.user!.id!);
+  const team = await getUserTeam(session!.user!.id!);
+  const role = await getUserRole(session!.user!.id!, team.id);
+  const projects = await getProjectsByTeam(team.id);
+  const isOwner = role === "owner";
 
   if (projects.length === 0) {
     return (
@@ -17,14 +21,20 @@ export default async function DashboardPage() {
           <h1 className="mb-8 text-2xl font-bold text-foreground">Projects</h1>
           <EmptyState
             title="No projects yet"
-            description="A project represents one of your AI agents. Create a project to get an API key and start capturing receipts."
+            description={
+              isOwner
+                ? "A project represents one of your AI agents. Create a project to get an API key and start capturing receipts."
+                : "No projects have been created in this workspace yet. Ask a workspace owner to create one."
+            }
             action={
-              <Link
-                href="/dashboard/projects/new"
-                className="inline-flex items-center rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-foreground shadow-sm transition-colors hover:bg-accent/90"
-              >
-                Create project
-              </Link>
+              isOwner ? (
+                <Link
+                  href="/dashboard/projects/new"
+                  className="inline-flex items-center rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-foreground shadow-sm transition-colors hover:bg-accent/90"
+                >
+                  Create project
+                </Link>
+              ) : undefined
             }
           />
         </div>
@@ -37,12 +47,14 @@ export default async function DashboardPage() {
       <div className="mx-auto max-w-6xl">
         <div className="mb-8 flex items-center justify-between">
           <h1 className="text-2xl font-bold text-foreground">Projects</h1>
-          <Link
-            href="/dashboard/projects/new"
-            className="inline-flex items-center rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-foreground shadow-sm transition-colors hover:bg-accent/90"
-          >
-            Create project
-          </Link>
+          {isOwner && (
+            <Link
+              href="/dashboard/projects/new"
+              className="inline-flex items-center rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-foreground shadow-sm transition-colors hover:bg-accent/90"
+            >
+              Create project
+            </Link>
+          )}
         </div>
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { getProjectById } from "@/db/queries/projects";
+import { getUserTeam, getUserRole } from "@/lib/access";
 import { getSessionsByProject } from "@/db/queries/sessions";
 import { computeSessionStatus } from "@/lib/session-status";
 import { Card } from "@/components/ui/card";
@@ -16,7 +17,9 @@ export default async function ProjectDetailPage({
 }) {
   const { projectId } = await params;
   const session = await auth();
-  const project = await getProjectById(projectId, session!.user!.id!);
+  const team = await getUserTeam(session!.user!.id!);
+  const role = await getUserRole(session!.user!.id!, team.id);
+  const project = await getProjectById(projectId, team.id);
 
   if (!project) {
     notFound();
@@ -57,12 +60,14 @@ export default async function ProjectDetailPage({
               Created <FormattedDate date={project.createdAt} format="date" />
             </p>
           </div>
-          <Link
-            href={`/dashboard/projects/${projectId}/settings`}
-            className="inline-flex items-center rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-card-foreground shadow-sm transition-colors hover:bg-muted"
-          >
-            Project Settings
-          </Link>
+          {role === "owner" && (
+            <Link
+              href={`/dashboard/projects/${projectId}/settings`}
+              className="inline-flex items-center rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-card-foreground shadow-sm transition-colors hover:bg-muted"
+            >
+              Project Settings
+            </Link>
+          )}
         </div>
 
         {/* Recent Sessions */}

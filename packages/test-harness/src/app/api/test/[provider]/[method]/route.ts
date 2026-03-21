@@ -202,7 +202,7 @@ async function runGemini(method: string) {
   switch (method) {
     case "standard": {
       const r = await ai.models.generateContent({
-        model: "gemini-2.0-flash",
+        model: "gemini-2.5-flash",
         contents: "Reply with exactly three words.",
       });
       await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -210,7 +210,7 @@ async function runGemini(method: string) {
     }
     case "streaming": {
       const stream = await ai.models.generateContentStream({
-        model: "gemini-2.0-flash",
+        model: "gemini-2.5-flash",
         contents: "Reply with exactly three words.",
       });
       const chunks: string[] = [];
@@ -224,7 +224,7 @@ async function runGemini(method: string) {
     }
     case "tool-calling": {
       const r = await ai.models.generateContent({
-        model: "gemini-2.0-flash",
+        model: "gemini-2.5-flash",
         contents: 'Count the words in: "the quick brown fox jumps"',
         config: {
           tools: [

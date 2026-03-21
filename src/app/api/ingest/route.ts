@@ -10,7 +10,7 @@ import { checkR2Config } from "@/lib/r2";
 import { isOverLimit, MAX_EVENTS_PER_SESSION } from "@/lib/billing";
 import { getEventCountBySessionId } from "@/db/queries/events";
 import { db } from "@/db";
-import { projects } from "@/db/schema";
+import { projects, teams } from "@/db/schema";
 
 export async function POST(request: NextRequest) {
   // R2 is required for payload storage
@@ -52,15 +52,16 @@ export async function POST(request: NextRequest) {
     projectId: keyResult.value.projectId,
   });
 
-  // Check usage limits
-  const project = await db
-    .select({ userId: projects.userId })
+  // Check usage limits — find the team owner for billing
+  const projectRow = await db
+    .select({ ownerId: teams.ownerId })
     .from(projects)
+    .innerJoin(teams, eq(teams.id, projects.teamId))
     .where(eq(projects.id, keyResult.value.projectId))
     .limit(1)
     .then((rows) => rows[0]);
 
-  if (project && (await isOverLimit(project.userId))) {
+  if (projectRow && (await isOverLimit(projectRow.ownerId))) {
     return NextResponse.json(
       {
         error: "Monthly session limit reached. Upgrade your plan.",

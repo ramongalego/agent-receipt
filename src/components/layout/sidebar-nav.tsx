@@ -12,7 +12,11 @@ const navItems = [
   { label: "Settings", href: "/dashboard/settings", icon: SettingsIcon },
 ];
 
-export function DesktopSidebar() {
+type SidebarProps = {
+  workspaceName?: string;
+};
+
+export function DesktopSidebar({ workspaceName }: SidebarProps) {
   const pathname = usePathname();
 
   function isActive(href: string) {
@@ -59,6 +63,13 @@ export function DesktopSidebar() {
           </nav>
         </div>
         <div className="border-t border-border px-3 py-4">
+          {workspaceName && (
+            <div className="mb-3 px-3">
+              <p className="text-sm font-medium text-foreground truncate">
+                {workspaceName}
+              </p>
+            </div>
+          )}
           <button
             onClick={() => signOut({ callbackUrl: "/" })}
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
@@ -72,7 +83,7 @@ export function DesktopSidebar() {
   );
 }
 
-export function MobileHeader() {
+export function MobileHeader({ workspaceName }: SidebarProps) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -138,6 +149,13 @@ export function MobileHeader() {
             })}
           </div>
           <div className="mt-3 border-t border-border pt-3">
+            {workspaceName && (
+              <div className="mb-2 px-3">
+                <p className="text-sm font-medium text-foreground truncate">
+                  {workspaceName}
+                </p>
+              </div>
+            )}
             <button
               onClick={() => signOut({ callbackUrl: "/" })}
               className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"

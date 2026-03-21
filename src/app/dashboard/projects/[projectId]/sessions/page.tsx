@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getProjectById } from "@/db/queries/projects";
+import { getUserTeam } from "@/lib/access";
 import { getSessionsByProject } from "@/db/queries/sessions";
 import { computeSessionStatus } from "@/lib/session-status";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -19,7 +20,8 @@ export default async function SessionsListPage({
   const { projectId } = await params;
   const { page: pageParam } = await searchParams;
   const session = await auth();
-  const project = await getProjectById(projectId, session!.user!.id!);
+  const team = await getUserTeam(session!.user!.id!);
+  const project = await getProjectById(projectId, team.id);
 
   if (!project) {
     notFound();

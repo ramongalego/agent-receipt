@@ -12,6 +12,7 @@ import {
   createProjectSchema,
   updateProjectSchema,
 } from "@/lib/validations/project";
+import { getUserTeam, assertOwner } from "@/lib/access";
 
 type ActionState = {
   error?: string;
@@ -27,6 +28,14 @@ export async function createProjectAction(
     return { error: "You must be signed in." };
   }
 
+  const team = await getUserTeam(session.user.id);
+
+  try {
+    await assertOwner(session.user.id, team.id);
+  } catch {
+    return { error: "Only workspace owners can create projects." };
+  }
+
   const parsed = createProjectSchema.safeParse({
     name: formData.get("name"),
     description: formData.get("description"),
@@ -37,7 +46,7 @@ export async function createProjectAction(
   }
 
   const project = await createProject(
-    session.user.id,
+    team.id,
     parsed.data.name,
     parsed.data.description || undefined,
   );
@@ -55,6 +64,14 @@ export async function updateProjectAction(
     return { error: "You must be signed in." };
   }
 
+  const team = await getUserTeam(session.user.id);
+
+  try {
+    await assertOwner(session.user.id, team.id);
+  } catch {
+    return { error: "Only workspace owners can update projects." };
+  }
+
   const parsed = updateProjectSchema.safeParse({
     name: formData.get("name"),
     description: formData.get("description"),
@@ -64,7 +81,7 @@ export async function updateProjectAction(
     return { fieldErrors: parsed.error.flatten().fieldErrors };
   }
 
-  const updated = await updateProject(projectId, session.user.id, {
+  const updated = await updateProject(projectId, team.id, {
     name: parsed.data.name,
     description: parsed.data.description || undefined,
   });
@@ -84,7 +101,15 @@ export async function deleteProjectAction(
     return { error: "You must be signed in." };
   }
 
-  const deleted = await deleteProject(projectId, session.user.id);
+  const team = await getUserTeam(session.user.id);
+
+  try {
+    await assertOwner(session.user.id, team.id);
+  } catch {
+    return { error: "Only workspace owners can delete projects." };
+  }
+
+  const deleted = await deleteProject(projectId, team.id);
   if (!deleted) {
     return { error: "Project not found." };
   }
@@ -101,6 +126,14 @@ export async function createApiKeyAction(
     return { error: "You must be signed in." };
   }
 
+  const team = await getUserTeam(session.user.id);
+
+  try {
+    await assertOwner(session.user.id, team.id);
+  } catch {
+    return { error: "Only workspace owners can create API keys." };
+  }
+
   const { key } = await createApiKey(projectId, name);
   return { key };
 }
@@ -112,6 +145,14 @@ export async function revokeApiKeyAction(
   const session = await auth();
   if (!session?.user?.id) {
     return { error: "You must be signed in." };
+  }
+
+  const team = await getUserTeam(session.user.id);
+
+  try {
+    await assertOwner(session.user.id, team.id);
+  } catch {
+    return { error: "Only workspace owners can revoke API keys." };
   }
 
   const revoked = await revokeApiKey(keyId, projectId);

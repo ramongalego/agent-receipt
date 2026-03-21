@@ -2,10 +2,13 @@
 
 import { signIn } from "next-auth/react";
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { PublicNav } from "@/components/layout/public-nav";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -26,7 +29,7 @@ export default function SignInPage() {
           <div className="space-y-6 rounded-xl border border-border bg-card p-6 shadow-sm">
             <div className="space-y-3">
               <button
-                onClick={() => signIn("github", { callbackUrl: "/dashboard" })}
+                onClick={() => signIn("github", { callbackUrl })}
                 className="flex w-full items-center justify-center gap-2.5 rounded-lg border border-border bg-card px-4 py-3 text-sm font-medium text-card-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <GitHubIcon />
@@ -34,7 +37,7 @@ export default function SignInPage() {
               </button>
 
               <button
-                onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+                onClick={() => signIn("google", { callbackUrl })}
                 className="flex w-full items-center justify-center gap-2.5 rounded-lg border border-border bg-card px-4 py-3 text-sm font-medium text-card-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <GoogleIcon />
@@ -56,7 +59,7 @@ export default function SignInPage() {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                signIn("resend", { email, callbackUrl: "/dashboard" });
+                signIn("resend", { email, callbackUrl });
               }}
               className="space-y-3"
             >

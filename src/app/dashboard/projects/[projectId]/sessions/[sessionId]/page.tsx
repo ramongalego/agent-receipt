@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { getProjectById } from "@/db/queries/projects";
+import { getUserTeam } from "@/lib/access";
 import { getSessionById, getEventsBySession } from "@/db/queries/sessions";
 import { verifyChain } from "@/lib/hash";
 import { computeSessionStatus } from "@/lib/session-status";
@@ -18,7 +19,8 @@ export default async function SessionDetailPage({
 }) {
   const { projectId, sessionId } = await params;
   const userSession = await auth();
-  const project = await getProjectById(projectId, userSession!.user!.id!);
+  const team = await getUserTeam(userSession!.user!.id!);
+  const project = await getProjectById(projectId, team.id);
 
   if (!project) {
     notFound();

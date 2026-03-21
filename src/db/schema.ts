@@ -56,12 +56,53 @@ export const verificationTokens = pgTable("verification_tokens", {
   expires: timestamp("expires", { mode: "date" }).notNull(),
 });
 
+// Team tables
+
+export const teams = pgTable("teams", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: text("name").notNull().default("Main Workspace"),
+  ownerId: uuid("owner_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const teamMembers = pgTable("team_members", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  teamId: uuid("team_id")
+    .references(() => teams.id, { onDelete: "cascade" })
+    .notNull(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  role: text("role", { enum: ["owner", "viewer"] }).notNull(),
+  invitedBy: uuid("invited_by").references(() => users.id, {
+    onDelete: "set null",
+  }),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const inviteTokens = pgTable("invite_tokens", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  teamId: uuid("team_id")
+    .references(() => teams.id, { onDelete: "cascade" })
+    .notNull(),
+  email: text("email").notNull(),
+  role: text("role", { enum: ["owner", "viewer"] }).notNull(),
+  token: text("token").unique().notNull(),
+  invitedBy: uuid("invited_by")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  acceptedAt: timestamp("accepted_at", { mode: "date" }),
+  expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+});
+
 // Domain tables
 
 export const projects = pgTable("projects", {
   id: uuid("id").defaultRandom().primaryKey(),
-  userId: uuid("user_id")
-    .references(() => users.id, { onDelete: "cascade" })
+  teamId: uuid("team_id")
+    .references(() => teams.id, { onDelete: "cascade" })
     .notNull(),
   name: text("name").notNull(),
   description: text("description"),

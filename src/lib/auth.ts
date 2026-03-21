@@ -9,6 +9,8 @@ import {
   accounts,
   sessions as authSessions,
   verificationTokens,
+  teams,
+  teamMembers,
 } from "@/db/schema";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -22,11 +24,30 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     GitHub,
     Google,
     Resend({
-      from: "AgentReceipt <noreply@agentreceipt.dev>",
+      from: process.env.EMAIL_FROM ?? "onboarding@resend.dev",
     }),
   ],
   pages: {
     signIn: "/sign-in",
+    verifyRequest: "/auth/verify-request",
+    error: "/auth/error",
+  },
+  events: {
+    async createUser({ user }) {
+      if (!user.id) return;
+
+      const [team] = await db
+        .insert(teams)
+        .values({ name: "Main Workspace", ownerId: user.id })
+        .returning();
+
+      await db.insert(teamMembers).values({
+        teamId: team.id,
+        userId: user.id,
+        role: "owner",
+        invitedBy: user.id,
+      });
+    },
   },
   callbacks: {
     session({ session, user }) {

@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
+import { getUserTeam } from "@/lib/access";
 import { DesktopSidebar, MobileHeader } from "@/components/layout/sidebar-nav";
 
 export default async function DashboardLayout({
@@ -14,11 +15,19 @@ export default async function DashboardLayout({
     redirect("/sign-in");
   }
 
+  let workspaceName: string | undefined;
+  try {
+    const team = await getUserTeam(session.user.id!);
+    workspaceName = team.name;
+  } catch {
+    // Team may not exist yet for brand new users mid-creation
+  }
+
   return (
     <div className="min-h-screen bg-background">
-      <MobileHeader />
+      <MobileHeader workspaceName={workspaceName} />
       <div className="flex">
-        <DesktopSidebar />
+        <DesktopSidebar workspaceName={workspaceName} />
         <main className="min-h-screen flex-1">
           <Suspense>{children}</Suspense>
         </main>

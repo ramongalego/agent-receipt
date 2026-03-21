@@ -1,6 +1,6 @@
 import { eq, and, gte, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { users, agentSessions, projects } from "@/db/schema";
+import { users, agentSessions, projects, teams } from "@/db/schema";
 
 export const MAX_EVENTS_PER_SESSION = 200;
 
@@ -53,9 +53,10 @@ export async function getUsageThisMonth(userId: string): Promise<number> {
     .select({ count: sql<number>`cast(count(${agentSessions.id}) as int)` })
     .from(agentSessions)
     .innerJoin(projects, eq(projects.id, agentSessions.projectId))
+    .innerJoin(teams, eq(teams.id, projects.teamId))
     .where(
       and(
-        eq(projects.userId, userId),
+        eq(teams.ownerId, userId),
         gte(agentSessions.startedAt, startOfMonth),
       ),
     );

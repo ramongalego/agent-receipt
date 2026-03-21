@@ -2,10 +2,12 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CopyButton } from "@/components/ui/copy-button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { createApiKeyAction, revokeApiKeyAction } from "../../actions";
 
 type ApiKey = {
@@ -20,40 +22,59 @@ type ApiKey = {
 type ApiKeysSectionProps = {
   projectId: string;
   initialKeys: ApiKey[];
+  isOwner?: boolean;
 };
 
 export function ApiKeysSection({
   projectId,
   initialKeys,
+  isOwner = true,
 }: ApiKeysSectionProps) {
   const router = useRouter();
   const [newKey, setNewKey] = useState<string | null>(null);
   const [creating, startCreate] = useTransition();
-  const [revokingId, setRevokingId] = useState<string | null>(null);
+  const [optimisticRevoked, setOptimisticRevoked] = useState<Set<string>>(
+    new Set(),
+  );
+  const [confirmRevokeId, setConfirmRevokeId] = useState<string | null>(null);
 
   function handleCreate() {
     startCreate(async () => {
       const result = await createApiKeyAction(projectId, "Default key");
-      if (result.key) {
+      if (result.error) {
+        toast.error(result.error);
+      } else if (result.key) {
         setNewKey(result.key);
+        toast.success("API key created.");
         router.refresh();
       }
     });
   }
 
   function handleRevoke(keyId: string) {
-    if (!confirm("Revoke this API key? Any SDK using it will stop working.")) {
-      return;
-    }
-    setRevokingId(keyId);
-    revokeApiKeyAction(keyId, projectId).then(() => {
-      setRevokingId(null);
+    setConfirmRevokeId(null);
+    setOptimisticRevoked((prev) => new Set(prev).add(keyId));
+    revokeApiKeyAction(keyId, projectId).then((result) => {
+      if (result.error) {
+        toast.error(result.error);
+        setOptimisticRevoked((prev) => {
+          const next = new Set(prev);
+          next.delete(keyId);
+          return next;
+        });
+      } else {
+        toast.info("API key revoked.");
+      }
       router.refresh();
     });
   }
 
-  const activeKeys = initialKeys.filter((k) => !k.revoked);
-  const revokedKeys = initialKeys.filter((k) => k.revoked);
+  const keys = initialKeys.map((k) => ({
+    ...k,
+    revoked: k.revoked || optimisticRevoked.has(k.id),
+  }));
+  const activeKeys = keys.filter((k) => !k.revoked);
+  const revokedKeys = keys.filter((k) => k.revoked);
 
   return (
     <div>
@@ -98,20 +119,28 @@ export function ApiKeysSection({
       {activeKeys.length === 0 && !newKey ? (
         <EmptyState
           title="No API keys"
-          description="Create an API key to connect your agent's SDK to this project."
+          description={
+            isOwner
+              ? "Create an API key to connect your agent's SDK to this project."
+              : "No API keys have been created yet. Ask a workspace owner to create one."
+          }
           action={
-            <Button onClick={handleCreate} loading={creating}>
-              Create API key
-            </Button>
+            isOwner ? (
+              <Button onClick={handleCreate} loading={creating}>
+                Create API key
+              </Button>
+            ) : undefined
           }
         />
       ) : (
         <>
-          <div className="mb-4 flex justify-start">
-            <Button onClick={handleCreate} loading={creating} size="sm">
-              Create API key
-            </Button>
-          </div>
+          {isOwner && (
+            <div className="mb-4 flex justify-start">
+              <Button onClick={handleCreate} loading={creating} size="sm">
+                Create API key
+              </Button>
+            </div>
+          )}
           <Card>
             <div className="divide-y divide-border">
               {activeKeys.map((key) => (
@@ -134,14 +163,15 @@ export function ApiKeysSection({
                         ` · Last used ${new Date(key.lastUsedAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}`}
                     </p>
                   </div>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => handleRevoke(key.id)}
-                    loading={revokingId === key.id}
-                  >
-                    Revoke
-                  </Button>
+                  {isOwner && (
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => setConfirmRevokeId(key.id)}
+                    >
+                      Revoke
+                    </Button>
+                  )}
                 </div>
               ))}
               {revokedKeys.map((key) => (
@@ -163,6 +193,16 @@ export function ApiKeysSection({
           </Card>
         </>
       )}
+
+      <ConfirmModal
+        open={confirmRevokeId !== null}
+        title="Revoke this API key?"
+        description="Any SDK using this key will stop working. This cannot be undone."
+        confirmLabel="Revoke key"
+        variant="danger"
+        onConfirm={() => confirmRevokeId && handleRevoke(confirmRevokeId)}
+        onCancel={() => setConfirmRevokeId(null)}
+      />
     </div>
   );
 }

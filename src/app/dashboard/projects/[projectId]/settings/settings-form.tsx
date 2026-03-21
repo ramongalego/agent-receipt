@@ -2,20 +2,24 @@
 
 import { useState, useActionState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { updateProjectAction, deleteProjectAction } from "../../../actions";
 
 type ProjectSettingsFormProps = {
   projectId: string;
   initialName?: string;
   initialDescription?: string | null;
+  isOwner?: boolean;
 };
 
 export function ProjectSettingsForm({
   projectId,
   initialName,
   initialDescription,
+  isOwner = true,
 }: ProjectSettingsFormProps) {
   const router = useRouter();
   const [name, setName] = useState(initialName ?? "");
@@ -25,7 +29,10 @@ export function ProjectSettingsForm({
     async (...args: Parameters<typeof boundUpdate>) => {
       const result = await boundUpdate(...args);
       if (!result.error && !result.fieldErrors) {
+        toast.success("Project updated.");
         router.refresh();
+      } else if (result.error) {
+        toast.error(result.error);
       }
       return result;
     },
@@ -39,8 +46,6 @@ export function ProjectSettingsForm({
       </CardHeader>
       <CardContent>
         <form action={formAction} className="space-y-5">
-          {state.error && <p className="text-sm text-red-600">{state.error}</p>}
-
           <div>
             <label
               htmlFor="name"
@@ -54,7 +59,8 @@ export function ProjectSettingsForm({
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1.5 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground transition-colors focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+              disabled={!isOwner}
+              className="mt-1.5 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground transition-colors focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
             />
             {state.fieldErrors?.name && (
               <p className="mt-1 text-xs text-red-600">
@@ -76,7 +82,8 @@ export function ProjectSettingsForm({
               rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="mt-1.5 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground transition-colors focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+              disabled={!isOwner}
+              className="mt-1.5 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground transition-colors focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
             />
             {state.fieldErrors?.description && (
               <p className="mt-1 text-xs text-red-600">
@@ -85,9 +92,11 @@ export function ProjectSettingsForm({
             )}
           </div>
 
-          <Button type="submit" loading={updating}>
-            Save changes
-          </Button>
+          {isOwner && (
+            <Button type="submit" loading={updating}>
+              Save changes
+            </Button>
+          )}
         </form>
       </CardContent>
     </Card>
@@ -96,17 +105,15 @@ export function ProjectSettingsForm({
 
 export function DangerZone({ projectId }: ProjectSettingsFormProps) {
   const [deleting, startDelete] = useTransition();
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   function handleDelete() {
-    if (
-      !confirm(
-        "Delete this project? This will remove all sessions, events, and API keys. This cannot be undone.",
-      )
-    ) {
-      return;
-    }
+    setConfirmOpen(false);
     startDelete(async () => {
-      await deleteProjectAction(projectId);
+      const result = await deleteProjectAction(projectId);
+      if (result?.error) {
+        toast.error(result.error);
+      }
     });
   }
 
@@ -122,10 +129,23 @@ export function DangerZone({ projectId }: ProjectSettingsFormProps) {
           Deleting a project removes all its sessions, events, and API keys.
           This cannot be undone.
         </p>
-        <Button variant="danger" onClick={handleDelete} loading={deleting}>
+        <Button
+          variant="danger"
+          onClick={() => setConfirmOpen(true)}
+          loading={deleting}
+        >
           Delete project
         </Button>
       </CardContent>
+      <ConfirmModal
+        open={confirmOpen}
+        title="Delete this project?"
+        description="This will permanently remove all sessions, events, and API keys. This action cannot be undone."
+        confirmLabel="Delete project"
+        variant="danger"
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </Card>
   );
 }

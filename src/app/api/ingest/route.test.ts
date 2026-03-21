@@ -7,6 +7,7 @@ jest.mock("@/db", () => {
   const chainable = {
     select: jest.fn().mockReturnThis(),
     from: jest.fn().mockReturnThis(),
+    innerJoin: jest.fn().mockReturnThis(),
     where: jest.fn().mockReturnThis(),
     limit: jest.fn().mockReturnThis(),
     then: jest.fn(),
@@ -15,7 +16,8 @@ jest.mock("@/db", () => {
 });
 
 jest.mock("@/db/schema", () => ({
-  projects: { id: "id", userId: "user_id" },
+  projects: { id: "id", teamId: "team_id" },
+  teams: { id: "id", ownerId: "owner_id" },
 }));
 
 jest.mock("@/lib/ingest", () => ({
@@ -63,6 +65,7 @@ const mockGetEventCount = getEventCountBySessionId as jest.MockedFunction<
 const mockDb = db as unknown as {
   select: jest.Mock;
   from: jest.Mock;
+  innerJoin: jest.Mock;
   where: jest.Mock;
   limit: jest.Mock;
   then: jest.Mock;
@@ -118,7 +121,7 @@ const VALID_PROCESS_RESULT = {
 
 function setupHappyPath() {
   mockValidateApiKey.mockResolvedValue(VALID_KEY_RESULT);
-  mockDb.then.mockResolvedValue({ userId: "user-001" });
+  mockDb.then.mockResolvedValue({ ownerId: "user-001" });
   mockIsOverLimit.mockResolvedValue(false);
   mockGetEventCount.mockResolvedValue(0);
   mockProcessIngestEvent.mockResolvedValue(VALID_PROCESS_RESULT);
@@ -129,6 +132,7 @@ beforeEach(() => {
   // Reset the chainable db mock so .then resolves correctly per test
   mockDb.select.mockReturnThis();
   mockDb.from.mockReturnThis();
+  mockDb.innerJoin.mockReturnThis();
   mockDb.where.mockReturnThis();
   mockDb.limit.mockReturnThis();
 });
@@ -198,7 +202,7 @@ describe("POST /api/ingest", () => {
   describe("billing limits", () => {
     it("returns 429 when user is over their monthly session limit", async () => {
       mockValidateApiKey.mockResolvedValue(VALID_KEY_RESULT);
-      mockDb.then.mockResolvedValue({ userId: "user-001" });
+      mockDb.then.mockResolvedValue({ ownerId: "user-001" });
       mockIsOverLimit.mockResolvedValue(true);
 
       const req = createRequest({
@@ -228,7 +232,7 @@ describe("POST /api/ingest", () => {
 
     it("returns 429 and inserts an error event when a session already has 200 events", async () => {
       mockValidateApiKey.mockResolvedValue(VALID_KEY_RESULT);
-      mockDb.then.mockResolvedValue({ userId: "user-001" });
+      mockDb.then.mockResolvedValue({ ownerId: "user-001" });
       mockIsOverLimit.mockResolvedValue(false);
       mockGetEventCount.mockResolvedValue(200);
       mockInsertSystemErrorEvent.mockResolvedValue(undefined);
@@ -253,7 +257,7 @@ describe("POST /api/ingest", () => {
 
     it("succeeds when a session has 199 events", async () => {
       mockValidateApiKey.mockResolvedValue(VALID_KEY_RESULT);
-      mockDb.then.mockResolvedValue({ userId: "user-001" });
+      mockDb.then.mockResolvedValue({ ownerId: "user-001" });
       mockIsOverLimit.mockResolvedValue(false);
       mockGetEventCount.mockResolvedValue(199);
       mockProcessIngestEvent.mockResolvedValue(VALID_PROCESS_RESULT);
@@ -272,7 +276,7 @@ describe("POST /api/ingest", () => {
   describe("request body validation", () => {
     it("returns 400 when the request body is not valid JSON", async () => {
       mockValidateApiKey.mockResolvedValue(VALID_KEY_RESULT);
-      mockDb.then.mockResolvedValue({ userId: "user-001" });
+      mockDb.then.mockResolvedValue({ ownerId: "user-001" });
       mockIsOverLimit.mockResolvedValue(false);
 
       const req = createRequest({
@@ -289,7 +293,7 @@ describe("POST /api/ingest", () => {
 
     it("returns 400 with field errors when body fails validation", async () => {
       mockValidateApiKey.mockResolvedValue(VALID_KEY_RESULT);
-      mockDb.then.mockResolvedValue({ userId: "user-001" });
+      mockDb.then.mockResolvedValue({ ownerId: "user-001" });
       mockIsOverLimit.mockResolvedValue(false);
 
       const req = createRequest({
@@ -307,7 +311,7 @@ describe("POST /api/ingest", () => {
 
     it("returns 400 when required fields are missing from the event", async () => {
       mockValidateApiKey.mockResolvedValue(VALID_KEY_RESULT);
-      mockDb.then.mockResolvedValue({ userId: "user-001" });
+      mockDb.then.mockResolvedValue({ ownerId: "user-001" });
       mockIsOverLimit.mockResolvedValue(false);
 
       const req = createRequest({
@@ -521,7 +525,7 @@ describe("POST /api/ingest", () => {
   describe("processing errors", () => {
     it("returns 500 when processIngestEvent fails", async () => {
       mockValidateApiKey.mockResolvedValue(VALID_KEY_RESULT);
-      mockDb.then.mockResolvedValue({ userId: "user-001" });
+      mockDb.then.mockResolvedValue({ ownerId: "user-001" });
       mockIsOverLimit.mockResolvedValue(false);
       mockProcessIngestEvent.mockResolvedValue({
         ok: false,

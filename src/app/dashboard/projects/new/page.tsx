@@ -1,12 +1,22 @@
 "use client";
 
 import { useActionState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { createProjectAction } from "../../actions";
 
 export default function NewProjectPage() {
-  const [state, action, pending] = useActionState(createProjectAction, {});
+  const [state, action, pending] = useActionState(
+    async (...args: Parameters<typeof createProjectAction>) => {
+      const result = await createProjectAction(...args);
+      if (result.error) {
+        toast.error(result.error);
+      }
+      return result;
+    },
+    {},
+  );
 
   return (
     <div className="px-6 py-8 md:px-10 md:py-10">
@@ -24,10 +34,6 @@ export default function NewProjectPage() {
           </CardHeader>
           <CardContent>
             <form action={action} className="space-y-5">
-              {state.error && (
-                <p className="text-sm text-red-600">{state.error}</p>
-              )}
-
               <div>
                 <label
                   htmlFor="name"

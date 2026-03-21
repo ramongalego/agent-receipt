@@ -183,17 +183,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Social proof placeholder */}
-      <section className="px-6 py-10">
-        <div className="mx-auto max-w-3xl">
-          <div className="border-t border-border" />
-          <p className="py-8 text-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/60">
-            Trusted by developers building AI agents in production.
-          </p>
-          <div className="border-t border-border" />
-        </div>
-      </section>
-
       {/* Problem */}
       <section className="bg-surface px-6 py-24 sm:py-32">
         <div className="mx-auto max-w-5xl">

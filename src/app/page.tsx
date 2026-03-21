@@ -18,7 +18,7 @@ const jsonLd = {
   applicationCategory: "DeveloperApplication",
   description:
     "Immutable audit trails for AI agents. Capture every LLM call, tool call, and decision as a tamper-proof receipt.",
-  url: "https://agentreceipt.io",
+  url: "https://agentreceipt.co",
   offers: [
     { "@type": "Offer", price: "0", priceCurrency: "USD", name: "Free" },
     { "@type": "Offer", price: "29", priceCurrency: "USD", name: "Pro" },

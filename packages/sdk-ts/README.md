@@ -1,6 +1,6 @@
 # @agentreceipt/sdk
 
-TypeScript SDK for [AgentReceipt](https://agentreceipt.io). Capture immutable audit trails of every action your AI agent takes.
+TypeScript SDK for [AgentReceipt](https://agentreceipt.co). Capture immutable audit trails of every action your AI agent takes.
 
 ## Installation
 
@@ -10,7 +10,7 @@ npm install @agentreceipt/sdk
 
 ## Environment variable
 
-Set `AGENTRECEIPT_API_KEY` in your environment. You can get your key from the [AgentReceipt dashboard](https://agentreceipt.io).
+Set `AGENTRECEIPT_API_KEY` in your environment. You can get your key from the [AgentReceipt dashboard](https://agentreceipt.co).
 
 ```bash
 export AGENTRECEIPT_API_KEY="ar_live_..."
@@ -222,11 +222,11 @@ await session.end();
 ```typescript
 const ar = createClient({
   apiKey: "ar_live_...",
-  baseUrl: "https://agentreceipt.io", // optional, defaults to production
+  baseUrl: "https://agentreceipt.co", // optional, defaults to production
 });
 ```
 
 ## Links
 
-- [Dashboard](https://agentreceipt.io)
-- [Documentation](https://agentreceipt.io/docs)
+- [Dashboard](https://agentreceipt.co)
+- [Documentation](https://agentreceipt.co/docs)

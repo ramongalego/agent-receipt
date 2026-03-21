@@ -671,12 +671,12 @@ export default function LandingPage() {
                     </a>
                   </li>
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      href="/docs"
                       className="transition-colors hover:text-foreground"
                     >
                       Docs
-                    </a>
+                    </Link>
                   </li>
                 </ul>
               </div>

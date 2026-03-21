@@ -470,7 +470,10 @@ export default function DemoPage() {
             &copy; {new Date().getFullYear()} AgentReceipt
           </span>
           <div className="flex gap-6 text-sm text-muted-foreground">
-            <Link href="#" className="transition-colors hover:text-foreground">
+            <Link
+              href="/docs"
+              className="transition-colors hover:text-foreground"
+            >
               Docs
             </Link>
             <Link

@@ -1,20 +1,77 @@
 "use client";
 
+import { Suspense, useState } from "react";
 import { signIn } from "next-auth/react";
-import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { PublicNav } from "@/components/layout/public-nav";
 
-export default function SignInPage() {
+function SignInForm() {
   const [email, setEmail] = useState("");
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
 
   return (
+    <div className="space-y-6 rounded-xl border border-border bg-card p-6 shadow-sm">
+      <div className="space-y-3">
+        <button
+          onClick={() => signIn("github", { callbackUrl })}
+          className="flex w-full items-center justify-center gap-2.5 rounded-lg border border-border bg-card px-4 py-3 text-sm font-medium text-card-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <GitHubIcon />
+          Continue with GitHub
+        </button>
+
+        <button
+          onClick={() => signIn("google", { callbackUrl })}
+          className="flex w-full items-center justify-center gap-2.5 rounded-lg border border-border bg-card px-4 py-3 text-sm font-medium text-card-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <GoogleIcon />
+          Continue with Google
+        </button>
+      </div>
+
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-border" />
+        </div>
+        <div className="relative flex justify-center text-xs">
+          <span className="bg-card px-3 uppercase tracking-wide text-muted-foreground">
+            or
+          </span>
+        </div>
+      </div>
+
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          signIn("resend", { email, callbackUrl });
+        }}
+        className="space-y-3"
+      >
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="you@company.com"
+          required
+          className="w-full rounded-lg border border-input bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
+        />
+        <button
+          type="submit"
+          className="w-full rounded-lg bg-foreground px-4 py-3 text-sm font-medium text-background shadow-sm transition-colors hover:bg-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        >
+          Send magic link
+        </button>
+      </form>
+    </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
     <div className="flex min-h-screen flex-col bg-background">
       <PublicNav />
 
-      {/* Content */}
       <div className="flex flex-1 items-center justify-center px-6 pb-16">
         <div className="w-full max-w-sm space-y-8">
           <div className="text-center">
@@ -26,59 +83,9 @@ export default function SignInPage() {
             </p>
           </div>
 
-          <div className="space-y-6 rounded-xl border border-border bg-card p-6 shadow-sm">
-            <div className="space-y-3">
-              <button
-                onClick={() => signIn("github", { callbackUrl })}
-                className="flex w-full items-center justify-center gap-2.5 rounded-lg border border-border bg-card px-4 py-3 text-sm font-medium text-card-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                <GitHubIcon />
-                Continue with GitHub
-              </button>
-
-              <button
-                onClick={() => signIn("google", { callbackUrl })}
-                className="flex w-full items-center justify-center gap-2.5 rounded-lg border border-border bg-card px-4 py-3 text-sm font-medium text-card-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                <GoogleIcon />
-                Continue with Google
-              </button>
-            </div>
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-border" />
-              </div>
-              <div className="relative flex justify-center text-xs">
-                <span className="bg-card px-3 uppercase tracking-wide text-muted-foreground">
-                  or
-                </span>
-              </div>
-            </div>
-
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                signIn("resend", { email, callbackUrl });
-              }}
-              className="space-y-3"
-            >
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@company.com"
-                required
-                className="w-full rounded-lg border border-input bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
-              />
-              <button
-                type="submit"
-                className="w-full rounded-lg bg-foreground px-4 py-3 text-sm font-medium text-background shadow-sm transition-colors hover:bg-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-              >
-                Send magic link
-              </button>
-            </form>
-          </div>
+          <Suspense>
+            <SignInForm />
+          </Suspense>
 
           <p className="text-center text-xs text-muted-foreground">
             By signing in, you agree to our terms of service.

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
@@ -9,6 +10,19 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { FormattedDate } from "@/components/ui/formatted-date";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ projectId: string }>;
+}): Promise<Metadata> {
+  const { projectId } = await params;
+  const session = await auth();
+  if (!session?.user?.id) return { title: "Project" };
+  const team = await getUserTeam(session.user.id);
+  const project = await getProjectById(projectId, team.id);
+  return { title: project?.name ?? "Project" };
+}
 
 export default async function ProjectDetailPage({
   params,

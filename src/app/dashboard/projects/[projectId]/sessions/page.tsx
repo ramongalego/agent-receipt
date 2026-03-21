@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
@@ -7,6 +8,19 @@ import { getSessionsByProject } from "@/db/queries/sessions";
 import { computeSessionStatus } from "@/lib/session-status";
 import { EmptyState } from "@/components/ui/empty-state";
 import { SessionsTable } from "./sessions-table";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ projectId: string }>;
+}): Promise<Metadata> {
+  const { projectId } = await params;
+  const session = await auth();
+  if (!session?.user?.id) return { title: "Sessions" };
+  const team = await getUserTeam(session.user.id);
+  const project = await getProjectById(projectId, team.id);
+  return { title: `Sessions \u00B7 ${project?.name ?? "Project"}` };
+}
 
 const PAGE_SIZE = 20;
 

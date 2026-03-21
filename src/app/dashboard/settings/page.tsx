@@ -1,9 +1,14 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getUserTeam, getUserRole } from "@/lib/access";
 import { getTeamMembers, getPendingInvites } from "@/db/queries/invites";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { WorkspaceSection } from "./workspace-section";
+
+export const metadata: Metadata = {
+  title: "Settings",
+};
 
 export default async function GeneralSettingsPage() {
   const session = await auth();

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { getProjectsByTeam } from "@/db/queries/projects";
@@ -6,6 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { FormattedDate } from "@/components/ui/formatted-date";
+
+export const metadata: Metadata = {
+  title: "Projects",
+};
 
 export default async function DashboardPage() {
   const session = await auth();

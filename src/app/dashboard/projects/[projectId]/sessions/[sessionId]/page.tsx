@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
@@ -11,6 +12,21 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { EventTimeline } from "./event-timeline";
 import { ReceiptSummary } from "./receipt-summary";
 import { FormattedDate } from "@/components/ui/formatted-date";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ projectId: string; sessionId: string }>;
+}): Promise<Metadata> {
+  const { projectId, sessionId } = await params;
+  const session = await auth();
+  if (!session?.user?.id) return { title: "Session" };
+  const team = await getUserTeam(session.user.id);
+  const project = await getProjectById(projectId, team.id);
+  if (!project) return { title: "Session" };
+  const agentSession = await getSessionById(sessionId, projectId);
+  return { title: agentSession?.name ?? agentSession?.id ?? "Session" };
+}
 
 export default async function SessionDetailPage({
   params,

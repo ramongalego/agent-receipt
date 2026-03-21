@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { eq } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { db } from "@/db";
@@ -7,6 +8,10 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { UpgradeButton } from "./upgrade-button";
 import { ManageBillingButton } from "./manage-billing-button";
+
+export const metadata: Metadata = {
+  title: "Billing",
+};
 
 const PLANS = [
   { name: "Free" as const, price: "$0/month", priceId: null },

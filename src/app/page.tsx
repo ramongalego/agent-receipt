@@ -1,6 +1,30 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getPlanLimits } from "@/lib/billing";
 import { PublicNav } from "@/components/layout/public-nav";
+
+export const metadata: Metadata = {
+  description:
+    "AgentReceipt captures every action your AI agent takes and stores it as a tamper-proof, human-readable receipt. Built for compliance, audits, and accountability.",
+  alternates: {
+    canonical: "/",
+  },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "AgentReceipt",
+  applicationCategory: "DeveloperApplication",
+  description:
+    "Immutable audit trails for AI agents. Capture every LLM call, tool call, and decision as a tamper-proof receipt.",
+  url: "https://agentreceipt.io",
+  offers: [
+    { "@type": "Offer", price: "0", priceCurrency: "USD", name: "Free" },
+    { "@type": "Offer", price: "29", priceCurrency: "USD", name: "Pro" },
+    { "@type": "Offer", price: "99", priceCurrency: "USD", name: "Business" },
+  ],
+};
 
 const PLANS = [
   {
@@ -42,6 +66,7 @@ const PROBLEMS = [
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
+        aria-hidden="true"
       >
         <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
         <line x1="12" y1="9" x2="12" y2="13" />
@@ -63,6 +88,7 @@ const PROBLEMS = [
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
+        aria-hidden="true"
       >
         <circle cx="12" cy="12" r="10" />
         <line x1="12" y1="8" x2="12" y2="12" />
@@ -71,7 +97,7 @@ const PROBLEMS = [
     ),
     title: "No readable record exists",
     description:
-      "When something goes wrong, there is no log a non-technical person can read. No receipt you can hand to your compliance team or your customer.",
+      "When something goes wrong, there is no agent action log a non-technical person can read. No receipt you can hand to your compliance team or your customer.",
   },
   {
     icon: (
@@ -84,6 +110,7 @@ const PROBLEMS = [
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
+        aria-hidden="true"
       >
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
         <line x1="12" y1="8" x2="12" y2="12" />
@@ -99,6 +126,10 @@ const PROBLEMS = [
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <PublicNav />
 
       {/* Hero */}
@@ -115,7 +146,7 @@ export default function LandingPage() {
         />
         <div className="relative mx-auto max-w-3xl text-center">
           <p className="mb-6 text-sm font-medium uppercase tracking-widest text-indigo-500 dark:text-indigo-400">
-            Audit trails for AI agents
+            AI agent audit trail
           </p>
           <h1 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
             Know exactly what your AI agent did
@@ -123,7 +154,8 @@ export default function LandingPage() {
           <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-muted-foreground">
             Your agents send emails, trigger payments, and modify data. When
             something goes wrong, you need a clear record of what happened.
-            AgentReceipt gives you an immutable audit trail of every action.
+            AgentReceipt gives you an immutable audit trail for AI agents,
+            capturing every action for AI compliance and accountability.
           </p>
           <div className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
@@ -197,8 +229,8 @@ export default function LandingPage() {
                 </h3>
                 <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
                   Install the SDK and wrap your AI client. No config files, no
-                  extra infrastructure. Three lines and you are capturing every
-                  action.
+                  extra infrastructure. Three lines and you have full agent
+                  observability, capturing every action automatically.
                 </p>
                 <div className="overflow-hidden rounded-2xl border border-border bg-[#1e1e2e] shadow-lg">
                   <div className="flex items-center gap-1.5 border-b border-white/[0.06] px-4 py-3">
@@ -266,9 +298,9 @@ export default function LandingPage() {
                 </h3>
                 <p className="text-sm leading-relaxed text-muted-foreground">
                   Every LLM call, tool call, and decision is captured
-                  automatically. Your agent code does not change. If the SDK
-                  cannot reach our servers, it fails silently. Your agent keeps
-                  running.
+                  automatically as an LLM audit log. Your agent code does not
+                  change. If the SDK cannot reach our servers, it fails
+                  silently. Your agent keeps running.
                 </p>
               </div>
             </div>
@@ -282,8 +314,9 @@ export default function LandingPage() {
                 <h3 className="mb-2 text-lg font-semibold">View the receipt</h3>
                 <p className="text-sm leading-relaxed text-muted-foreground">
                   Open the dashboard and see a human-readable timeline of
-                  everything your agent did. Each event is hash-chained so you
-                  can prove nothing was altered after the fact.
+                  everything your agent did. Each event is hash-chained, giving
+                  you tamper-proof AI logs you can share with auditors or
+                  customers.
                 </p>
               </div>
             </div>
@@ -302,7 +335,7 @@ export default function LandingPage() {
           </h2>
           <div className="grid gap-6 sm:grid-cols-3">
             {/* Card 1 */}
-            <div className="rounded-xl border border-border bg-card p-8">
+            <section className="rounded-xl border border-border bg-card p-8">
               <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
                 <svg
                   width="24"
@@ -314,6 +347,7 @@ export default function LandingPage() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   className="text-muted-foreground"
+                  aria-hidden="true"
                 >
                   <path d="M13.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8.5L13.5 2Z" />
                   <path d="M14 2v6h6" />
@@ -324,13 +358,14 @@ export default function LandingPage() {
                 Immutable hash chain
               </h3>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                Every event is linked to the one before it via SHA-256 hashing.
-                If any event is modified, the chain breaks. You will know.
+                Every event is linked to the one before it via SHA-256 hashing,
+                forming an immutable audit trail. If any event is modified, the
+                chain breaks. You will know.
               </p>
-            </div>
+            </section>
 
             {/* Card 2 */}
-            <div className="rounded-xl border border-border bg-card p-8">
+            <section className="rounded-xl border border-border bg-card p-8">
               <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
                 <svg
                   width="24"
@@ -342,6 +377,7 @@ export default function LandingPage() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   className="text-muted-foreground"
+                  aria-hidden="true"
                 >
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 </svg>
@@ -353,10 +389,10 @@ export default function LandingPage() {
                 Receipts are append-only. No one can edit or delete events after
                 the fact. Not even you.
               </p>
-            </div>
+            </section>
 
             {/* Card 3 */}
-            <div className="rounded-xl border border-border bg-card p-8">
+            <section className="rounded-xl border border-border bg-card p-8">
               <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
                 <svg
                   width="24"
@@ -368,21 +404,22 @@ export default function LandingPage() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   className="text-muted-foreground"
+                  aria-hidden="true"
                 >
                   <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                   <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                 </svg>
               </div>
               <h3 className="mb-2 text-base font-semibold">
-                Ready for the EU AI Act
+                EU AI Act compliance
               </h3>
               <p className="text-sm leading-relaxed text-muted-foreground">
                 The EU AI Act (Article 19) requires high-risk AI systems to
-                retain logs for at least six months. AgentReceipt stores your
-                receipts with configurable retention and an immutable hash
-                chain. Enforcement starts August 2026.
+                retain logs for at least six months. AgentReceipt provides AI
+                agent monitoring with configurable retention and an immutable
+                hash chain. Enforcement starts August 2026.
               </p>
-            </div>
+            </section>
           </div>
         </div>
       </section>
@@ -413,12 +450,13 @@ export default function LandingPage() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   className="shrink-0"
+                  aria-hidden="true"
                 >
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
               );
               return (
-                <div
+                <article
                   key={plan.name}
                   className={`relative flex flex-col rounded-2xl border p-8 ${
                     plan.highlighted
@@ -468,12 +506,12 @@ export default function LandingPage() {
                   >
                     {plan.cta}
                   </Link>
-                </div>
+                </article>
               );
             })}
 
             {/* Enterprise */}
-            <div className="relative flex flex-col rounded-2xl border border-border bg-card p-8">
+            <article className="relative flex flex-col rounded-2xl border border-border bg-card p-8">
               <h3 className="text-lg font-semibold">Enterprise</h3>
               <p className="mt-4 flex items-baseline gap-1">
                 <span className="text-4xl font-bold tracking-tight">
@@ -492,6 +530,7 @@ export default function LandingPage() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     className="shrink-0"
+                    aria-hidden="true"
                   >
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
@@ -508,6 +547,7 @@ export default function LandingPage() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     className="shrink-0"
+                    aria-hidden="true"
                   >
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
@@ -524,6 +564,7 @@ export default function LandingPage() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     className="shrink-0"
+                    aria-hidden="true"
                   >
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
@@ -540,6 +581,7 @@ export default function LandingPage() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     className="shrink-0"
+                    aria-hidden="true"
                   >
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
@@ -552,7 +594,7 @@ export default function LandingPage() {
               >
                 Contact sales
               </Link>
-            </div>
+            </article>
           </div>
         </div>
       </section>
@@ -587,8 +629,8 @@ export default function LandingPage() {
                 AgentReceipt
               </span>
               <p className="mt-3 max-w-xs text-sm text-muted-foreground">
-                Immutable audit trails for AI agent actions. Know what happened,
-                when, and why.
+                Immutable audit trails for AI agent actions. AI accountability
+                starts with knowing what happened, when, and why.
               </p>
             </div>
             <div className="flex gap-16">

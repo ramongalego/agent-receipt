@@ -13,10 +13,33 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://agentreceipt.io";
+
 export const metadata: Metadata = {
-  title: "AgentReceipt",
+  metadataBase: new URL(appUrl),
+  title: {
+    default: "AgentReceipt \u00B7 Immutable Audit Trails for AI Agents",
+    template: "%s \u00B7 AgentReceipt",
+  },
   description:
-    "Immutable audit trails for AI agent actions. Know what your agent did, when, and why.",
+    "AgentReceipt captures every action your AI agent takes and stores it as a tamper-proof, human-readable receipt. Built for compliance, audits, and accountability.",
+  openGraph: {
+    title: "AgentReceipt \u00B7 Immutable Audit Trails for AI Agents",
+    description:
+      "Capture every action your AI agent takes as a tamper-proof, human-readable receipt. Built for compliance and accountability.",
+    url: appUrl,
+    type: "website",
+    siteName: "AgentReceipt",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AgentReceipt \u00B7 Immutable Audit Trails for AI Agents",
+    description:
+      "Capture every action your AI agent takes as a tamper-proof, human-readable receipt.",
+  },
+  alternates: {
+    canonical: appUrl,
+  },
 };
 
 export default function RootLayout({

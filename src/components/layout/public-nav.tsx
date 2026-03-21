@@ -3,7 +3,10 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export function PublicNav() {
   return (
-    <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
+    <nav
+      aria-label="Main navigation"
+      className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6"
+    >
       <Link
         href="/"
         className="text-lg font-semibold tracking-tight text-foreground"

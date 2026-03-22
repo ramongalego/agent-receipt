@@ -74,9 +74,6 @@ export function BillingPlanToggle({
           </span>
         </button>
       </div>
-      <p className="mb-5 text-xs text-muted-foreground">
-        Annual billing available at checkout.
-      </p>
       <div className="grid gap-5 sm:grid-cols-4">
         {plans.map((p) => {
           const planKey = p.name.toLowerCase() as "free" | "pro" | "business";

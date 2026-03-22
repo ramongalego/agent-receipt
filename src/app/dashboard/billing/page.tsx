@@ -8,38 +8,10 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { UpgradeButton } from "./upgrade-button";
 import { ManageBillingButton } from "./manage-billing-button";
-import { BillingPlanToggle } from "./billing-plan-toggle";
 
 export const metadata: Metadata = {
   title: "Billing",
 };
-
-const PLANS = [
-  {
-    name: "Free" as const,
-    monthlyPrice: "$0/month",
-    monthlyPriceId: null,
-    yearlyPriceId: null,
-  },
-  {
-    name: "Pro" as const,
-    monthlyPrice: "$49/month",
-    yearlyPrice: "$39/month",
-    yearlyTotal: "$470/year",
-    yearlySavings: "Save $118/yr",
-    monthlyPriceId: process.env.STRIPE_PRICE_PRO_MONTHLY || null,
-    yearlyPriceId: process.env.STRIPE_PRICE_PRO_YEARLY || null,
-  },
-  {
-    name: "Business" as const,
-    monthlyPrice: "$199/month",
-    yearlyPrice: "$159/month",
-    yearlyTotal: "$1,910/year",
-    yearlySavings: "Save $478/yr",
-    monthlyPriceId: process.env.STRIPE_PRICE_BUSINESS_MONTHLY || null,
-    yearlyPriceId: process.env.STRIPE_PRICE_BUSINESS_YEARLY || null,
-  },
-];
 
 export default async function BillingPage() {
   const session = await auth();
@@ -116,13 +88,6 @@ export default async function BillingPage() {
             </div>
           </CardContent>
         </Card>
-
-        {/* Plan comparison */}
-        <div className="mb-5 flex items-center gap-3">
-          <h2 className="text-lg font-semibold text-foreground">Plans</h2>
-          <div className="h-px flex-1 bg-border" />
-        </div>
-        <BillingPlanToggle plans={PLANS} currentPlan={plan} />
       </div>
     </div>
   );

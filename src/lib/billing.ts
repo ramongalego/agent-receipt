@@ -8,7 +8,10 @@ export {
   getPlanLimits,
   type PlanName,
 } from "./billing-plans";
-import { type PlanName, getPlanLimits as _getPlanLimits } from "./billing-plans";
+import {
+  type PlanName,
+  getPlanLimits as _getPlanLimits,
+} from "./billing-plans";
 // Use local alias for internal use (re-export handles external consumers)
 const getPlanLimits = _getPlanLimits;
 

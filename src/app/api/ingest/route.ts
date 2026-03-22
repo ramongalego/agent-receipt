@@ -66,10 +66,7 @@ export async function POST(request: NextRequest) {
   });
 
   // Rate limit per API key
-  const rl = await checkRateLimit(
-    ingestRateLimit,
-    keyResult.value.projectId,
-  );
+  const rl = await checkRateLimit(ingestRateLimit, keyResult.value.projectId);
   if (!rl.success) {
     return NextResponse.json(
       {

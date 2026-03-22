@@ -17,11 +17,15 @@ const PLAN_LIMITS: Record<PlanName, PlanLimits> = {
   business: { sessionsPerMonth: 15_000, retentionDays: 365 },
 };
 
-// Map Stripe price IDs to plan names. Set actual values in env.
-const PRICE_TO_PLAN: Record<string, PlanName> = {
-  [process.env.STRIPE_PRICE_PRO ?? "price_pro"]: "pro",
-  [process.env.STRIPE_PRICE_BUSINESS ?? "price_business"]: "business",
-};
+// Map Stripe price IDs to plan names. Supports monthly and yearly variants.
+const PRICE_TO_PLAN: Record<string, PlanName> = Object.fromEntries(
+  [
+    [process.env.STRIPE_PRICE_PRO_MONTHLY, "pro"],
+    [process.env.STRIPE_PRICE_PRO_YEARLY, "pro"],
+    [process.env.STRIPE_PRICE_BUSINESS_MONTHLY, "business"],
+    [process.env.STRIPE_PRICE_BUSINESS_YEARLY, "business"],
+  ].filter(([key]) => key) as [string, PlanName][],
+);
 
 export function getPlanLimits(plan: PlanName): PlanLimits {
   return PLAN_LIMITS[plan];

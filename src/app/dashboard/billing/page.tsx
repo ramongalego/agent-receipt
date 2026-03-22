@@ -15,14 +15,20 @@ export const metadata: Metadata = {
 };
 
 const PLANS = [
-  { name: "Free" as const, monthlyPrice: "$0/month", priceId: null },
+  {
+    name: "Free" as const,
+    monthlyPrice: "$0/month",
+    monthlyPriceId: null,
+    yearlyPriceId: null,
+  },
   {
     name: "Pro" as const,
     monthlyPrice: "$49/month",
     yearlyPrice: "$39/month",
     yearlyTotal: "$470/year",
     yearlySavings: "Save $118/yr",
-    priceId: process.env.STRIPE_PRICE_PRO || null,
+    monthlyPriceId: process.env.STRIPE_PRICE_PRO_MONTHLY || null,
+    yearlyPriceId: process.env.STRIPE_PRICE_PRO_YEARLY || null,
   },
   {
     name: "Business" as const,
@@ -30,7 +36,8 @@ const PLANS = [
     yearlyPrice: "$159/month",
     yearlyTotal: "$1,910/year",
     yearlySavings: "Save $478/yr",
-    priceId: process.env.STRIPE_PRICE_BUSINESS || null,
+    monthlyPriceId: process.env.STRIPE_PRICE_BUSINESS_MONTHLY || null,
+    yearlyPriceId: process.env.STRIPE_PRICE_BUSINESS_YEARLY || null,
   },
 ];
 

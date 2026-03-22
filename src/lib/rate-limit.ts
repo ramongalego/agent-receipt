@@ -33,6 +33,7 @@ function createLimiter(
 export const ingestRateLimit = createLimiter("rl:ingest", 300, "1 m");
 export const signInRateLimit = createLimiter("rl:signin", 10, "15 m");
 export const inviteRateLimit = createLimiter("rl:invite", 5, "1 h");
+export const feedbackRateLimit = createLimiter("rl:feedback", 5, "1 h");
 
 export async function checkRateLimit(
   limiter: Ratelimit | null,

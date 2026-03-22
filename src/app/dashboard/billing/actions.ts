@@ -13,8 +13,10 @@ export async function createCheckoutSession(priceId: string) {
   }
 
   const validPriceIds = [
-    process.env.STRIPE_PRICE_PRO,
-    process.env.STRIPE_PRICE_BUSINESS,
+    process.env.STRIPE_PRICE_PRO_MONTHLY,
+    process.env.STRIPE_PRICE_PRO_YEARLY,
+    process.env.STRIPE_PRICE_BUSINESS_MONTHLY,
+    process.env.STRIPE_PRICE_BUSINESS_YEARLY,
   ].filter(Boolean);
 
   if (!priceId || !validPriceIds.includes(priceId)) {

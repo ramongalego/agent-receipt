@@ -1,5 +1,6 @@
 import {
   pgTable,
+  pgEnum,
   text,
   timestamp,
   uuid,
@@ -193,3 +194,21 @@ export const events = pgTable(
   },
   (table) => [index("events_session_id_idx").on(table.sessionId)],
 );
+
+// Feedback
+
+export const feedbackTypeEnum = pgEnum("feedback_type", [
+  "feedback",
+  "bug",
+  "support",
+]);
+
+export const feedback = pgTable("feedback", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  type: feedbackTypeEnum("type").notNull(),
+  message: text("message").notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+});

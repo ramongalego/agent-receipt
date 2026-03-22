@@ -10,7 +10,7 @@ export function UpgradeButton() {
 
   function handleUpgrade() {
     startTransition(async () => {
-      const priceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO;
+      const priceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY;
       if (!priceId) {
         toast.error("Billing is not configured. Contact support.");
         return;

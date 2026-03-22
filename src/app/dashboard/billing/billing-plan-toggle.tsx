@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { toast } from "sonner";
 import { getPlanLimits } from "@/lib/billing";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { createCheckoutSession } from "./actions";
 
 type Plan = {
   name: "Free" | "Pro" | "Business";
@@ -11,7 +14,8 @@ type Plan = {
   yearlyPrice?: string;
   yearlyTotal?: string;
   yearlySavings?: string;
-  priceId: string | null;
+  monthlyPriceId: string | null;
+  yearlyPriceId: string | null;
 };
 
 type BillingPlanToggleProps = {
@@ -24,6 +28,22 @@ export function BillingPlanToggle({
   currentPlan,
 }: BillingPlanToggleProps) {
   const [isYearly, setIsYearly] = useState(false);
+  const [pending, startTransition] = useTransition();
+
+  function handleUpgrade(priceId: string | null) {
+    if (!priceId) {
+      toast.error("Billing is not configured. Contact support.");
+      return;
+    }
+    startTransition(async () => {
+      const result = await createCheckoutSession(priceId);
+      if ("data" in result && result.data?.url) {
+        window.location.href = result.data.url;
+      } else if ("error" in result) {
+        toast.error(result.error);
+      }
+    });
+  }
 
   return (
     <>
@@ -105,6 +125,20 @@ export function BillingPlanToggle({
                     {planLimits.retentionDays} day retention
                   </li>
                 </ul>
+                {!isCurrent && planKey !== "free" && (
+                  <Button
+                    className="mt-5 w-full"
+                    size="sm"
+                    loading={pending}
+                    onClick={() =>
+                      handleUpgrade(
+                        isYearly ? p.yearlyPriceId : p.monthlyPriceId,
+                      )
+                    }
+                  >
+                    Upgrade to {p.name}
+                  </Button>
+                )}
               </CardContent>
             </Card>
           );

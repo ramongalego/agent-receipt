@@ -52,8 +52,10 @@ jest.mock("drizzle-orm", () => ({
 }));
 
 // Set allowed price IDs before importing the module
-process.env.STRIPE_PRICE_PRO = "price_pro_test";
-process.env.STRIPE_PRICE_BUSINESS = "price_biz_test";
+process.env.STRIPE_PRICE_PRO_MONTHLY = "price_pro_test";
+process.env.STRIPE_PRICE_PRO_YEARLY = "price_pro_yearly_test";
+process.env.STRIPE_PRICE_BUSINESS_MONTHLY = "price_biz_test";
+process.env.STRIPE_PRICE_BUSINESS_YEARLY = "price_biz_yearly_test";
 
 import { createCheckoutSession } from "./actions";
 

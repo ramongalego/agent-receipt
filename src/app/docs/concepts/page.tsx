@@ -232,6 +232,16 @@ try {
         .
       </p>
 
+      <h3 className="mt-8 text-lg font-semibold">Sharing receipts</h3>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        Any complete receipt can be shared with a public link. Generate one from
+        the Share button on any session detail page. Anyone with the link can
+        view the full receipt without signing in. The timeline, summary, hash
+        chain status, and Rekor anchor badge are all visible. Links can be
+        revoked at any time from the same button. By default, all receipts are
+        private.
+      </p>
+
       {/* Hash chain */}
       <h2
         id="hash-chain"

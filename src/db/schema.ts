@@ -164,6 +164,8 @@ export const agentSessions = pgTable(
     rekorLogIndex: integer("rekor_log_index"),
     rekorAnchoredAt: timestamp("rekor_anchored_at", { mode: "date" }),
     rekorStatus: text("rekor_status"),
+    shareToken: text("share_token").unique(),
+    shareTokenCreatedAt: timestamp("share_token_created_at", { mode: "date" }),
   },
   (table) => [index("agent_sessions_project_id_idx").on(table.projectId)],
 );

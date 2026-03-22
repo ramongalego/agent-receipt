@@ -14,16 +14,24 @@ const mockDbLimit = jest.fn();
 const mockDbThen = jest.fn();
 
 const mockAnchorSessionIfEligible = jest.fn();
+const mockAssertOwner = jest.fn();
+const mockGenerateShareTokenQuery = jest.fn();
+const mockRevokeShareTokenQuery = jest.fn();
 
 jest.mock("@/lib/auth", () => ({ auth: () => mockAuth() }));
 jest.mock("@/lib/access", () => ({
   getUserTeam: (userId: string) => mockGetUserTeam(userId),
+  assertOwner: (userId: string, teamId: string) =>
+    mockAssertOwner(userId, teamId),
 }));
 jest.mock("@/lib/r2", () => ({
   getPayload: (eventId: string) => mockGetPayload(eventId),
 }));
 jest.mock("@/db/queries/sessions", () => ({
   updateSessionSummary: jest.fn(),
+  generateShareToken: (...args: unknown[]) =>
+    mockGenerateShareTokenQuery(...args),
+  revokeShareToken: (...args: unknown[]) => mockRevokeShareTokenQuery(...args),
 }));
 jest.mock("@/lib/anchor-session", () => ({
   anchorSessionIfEligible: (...args: unknown[]) =>
@@ -106,6 +114,8 @@ import {
   fetchEventPayload,
   generateSessionSummary,
   retryRekorAnchor,
+  generateShareLink,
+  revokeShareLink,
 } from "./actions";
 
 describe("fetchEventPayload", () => {
@@ -260,5 +270,92 @@ describe("retryRekorAnchor", () => {
 
     expect(result).toEqual({});
     expect(mockDbUpdate).toHaveBeenCalled();
+  });
+});
+
+describe("generateShareLink", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("returns error if not authenticated", async () => {
+    mockAuth.mockResolvedValue(null);
+
+    const result = await generateShareLink("session-1");
+
+    expect(result).toEqual({ error: "Not authenticated." });
+  });
+
+  it("throws if called by a viewer (not owner)", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user_viewer" } });
+    mockGetUserTeam.mockResolvedValue({ id: "team_A", name: "Team A" });
+    mockAssertOwner.mockRejectedValue(
+      new Error("You must be an owner to perform this action."),
+    );
+
+    await expect(generateShareLink("session-1")).rejects.toThrow(
+      "You must be an owner to perform this action.",
+    );
+  });
+
+  it("returns token and URL on success", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user_owner" } });
+    mockGetUserTeam.mockResolvedValue({ id: "team_A", name: "Team A" });
+    mockAssertOwner.mockResolvedValue(undefined);
+    mockGenerateShareTokenQuery.mockResolvedValue("share-token-abc");
+
+    const result = await generateShareLink("session-1");
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        token: "share-token-abc",
+      }),
+    );
+    expect((result as { url: string }).url).toContain("/s/share-token-abc");
+    expect(mockGenerateShareTokenQuery).toHaveBeenCalledWith(
+      "session-1",
+      "team_A",
+    );
+  });
+});
+
+describe("revokeShareLink", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("returns error if not authenticated", async () => {
+    mockAuth.mockResolvedValue(null);
+
+    const result = await revokeShareLink("session-1");
+
+    expect(result).toEqual({ error: "Not authenticated." });
+  });
+
+  it("throws if called by a viewer", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user_viewer" } });
+    mockGetUserTeam.mockResolvedValue({ id: "team_A", name: "Team A" });
+    mockAssertOwner.mockRejectedValue(
+      new Error("You must be an owner to perform this action."),
+    );
+
+    await expect(revokeShareLink("session-1")).rejects.toThrow(
+      "You must be an owner to perform this action.",
+    );
+  });
+
+  it("returns success on valid revocation", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user_owner" } });
+    mockGetUserTeam.mockResolvedValue({ id: "team_A", name: "Team A" });
+    mockAssertOwner.mockResolvedValue(undefined);
+    mockRevokeShareTokenQuery.mockResolvedValue(true);
+
+    const result = await revokeShareLink("session-1");
+
+    expect(result).toEqual({ success: true });
+    expect(mockRevokeShareTokenQuery).toHaveBeenCalledWith(
+      "session-1",
+      "team_A",
+    );
   });
 });

@@ -2,9 +2,13 @@
 
 import { eq, and } from "drizzle-orm";
 import { auth } from "@/lib/auth";
-import { getUserTeam } from "@/lib/access";
+import { getUserTeam, assertOwner } from "@/lib/access";
 import { getPayload } from "@/lib/r2";
-import { updateSessionSummary } from "@/db/queries/sessions";
+import {
+  updateSessionSummary,
+  generateShareToken as generateShareTokenQuery,
+  revokeShareToken as revokeShareTokenQuery,
+} from "@/db/queries/sessions";
 import { anchorSessionIfEligible } from "@/lib/anchor-session";
 import { db } from "@/db";
 import { events, agentSessions, projects } from "@/db/schema";
@@ -99,20 +103,22 @@ export async function generateSessionSummary(
     };
   }
 
-  if (!events || events.length === 0) {
+  const filtered = (events ?? []).filter((e) => e.name !== "session.end");
+
+  if (filtered.length === 0) {
     return { error: "No events provided.", code: "NO_EVENTS" };
   }
 
   // Fetch payloads from R2 for all events in parallel
   const payloads = await Promise.all(
-    events.map(async (e) => {
+    filtered.map(async (e) => {
       const result = await getPayload(e.id);
       if (!result.ok) return null;
       return result.value as { input?: unknown; output?: unknown } | null;
     }),
   );
 
-  const eventLines = events
+  const eventLines = filtered
     .map((e, i) => {
       const lines = [`${i + 1}. ${e.name} (${e.type})`];
       if (e.durationMs && e.durationMs > 0) {
@@ -164,20 +170,20 @@ Write 3-5 sentences describing what the agent accomplished. Focus on the outcome
     if (!response.ok) {
       const body = await response.text().catch(() => "");
       console.error("[summary] Anthropic API error:", response.status, body);
-      const summary = generateFallbackSummary(sessionName, events);
+      const summary = generateFallbackSummary(sessionName, filtered);
       await updateSessionSummary(sessionId, summary);
       return { summary };
     }
 
     const data = await response.json();
     const summary =
-      data.content?.[0]?.text ?? generateFallbackSummary(sessionName, events);
+      data.content?.[0]?.text ?? generateFallbackSummary(sessionName, filtered);
 
     await updateSessionSummary(sessionId, summary);
     return { summary };
   } catch (e) {
     console.error("[summary] Failed to generate summary:", e);
-    const summary = generateFallbackSummary(sessionName, events);
+    const summary = generateFallbackSummary(sessionName, filtered);
     await updateSessionSummary(sessionId, summary);
     return { summary };
   }
@@ -240,4 +246,44 @@ export async function retryRekorAnchor(
   await anchorSessionIfEligible(sessionId, agentSession.projectId, team.id);
 
   return {};
+}
+
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://agentreceipt.co";
+
+export async function generateShareLink(
+  sessionId: string,
+): Promise<{ token: string; url: string } | { error: string }> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: "Not authenticated." };
+  }
+
+  const team = await getUserTeam(session.user.id);
+  await assertOwner(session.user.id, team.id);
+
+  const token = await generateShareTokenQuery(sessionId, team.id);
+  if (!token) {
+    return { error: "Session not found or you do not have access." };
+  }
+
+  return { token, url: `${appUrl}/s/${token}` };
+}
+
+export async function revokeShareLink(
+  sessionId: string,
+): Promise<{ success: boolean } | { error: string }> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: "Not authenticated." };
+  }
+
+  const team = await getUserTeam(session.user.id);
+  await assertOwner(session.user.id, team.id);
+
+  const revoked = await revokeShareTokenQuery(sessionId, team.id);
+  if (!revoked) {
+    return { error: "Session not found or you do not have access." };
+  }
+
+  return { success: true };
 }

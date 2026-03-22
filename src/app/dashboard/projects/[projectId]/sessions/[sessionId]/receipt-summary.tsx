@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useTransition, useRef } from "react";
-import { Button } from "@/components/ui/button";
 import { generateSessionSummary } from "./actions";
 
 type SummaryEvent = {
@@ -77,16 +76,14 @@ export function ReceiptSummary({
           {summary}
         </p>
       )}
-      <div className="mt-3">
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={handleRegenerate}
-          loading={generating}
-        >
-          Regenerate
-        </Button>
-      </div>
+      <button
+        type="button"
+        onClick={handleRegenerate}
+        disabled={generating}
+        className="mt-3 text-xs text-muted-foreground/60 transition-colors hover:text-muted-foreground disabled:opacity-50"
+      >
+        {generating ? "Regenerating..." : "Regenerate"}
+      </button>
     </>
   );
 }

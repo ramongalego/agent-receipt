@@ -7,7 +7,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/db";
 import { agentSessions } from "@/db/schema";
 import { getProjectById } from "@/db/queries/projects";
-import { getUserTeamCached } from "@/lib/access";
+import { getUserTeamCached, getUserRole } from "@/lib/access";
 import { getSessionById, getEventsBySession } from "@/db/queries/sessions";
 import { verifyChain } from "@/lib/hash";
 import { computeSessionStatus } from "@/lib/session-status";
@@ -19,6 +19,7 @@ import { ReceiptSummary } from "./receipt-summary";
 import { HashChainBadge } from "@/components/ui/hash-chain-badge";
 import { RekorBadge } from "./rekor-badge";
 import { AnchorTrigger } from "./anchor-trigger";
+import { ShareButton } from "./share-modal";
 import { FormattedDate } from "@/components/ui/formatted-date";
 
 const getCachedProject = cache((projectId: string, teamId: string) =>
@@ -83,7 +84,10 @@ export default async function SessionDetailPage({
   // Determine if anchoring should be triggered on this load.
   // Set pending synchronously so the badge renders as "Anchoring..." immediately.
   // The actual Rekor call is handled by the AnchorTrigger client component via API route.
-  const plan = await getTeamPlan(team.id);
+  const [plan, role] = await Promise.all([
+    getTeamPlan(team.id),
+    getUserRole(userSession!.user!.id!, team.id),
+  ]);
   let agentSession = initialSession;
   const shouldAnchor =
     status === "complete" &&
@@ -167,23 +171,24 @@ export default async function SessionDetailPage({
                 </span>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <HashChainBadge valid={chainValid} />
-              <RekorBadge
-                rekorStatus={agentSession.rekorStatus}
-                rekorUuid={agentSession.rekorUuid}
-                rekorLogIndex={agentSession.rekorLogIndex}
-                plan={plan}
+            {role === "owner" && (
+              <ShareButton
                 sessionId={sessionId}
+                existingToken={agentSession.shareToken}
+                existingTokenCreatedAt={agentSession.shareTokenCreatedAt}
               />
-            </div>
+            )}
           </div>
-          <p className="mt-3 text-xs text-muted-foreground/60">
-            Event metadata and hash records are immutable. Raw payload content
-            is stored separately and can be deleted on request to comply with
-            GDPR Article 17. Contact support to request payload deletion for a
-            session.
-          </p>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <HashChainBadge valid={chainValid} />
+            <RekorBadge
+              rekorStatus={agentSession.rekorStatus}
+              rekorUuid={agentSession.rekorUuid}
+              rekorLogIndex={agentSession.rekorLogIndex}
+              plan={plan}
+              sessionId={sessionId}
+            />
+          </div>
         </div>
 
         <AnchorTrigger shouldAnchor={shouldAnchor} sessionId={sessionId} />
@@ -264,6 +269,12 @@ export default async function SessionDetailPage({
             }))}
           />
         </Card>
+
+        <p className="mt-8 text-xs text-muted-foreground/60">
+          Event metadata and hash records are immutable. Raw payload content is
+          stored separately and can be deleted on request to comply with GDPR
+          Article 17. Contact support to request payload deletion for a session.
+        </p>
       </div>
     </div>
   );

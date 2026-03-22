@@ -291,16 +291,11 @@ export default function DemoPage() {
                 </span>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <HashChainBadge valid />
-              <DemoRekorBadge />
-            </div>
           </div>
-          <p className="mt-3 text-xs text-muted-foreground/60">
-            Event metadata and hash records are immutable. Raw payload content
-            is stored separately and can be deleted on request to comply with
-            GDPR Article 17.
-          </p>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <HashChainBadge valid />
+            <DemoRekorBadge />
+          </div>
         </div>
 
         {/* Summary */}
@@ -419,6 +414,12 @@ export default function DemoPage() {
             ))}
           </div>
         </Card>
+
+        <p className="mt-8 text-xs text-muted-foreground/60">
+          Event metadata and hash records are immutable. Raw payload content is
+          stored separately and can be deleted on request to comply with GDPR
+          Article 17.
+        </p>
 
         {/* CTA */}
         <div className="mt-16 rounded-2xl border border-border bg-muted/50 p-10 text-center sm:p-14">

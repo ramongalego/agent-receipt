@@ -323,9 +323,9 @@ export default function LandingPage() {
                 <h3 className="mb-2 text-lg font-semibold">View the receipt</h3>
                 <p className="text-sm leading-relaxed text-muted-foreground">
                   Open the dashboard and see a human-readable timeline of
-                  everything your agent did. Each event is hash-chained, giving
-                  you tamper-proof AI logs you can share with auditors or
-                  customers.
+                  everything your agent did. Each event is hash-chained for
+                  tamper-proof verification. Share any receipt with a one-click
+                  link. Anyone with the link can view it.
                 </p>
               </div>
             </div>
@@ -582,7 +582,8 @@ export default function LandingPage() {
               <dd className="mt-3 text-sm leading-relaxed text-muted-foreground">
                 Only members of your workspace. You can invite your compliance
                 team, legal counsel, or any other stakeholder directly. They see
-                everything you see.
+                everything you see. You can also generate a shareable link for
+                any receipt and send it to anyone. No login required.
               </dd>
             </div>
             <div className="py-6">

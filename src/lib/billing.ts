@@ -2,20 +2,15 @@ import { eq, and, gte, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { users, agentSessions, projects, teams } from "@/db/schema";
 
-export const MAX_EVENTS_PER_SESSION = 200;
-
-export type PlanName = "free" | "pro" | "business";
-
-type PlanLimits = {
-  sessionsPerMonth: number;
-  retentionDays: number;
-};
-
-const PLAN_LIMITS: Record<PlanName, PlanLimits> = {
-  free: { sessionsPerMonth: 100, retentionDays: 7 },
-  pro: { sessionsPerMonth: 2_500, retentionDays: 90 },
-  business: { sessionsPerMonth: 15_000, retentionDays: 365 },
-};
+// Re-export from billing-plans so server-side consumers can import from one place
+export {
+  MAX_EVENTS_PER_SESSION,
+  getPlanLimits,
+  type PlanName,
+} from "./billing-plans";
+import { type PlanName, getPlanLimits as _getPlanLimits } from "./billing-plans";
+// Use local alias for internal use (re-export handles external consumers)
+const getPlanLimits = _getPlanLimits;
 
 // Map Stripe price IDs to plan names. Supports monthly and yearly variants.
 const PRICE_TO_PLAN: Record<string, PlanName> = Object.fromEntries(
@@ -26,10 +21,6 @@ const PRICE_TO_PLAN: Record<string, PlanName> = Object.fromEntries(
     [process.env.STRIPE_PRICE_BUSINESS_YEARLY, "business"],
   ].filter(([key]) => key) as [string, PlanName][],
 );
-
-export function getPlanLimits(plan: PlanName): PlanLimits {
-  return PLAN_LIMITS[plan];
-}
 
 export function getPlanFromPriceId(priceId: string): PlanName {
   return PRICE_TO_PLAN[priceId] ?? "free";

@@ -16,6 +16,9 @@ type IngestResult = {
 export async function validateApiKey(
   bearerToken: string,
 ): Promise<Result<{ projectId: string; keyId: string }>> {
+  // Note: SQL string comparison is not constant-time, but the key is SHA-256 hashed
+  // before comparison. Exploiting timing differences would require reversing the hash.
+  // Accepted risk — not fixing to avoid fetching all keys into memory.
   const keyHash = hashApiKey(bearerToken);
 
   const rows = await db
@@ -92,11 +95,11 @@ export async function processIngestEvent(
     })
     .returning({ id: events.id });
 
-  console.log("[ingest] Event inserted", { eventId: insertedEvent.id });
+  console.debug("[ingest] Event inserted", { eventId: insertedEvent.id });
 
   // Store raw payloads in R2 (skip for human_review events which have no payload)
   if (input.event.type !== "human_review") {
-    console.log("[ingest] Uploading payload to R2...");
+    console.debug("[ingest] Uploading payload to R2...");
     const r2Result = await putPayload(insertedEvent.id, {
       input: input.event.input,
       output: input.event.output,
@@ -113,9 +116,9 @@ export async function processIngestEvent(
       );
     }
 
-    console.log("[ingest] R2 upload done", { eventId: insertedEvent.id });
+    console.debug("[ingest] R2 upload done", { eventId: insertedEvent.id });
   } else {
-    console.log("[ingest] Skipping R2 upload for human_review event", {
+    console.debug("[ingest] Skipping R2 upload for human_review event", {
       eventId: insertedEvent.id,
     });
   }

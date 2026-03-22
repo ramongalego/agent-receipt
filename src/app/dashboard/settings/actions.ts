@@ -14,6 +14,7 @@ import {
   hasPendingInvite,
 } from "@/db/queries/invites";
 import { sendInviteEmail } from "@/lib/invite-email";
+import { checkRateLimit, inviteRateLimit } from "@/lib/rate-limit";
 
 type ActionResult = {
   error?: string;
@@ -61,6 +62,11 @@ export async function sendInviteAction(
     await assertOwner(session.user.id, team.id);
   } catch {
     return { error: "Only workspace owners can send invites." };
+  }
+
+  const rl = await checkRateLimit(inviteRateLimit, team.id);
+  if (!rl.success) {
+    return { error: "Too many invites. Try again later." };
   }
 
   const trimmedEmail = email.trim().toLowerCase();

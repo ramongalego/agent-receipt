@@ -31,7 +31,53 @@ export async function POST(request: NextRequest) {
   }
 
   switch (event.type) {
-    case "customer.subscription.created":
+    case "checkout.session.completed": {
+      const session = event.data.object as Stripe.Checkout.Session;
+      if (session.mode !== "subscription" || !session.subscription) break;
+
+      const customerId =
+        typeof session.customer === "string"
+          ? session.customer
+          : session.customer?.id;
+      const subscriptionId =
+        typeof session.subscription === "string"
+          ? session.subscription
+          : session.subscription.id;
+      const userId = session.metadata?.userId;
+
+      if (!customerId || !userId) {
+        console.warn(
+          "checkout.session.completed missing customerId or userId",
+          {
+            customerId,
+            hasUserId: !!userId,
+            stripeSessionId: session.id,
+          },
+        );
+        break;
+      }
+
+      // Fetch the full subscription to get price and period info
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+      const firstItem = subscription.items.data[0];
+      const priceId = firstItem?.price?.id ?? null;
+      const currentPeriodEnd = firstItem?.current_period_end
+        ? new Date(firstItem.current_period_end * 1000)
+        : new Date();
+
+      await db
+        .update(users)
+        .set({
+          stripeCustomerId: customerId,
+          stripeSubscriptionId: subscriptionId,
+          stripePriceId: priceId,
+          stripeCurrentPeriodEnd: currentPeriodEnd,
+        })
+        .where(eq(users.id, userId));
+
+      break;
+    }
+
     case "customer.subscription.updated": {
       const subscription = event.data.object as Stripe.Subscription;
       const customerId =
@@ -73,6 +119,19 @@ export async function POST(request: NextRequest) {
         })
         .where(eq(users.stripeCustomerId, customerId));
 
+      break;
+    }
+
+    case "invoice.payment_failed": {
+      const invoice = event.data.object as Stripe.Invoice;
+      const customerId =
+        typeof invoice.customer === "string"
+          ? invoice.customer
+          : invoice.customer?.id;
+
+      console.warn(
+        `Payment failed for customer ${customerId}, invoice ${invoice.id}. Stripe will retry.`,
+      );
       break;
     }
   }

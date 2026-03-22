@@ -5,6 +5,7 @@ const mockWhere = jest.fn().mockResolvedValue(undefined);
 const mockSet = jest.fn().mockReturnValue({ where: mockWhere });
 const mockUpdate = jest.fn().mockReturnValue({ set: mockSet });
 const mockConstructEvent = jest.fn();
+const mockSubscriptionsRetrieve = jest.fn();
 
 jest.mock("@/db", () => ({
   db: { update: (...args: unknown[]) => mockUpdate(...args) },
@@ -14,6 +15,9 @@ jest.mock("@/lib/stripe", () => ({
   stripe: {
     webhooks: {
       constructEvent: (...args: unknown[]) => mockConstructEvent(...args),
+    },
+    subscriptions: {
+      retrieve: (...args: unknown[]) => mockSubscriptionsRetrieve(...args),
     },
   },
 }));
@@ -36,15 +40,10 @@ function makeRequest(options?: { signature?: string | null; body?: string }) {
   });
 }
 
-function makeSubscriptionEvent(
-  type: string,
-  subscription: Record<string, unknown>,
-) {
+function makeEvent(type: string, object: Record<string, unknown>) {
   return {
     type,
-    data: {
-      object: subscription,
-    },
+    data: { object },
   };
 }
 
@@ -79,15 +78,53 @@ describe("POST /api/stripe/webhook", () => {
     expect(json.code).toBe("INVALID_SIGNATURE");
   });
 
-  it("subscription created sets correct plan on user", async () => {
+  it("checkout.session.completed sets plan on user", async () => {
     const periodEnd = Math.floor(Date.now() / 1000) + 86400;
-    const event = makeSubscriptionEvent("customer.subscription.created", {
+    const event = makeEvent("checkout.session.completed", {
+      mode: "subscription",
+      customer: "cus_456",
+      subscription: "sub_123",
+      metadata: { userId: "user_789" },
+    });
+    mockConstructEvent.mockReturnValue(event);
+    mockSubscriptionsRetrieve.mockResolvedValue({
+      items: {
+        data: [
+          {
+            price: { id: "price_pro" },
+            current_period_end: periodEnd,
+          },
+        ],
+      },
+    });
+
+    const request = makeRequest({ signature: "sig_test" });
+    const response = await POST(request);
+    const json = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(json.data.received).toBe(true);
+
+    expect(mockSubscriptionsRetrieve).toHaveBeenCalledWith("sub_123");
+    expect(mockUpdate).toHaveBeenCalled();
+    expect(mockSet).toHaveBeenCalledWith({
+      stripeCustomerId: "cus_456",
+      stripeSubscriptionId: "sub_123",
+      stripePriceId: "price_pro",
+      stripeCurrentPeriodEnd: new Date(periodEnd * 1000),
+    });
+    expect(mockWhere).toHaveBeenCalled();
+  });
+
+  it("subscription updated sets new price and period on user", async () => {
+    const periodEnd = Math.floor(Date.now() / 1000) + 86400 * 30;
+    const event = makeEvent("customer.subscription.updated", {
       id: "sub_123",
       customer: "cus_456",
       items: {
         data: [
           {
-            price: { id: "price_pro" },
+            price: { id: "price_business" },
             current_period_end: periodEnd,
           },
         ],
@@ -105,14 +142,37 @@ describe("POST /api/stripe/webhook", () => {
     expect(mockUpdate).toHaveBeenCalled();
     expect(mockSet).toHaveBeenCalledWith({
       stripeSubscriptionId: "sub_123",
-      stripePriceId: "price_pro",
+      stripePriceId: "price_business",
       stripeCurrentPeriodEnd: new Date(periodEnd * 1000),
     });
     expect(mockWhere).toHaveBeenCalled();
   });
 
+  it("subscription updated with no items returns 200 without crashing", async () => {
+    const event = makeEvent("customer.subscription.updated", {
+      id: "sub_123",
+      customer: "cus_456",
+      items: { data: [] },
+    });
+    mockConstructEvent.mockReturnValue(event);
+
+    const request = makeRequest({ signature: "sig_test" });
+    const response = await POST(request);
+    const json = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(json.data.received).toBe(true);
+
+    expect(mockUpdate).toHaveBeenCalled();
+    expect(mockSet).toHaveBeenCalledWith({
+      stripeSubscriptionId: "sub_123",
+      stripePriceId: null,
+      stripeCurrentPeriodEnd: expect.any(Date),
+    });
+  });
+
   it("subscription deleted downgrades to free", async () => {
-    const event = makeSubscriptionEvent("customer.subscription.deleted", {
+    const event = makeEvent("customer.subscription.deleted", {
       id: "sub_123",
       customer: "cus_456",
       items: { data: [] },

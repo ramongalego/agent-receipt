@@ -49,8 +49,8 @@ export async function putPayload(
     );
     return ok(undefined);
   } catch (e) {
-    const message = e instanceof Error ? e.message : "R2 upload failed.";
-    return err(message, "R2_UPLOAD_ERROR");
+    console.error("[r2] Upload failed:", e);
+    return err("Storage operation failed.", "R2_UPLOAD_ERROR");
   }
 }
 
@@ -69,7 +69,7 @@ export async function getPayload(eventId: string): Promise<Result<unknown>> {
     }
     return ok(JSON.parse(body));
   } catch (e) {
-    const message = e instanceof Error ? e.message : "R2 download failed.";
-    return err(message, "R2_DOWNLOAD_ERROR");
+    console.error("[r2] Download failed:", e);
+    return err("Storage operation failed.", "R2_DOWNLOAD_ERROR");
   }
 }

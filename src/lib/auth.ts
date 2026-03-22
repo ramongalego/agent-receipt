@@ -49,6 +49,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       });
     },
   },
+  cookies: {
+    sessionToken: {
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+  },
   callbacks: {
     session({ session, user }) {
       session.user.id = user.id;

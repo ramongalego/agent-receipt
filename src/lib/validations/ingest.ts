@@ -22,7 +22,7 @@ export const ingestEventSchema = z
         "error",
         "human_review",
       ]),
-      name: z.string().min(1, "Event name is required."),
+      name: z.string().min(1, "Event name is required.").max(100),
       input: z.unknown(),
       output: z.unknown(),
       durationMs: z.number().int().nonnegative(),

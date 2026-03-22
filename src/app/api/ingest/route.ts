@@ -9,17 +9,30 @@ import {
 import { checkR2Config } from "@/lib/r2";
 import { isOverLimit, MAX_EVENTS_PER_SESSION } from "@/lib/billing";
 import { getEventCountBySessionId } from "@/db/queries/events";
+import { checkRateLimit, ingestRateLimit } from "@/lib/rate-limit";
 import { db } from "@/db";
 import { projects, teams } from "@/db/schema";
 
 export async function POST(request: NextRequest) {
+  // Reject oversized payloads before parsing
+  const contentLength = request.headers.get("content-length");
+  if (contentLength && parseInt(contentLength) > 512 * 1024) {
+    return NextResponse.json(
+      {
+        error: "Payload too large. Maximum size is 512KB.",
+        code: "PAYLOAD_TOO_LARGE",
+      },
+      { status: 413 },
+    );
+  }
+
   // R2 is required for payload storage
   const r2Check = checkR2Config();
   if (!r2Check.ok) {
     return NextResponse.json(
       {
-        error: `Ingest endpoint is unavailable. Missing R2 configuration: ${r2Check.missing.join(", ")}. Set these environment variables and restart.`,
-        code: "R2_NOT_CONFIGURED",
+        error: "Ingest endpoint is temporarily unavailable.",
+        code: "SERVICE_UNAVAILABLE",
       },
       { status: 500 },
     );
@@ -38,7 +51,7 @@ export async function POST(request: NextRequest) {
   }
 
   const apiKey = authHeader.slice(7);
-  console.log("[ingest] Validating API key...");
+  console.debug("[ingest] Validating API key...");
   const keyResult = await validateApiKey(apiKey);
 
   if (!keyResult.ok) {
@@ -48,9 +61,24 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  console.log("[ingest] API key validated", {
+  console.debug("[ingest] API key validated", {
     projectId: keyResult.value.projectId,
   });
+
+  // Rate limit per API key
+  const rl = await checkRateLimit(
+    ingestRateLimit,
+    keyResult.value.projectId,
+  );
+  if (!rl.success) {
+    return NextResponse.json(
+      {
+        error: "Too many requests. Try again later.",
+        code: "RATE_LIMITED",
+      },
+      { status: 429 },
+    );
+  }
 
   // Check usage limits — find the team owner for billing
   const projectRow = await db
@@ -82,7 +110,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  console.log("[ingest] Body parsed");
+  console.debug("[ingest] Body parsed");
   const parsed = ingestEventSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
@@ -113,11 +141,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  console.log("[ingest] Validation passed", {
-    sessionId: parsed.data.sessionId,
-    eventType: parsed.data.event.type,
-    eventName: parsed.data.event.name,
-  });
+  console.debug("[ingest] Validation passed");
 
   // Process the event
   const result = await processIngestEvent(

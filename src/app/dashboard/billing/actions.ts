@@ -12,8 +12,13 @@ export async function createCheckoutSession(priceId: string) {
     return { error: "Not authenticated.", code: "UNAUTHORIZED" };
   }
 
-  if (!priceId) {
-    return { error: "priceId is required.", code: "MISSING_PRICE_ID" };
+  const validPriceIds = [
+    process.env.STRIPE_PRICE_PRO,
+    process.env.STRIPE_PRICE_BUSINESS,
+  ].filter(Boolean);
+
+  if (!priceId || !validPriceIds.includes(priceId)) {
+    return { error: "Invalid plan.", code: "INVALID_PRICE_ID" };
   }
 
   const user = await db

@@ -22,7 +22,7 @@ const PLANS = [
     yearlyPrice: "$39/month",
     yearlyTotal: "$470/year",
     yearlySavings: "Save $118/yr",
-    priceId: process.env.STRIPE_PRICE_PRO ?? "",
+    priceId: process.env.STRIPE_PRICE_PRO || null,
   },
   {
     name: "Business" as const,
@@ -30,7 +30,7 @@ const PLANS = [
     yearlyPrice: "$159/month",
     yearlyTotal: "$1,910/year",
     yearlySavings: "Save $478/yr",
-    priceId: process.env.STRIPE_PRICE_BUSINESS ?? "",
+    priceId: process.env.STRIPE_PRICE_BUSINESS || null,
   },
 ];
 

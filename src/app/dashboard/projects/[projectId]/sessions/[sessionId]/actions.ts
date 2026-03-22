@@ -1,13 +1,57 @@
 "use server";
 
+import { eq, and } from "drizzle-orm";
 import { auth } from "@/lib/auth";
+import { getUserTeam } from "@/lib/access";
 import { getPayload } from "@/lib/r2";
 import { updateSessionSummary } from "@/db/queries/sessions";
+import { db } from "@/db";
+import { events, agentSessions, projects } from "@/db/schema";
+
+async function verifyEventAccess(
+  eventId: string,
+  teamId: string,
+): Promise<boolean> {
+  const row = await db
+    .select({ id: events.id })
+    .from(events)
+    .innerJoin(agentSessions, eq(agentSessions.id, events.sessionId))
+    .innerJoin(projects, eq(projects.id, agentSessions.projectId))
+    .where(and(eq(events.id, eventId), eq(projects.teamId, teamId)))
+    .limit(1)
+    .then((rows) => rows[0] ?? null);
+
+  return row !== null;
+}
+
+async function verifySessionAccess(
+  sessionId: string,
+  teamId: string,
+): Promise<boolean> {
+  const row = await db
+    .select({ id: agentSessions.id })
+    .from(agentSessions)
+    .innerJoin(projects, eq(projects.id, agentSessions.projectId))
+    .where(and(eq(agentSessions.id, sessionId), eq(projects.teamId, teamId)))
+    .limit(1)
+    .then((rows) => rows[0] ?? null);
+
+  return row !== null;
+}
 
 export async function fetchEventPayload(eventId: string) {
   const session = await auth();
-  if (!session?.user) {
+  if (!session?.user?.id) {
     return { error: "Not authenticated.", code: "UNAUTHORIZED" };
+  }
+
+  const team = await getUserTeam(session.user.id);
+  const hasAccess = await verifyEventAccess(eventId, team.id);
+  if (!hasAccess) {
+    return {
+      error: "You do not have access to this event.",
+      code: "FORBIDDEN",
+    };
   }
 
   const result = await getPayload(eventId);
@@ -41,8 +85,17 @@ export async function generateSessionSummary(
   events: SummaryEvent[],
 ) {
   const session = await auth();
-  if (!session?.user) {
+  if (!session?.user?.id) {
     return { error: "Not authenticated.", code: "UNAUTHORIZED" };
+  }
+
+  const team = await getUserTeam(session.user.id);
+  const hasAccess = await verifySessionAccess(sessionId, team.id);
+  if (!hasAccess) {
+    return {
+      error: "You do not have access to this session.",
+      code: "FORBIDDEN",
+    };
   }
 
   if (!events || events.length === 0) {

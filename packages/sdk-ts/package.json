@@ -4,11 +4,21 @@
   "description": "TypeScript SDK for AgentReceipt, capture immutable audit trails of AI agent actions",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "scripts": {
     "build": "tsc",
+    "prepublishOnly": "npm run build",
     "test": "jest",
     "type-check": "tsc --noEmit",
     "lint": "eslint src/"
@@ -18,9 +28,25 @@
     "agent",
     "audit",
     "receipt",
-    "observability"
+    "observability",
+    "compliance",
+    "llm"
   ],
   "license": "MIT",
+  "peerDependencies": {
+    "openai": ">=4.0.0",
+    "@anthropic-ai/sdk": ">=0.20.0",
+    "@google/genai": ">=0.1.0",
+    "@mistralai/mistralai": ">=1.0.0",
+    "ai": ">=3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "openai": { "optional": true },
+    "@anthropic-ai/sdk": { "optional": true },
+    "@google/genai": { "optional": true },
+    "@mistralai/mistralai": { "optional": true },
+    "ai": { "optional": true }
+  },
   "devDependencies": {
     "@types/jest": "^30.0.0",
     "jest": "^30.3.0",

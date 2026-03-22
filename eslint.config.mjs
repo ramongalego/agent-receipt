@@ -17,6 +17,8 @@ const eslintConfig = defineConfig([
     // Test harness build output and dependencies
     "packages/test-harness/.next/**",
     "packages/test-harness/node_modules/**",
+    // OpenClaw skill (standalone, not a TS package)
+    "packages/openclaw-skill/**",
   ]),
 ]);
 

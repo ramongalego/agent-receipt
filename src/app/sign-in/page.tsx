@@ -5,8 +5,27 @@ import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { PublicNav } from "@/components/layout/public-nav";
 
+function Spinner() {
+  return (
+    <svg
+      className="h-4 w-4 animate-spin"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+    </svg>
+  );
+}
+
 function SignInForm() {
   const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState<"github" | "google" | "email" | null>(
+    null,
+  );
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
 
@@ -14,19 +33,27 @@ function SignInForm() {
     <div className="space-y-6 rounded-xl border border-border bg-card p-6 shadow-sm">
       <div className="space-y-3">
         <button
-          onClick={() => signIn("github", { callbackUrl })}
-          className="flex w-full items-center justify-center gap-2.5 rounded-lg border border-border bg-card px-4 py-3 text-sm font-medium text-card-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          disabled={loading !== null}
+          onClick={() => {
+            setLoading("github");
+            signIn("github", { callbackUrl });
+          }}
+          className="flex w-full items-center justify-center gap-2.5 rounded-lg border border-border bg-card px-4 py-3 text-sm font-medium text-card-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
         >
-          <GitHubIcon />
-          Continue with GitHub
+          {loading === "github" ? <Spinner /> : <GitHubIcon />}
+          {loading === "github" ? "Redirecting..." : "Continue with GitHub"}
         </button>
 
         <button
-          onClick={() => signIn("google", { callbackUrl })}
-          className="flex w-full items-center justify-center gap-2.5 rounded-lg border border-border bg-card px-4 py-3 text-sm font-medium text-card-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          disabled={loading !== null}
+          onClick={() => {
+            setLoading("google");
+            signIn("google", { callbackUrl });
+          }}
+          className="flex w-full items-center justify-center gap-2.5 rounded-lg border border-border bg-card px-4 py-3 text-sm font-medium text-card-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
         >
-          <GoogleIcon />
-          Continue with Google
+          {loading === "google" ? <Spinner /> : <GoogleIcon />}
+          {loading === "google" ? "Redirecting..." : "Continue with Google"}
         </button>
       </div>
 
@@ -44,6 +71,7 @@ function SignInForm() {
       <form
         onSubmit={(e) => {
           e.preventDefault();
+          setLoading("email");
           signIn("resend", { email, callbackUrl });
         }}
         className="space-y-3"
@@ -54,13 +82,22 @@ function SignInForm() {
           onChange={(e) => setEmail(e.target.value)}
           placeholder="you@company.com"
           required
-          className="w-full rounded-lg border border-input bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
+          disabled={loading !== null}
+          className="w-full rounded-lg border border-input bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20 disabled:opacity-50"
         />
         <button
           type="submit"
-          className="w-full rounded-lg bg-foreground px-4 py-3 text-sm font-medium text-background shadow-sm transition-colors hover:bg-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          disabled={loading !== null}
+          className="w-full rounded-lg bg-foreground px-4 py-3 text-sm font-medium text-background shadow-sm transition-colors hover:bg-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50"
         >
-          Send magic link
+          {loading === "email" ? (
+            <span className="flex items-center justify-center gap-2">
+              <Spinner />
+              Sending...
+            </span>
+          ) : (
+            "Send magic link"
+          )}
         </button>
       </form>
     </div>

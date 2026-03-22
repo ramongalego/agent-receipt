@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { PublicNav } from "@/components/layout/public-nav";
 import { highlightJson } from "@/lib/highlight";
+import { HashChainBadge } from "@/components/ui/hash-chain-badge";
 
 type DemoEvent = {
   id: string;
@@ -214,6 +215,44 @@ function TruncatedJson({ data }: { data: unknown }) {
   );
 }
 
+function DemoRekorBadge() {
+  const [showTooltip, setShowTooltip] = useState(false);
+
+  return (
+    <div className="relative">
+      <div
+        className="flex cursor-default items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 dark:border-green-800 dark:bg-green-950/30"
+        onMouseEnter={() => setShowTooltip(true)}
+        onMouseLeave={() => setShowTooltip(false)}
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="text-green-600 dark:text-green-400"
+        >
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          <polyline points="9 12 12 15 16 10" />
+        </svg>
+        <span className="text-sm font-medium text-green-700 dark:text-green-300">
+          Anchored on Rekor
+        </span>
+      </div>
+      {showTooltip && (
+        <div className="absolute left-0 top-full z-10 mt-2 w-72 rounded-lg border border-border bg-zinc-900 p-3 text-xs text-zinc-300 shadow-lg dark:bg-zinc-900">
+          An independent public log that proves this receipt existed at this
+          time and has not been changed. Available on Pro and Business plans.
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function DemoPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -252,24 +291,9 @@ export default function DemoPage() {
                 </span>
               </div>
             </div>
-            <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 dark:border-green-800 dark:bg-green-950/30">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-green-600 dark:text-green-400"
-              >
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                <polyline points="9 12 12 15 16 10" />
-              </svg>
-              <span className="text-sm font-medium text-green-700 dark:text-green-300">
-                Hash chain verified
-              </span>
+            <div className="flex items-center gap-3">
+              <HashChainBadge valid />
+              <DemoRekorBadge />
             </div>
           </div>
           <p className="mt-3 text-xs text-muted-foreground/60">
@@ -396,47 +420,6 @@ export default function DemoPage() {
           </div>
         </Card>
 
-        {/* Hash chain verification detail */}
-        <Card className="mt-6">
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-50 dark:bg-green-900/20">
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="text-green-600 dark:text-green-400"
-                  >
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                    <polyline points="9 12 12 15 16 10" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold">
-                    Hash chain integrity verified
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    All 4 events have valid SHA-256 hashes. No tampering
-                    detected.
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
-              >
-                View hash log
-              </button>
-            </div>
-          </CardContent>
-        </Card>
-
         {/* CTA */}
         <div className="mt-16 rounded-2xl border border-border bg-muted/50 p-10 text-center sm:p-14">
           <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
@@ -482,8 +465,17 @@ export default function DemoPage() {
             >
               Sign in
             </Link>
-            <Link href="#" className="transition-colors hover:text-foreground">
+            <Link
+              href="/privacy"
+              className="transition-colors hover:text-foreground"
+            >
               Privacy
+            </Link>
+            <Link
+              href="/terms"
+              className="transition-colors hover:text-foreground"
+            >
+              Terms
             </Link>
           </div>
         </div>

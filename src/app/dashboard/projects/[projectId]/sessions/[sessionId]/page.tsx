@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { EventTimeline } from "./event-timeline";
 import { ReceiptSummary } from "./receipt-summary";
+import { HashChainBadge } from "@/components/ui/hash-chain-badge";
 import { RekorBadge } from "./rekor-badge";
 import { AnchorTrigger } from "./anchor-trigger";
 import { FormattedDate } from "@/components/ui/formatted-date";
@@ -167,45 +168,7 @@ export default async function SessionDetailPage({
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <div
-                className={`flex items-center gap-2 rounded-lg border px-3 py-2 ${
-                  chainValid
-                    ? "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/30"
-                    : "border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/30"
-                }`}
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className={
-                    chainValid
-                      ? "text-green-600 dark:text-green-400"
-                      : "text-red-600 dark:text-red-400"
-                  }
-                >
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                  {chainValid ? (
-                    <polyline points="9 12 12 15 16 10" />
-                  ) : (
-                    <line x1="15" y1="9" x2="9" y2="15" />
-                  )}
-                </svg>
-                <span
-                  className={`text-sm font-medium ${
-                    chainValid
-                      ? "text-green-700 dark:text-green-300"
-                      : "text-red-700 dark:text-red-300"
-                  }`}
-                >
-                  {chainValid ? "Hash chain verified" : "Hash chain tampered"}
-                </span>
-              </div>
+              <HashChainBadge valid={chainValid} />
               <RekorBadge
                 rekorStatus={agentSession.rekorStatus}
                 rekorUuid={agentSession.rekorUuid}

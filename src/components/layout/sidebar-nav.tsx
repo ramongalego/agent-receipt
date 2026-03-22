@@ -41,6 +41,13 @@ export function DesktopSidebar({ workspaceName }: SidebarProps) {
             </Link>
             <ThemeToggle />
           </div>
+          {workspaceName && (
+            <div className="px-5 pb-4">
+              <p className="text-center text-sm font-medium text-foreground truncate">
+                {workspaceName}
+              </p>
+            </div>
+          )}
           <nav className="px-3 space-y-1">
             {navItems.map((item) => {
               const active = isActive(item.href);
@@ -62,6 +69,13 @@ export function DesktopSidebar({ workspaceName }: SidebarProps) {
                 </Link>
               );
             })}
+            <button
+              onClick={() => setFeedbackOpen(true)}
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            >
+              <FeedbackIcon />
+              Feedback
+            </button>
             <a
               href="/docs"
               target="_blank"
@@ -85,20 +99,6 @@ export function DesktopSidebar({ workspaceName }: SidebarProps) {
           </nav>
         </div>
         <div className="border-t border-border px-3 py-4">
-          {workspaceName && (
-            <div className="mb-3 px-3">
-              <p className="text-sm font-medium text-foreground truncate">
-                {workspaceName}
-              </p>
-            </div>
-          )}
-          <button
-            onClick={() => setFeedbackOpen(true)}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            <FeedbackIcon />
-            Feedback
-          </button>
           <button
             onClick={() => signOut({ callbackUrl: "/" })}
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
@@ -159,6 +159,13 @@ export function MobileHeader({ workspaceName }: SidebarProps) {
 
       {mobileOpen && (
         <nav className="border-b border-border bg-card px-3 py-3 md:hidden">
+          {workspaceName && (
+            <div className="pb-3">
+              <p className="text-center text-sm font-medium text-foreground truncate">
+                {workspaceName}
+              </p>
+            </div>
+          )}
           <div className="space-y-1">
             {navItems.map((item) => {
               const active = isActive(item.href);
@@ -178,6 +185,13 @@ export function MobileHeader({ workspaceName }: SidebarProps) {
                 </Link>
               );
             })}
+            <button
+              onClick={() => setFeedbackOpen(true)}
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            >
+              <FeedbackIcon />
+              Feedback
+            </button>
             <a
               href="/docs"
               target="_blank"
@@ -200,20 +214,6 @@ export function MobileHeader({ workspaceName }: SidebarProps) {
             </a>
           </div>
           <div className="mt-3 border-t border-border pt-3">
-            {workspaceName && (
-              <div className="mb-2 px-3">
-                <p className="text-sm font-medium text-foreground truncate">
-                  {workspaceName}
-                </p>
-              </div>
-            )}
-            <button
-              onClick={() => setFeedbackOpen(true)}
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            >
-              <FeedbackIcon />
-              Feedback
-            </button>
             <button
               onClick={() => signOut({ callbackUrl: "/" })}
               className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
@@ -300,7 +300,7 @@ function FeedbackIcon() {
       stroke="currentColor"
       strokeWidth={1.75}
     >
-      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+      <path d="M3 15a2 2 0 002 2h12l4 4V5a2 2 0 00-2-2H5a2 2 0 00-2 2z" />
     </svg>
   );
 }

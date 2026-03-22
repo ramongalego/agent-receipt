@@ -247,7 +247,7 @@ function MembersCard({
           return next;
         });
       } else {
-        toast.success(`Role changed to ${newRole}.`);
+        toast.success(`Role changed to ${newRole === "viewer" ? "member" : "owner"}.`);
         router.refresh();
       }
     });
@@ -295,7 +295,7 @@ function MembersCard({
                     )}
                   </span>
                   <Badge variant={m.role === "owner" ? "purple" : "info"}>
-                    {m.role === "owner" ? "Owner" : "Viewer"}
+                    {m.role === "owner" ? "Owner" : "Member"}
                   </Badge>
                 </div>
 
@@ -317,7 +317,7 @@ function MembersCard({
                         disabled={isPending}
                         className="text-xs text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
                       >
-                        Make viewer
+                        Make member
                       </button>
                     ) : (
                       <span
@@ -450,7 +450,7 @@ function InviteCard({
 }
 
 const ROLE_OPTIONS = [
-  { value: "viewer" as const, label: "Viewer" },
+  { value: "viewer" as const, label: "Member" },
   { value: "owner" as const, label: "Owner" },
 ];
 

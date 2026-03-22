@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  app:
+    name: App
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run lint
+      - run: npm run type-check
+      - run: npm run test
+
+  sdk:
+    name: SDK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: packages/sdk-ts/package-lock.json
+
+      - name: Install dependencies
+        working-directory: packages/sdk-ts
+        run: npm ci
+
+      - name: Lint
+        working-directory: packages/sdk-ts
+        run: npm run lint
+
+      - name: Type check
+        working-directory: packages/sdk-ts
+        run: npm run type-check
+
+      - name: Test
+        working-directory: packages/sdk-ts
+        run: npm test

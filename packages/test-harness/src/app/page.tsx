@@ -309,7 +309,6 @@ export default function TestPanel() {
         <section key={provider.name} style={{ marginBottom: 40 }}>
           <h2
             style={{
-              fontSize: 16,
               fontWeight: 600,
               marginBottom: 12,
               color: "#a1a1aa",

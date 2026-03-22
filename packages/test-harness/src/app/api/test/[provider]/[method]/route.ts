@@ -233,11 +233,11 @@ async function runGemini(method: string) {
                 {
                   name: "get_word_count",
                   description: "Count words in a text string",
-                  parameters: {
-                    type: "OBJECT",
+                  parametersJsonSchema: {
+                    type: "object",
                     properties: {
                       text: {
-                        type: "STRING",
+                        type: "string",
                         description: "The text to count",
                       },
                     },
@@ -350,10 +350,18 @@ async function runVercelAI(method: string) {
   const ar = getAR();
   const wrapped = ar.wrapVercelAI(
     {
-      generateText: ai.generateText,
-      streamText: ai.streamText,
-      generateObject: ai.generateObject,
-      streamObject: ai.streamObject,
+      generateText: ai.generateText as unknown as (
+        ...args: unknown[]
+      ) => Promise<unknown>,
+      streamText: ai.streamText as unknown as (
+        ...args: unknown[]
+      ) => Promise<unknown>,
+      generateObject: ai.generateObject as unknown as (
+        ...args: unknown[]
+      ) => Promise<unknown>,
+      streamObject: ai.streamObject as unknown as (
+        ...args: unknown[]
+      ) => Promise<unknown>,
     },
     { sessionName: `TestLord: Vercel AI ${method}` },
   );

@@ -228,11 +228,11 @@ export default function LandingPage() {
             <div className="absolute left-[21px] top-[44px] bottom-[44px] w-px bg-border" />
 
             {/* Step 1 */}
-            <div className="relative flex gap-6 pb-14">
+            <div className="relative flex gap-4 sm:gap-6 pb-14">
               <div className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-muted font-mono text-sm font-bold text-muted-foreground">
                 1
               </div>
-              <div className="flex-1 pt-1.5">
+              <div className="min-w-0 flex-1 pt-1.5">
                 <h3 className="mb-2 text-lg font-semibold">
                   Add three lines of code
                 </h3>
@@ -248,7 +248,7 @@ export default function LandingPage() {
                     <div className="h-3 w-3 rounded-full bg-[#28c840]" />
                     <span className="ml-3 text-xs text-white/40">agent.ts</span>
                   </div>
-                  <pre className="p-6 font-mono text-sm leading-[1.8]">
+                  <pre className="overflow-x-auto p-4 sm:p-6 font-mono text-xs sm:text-sm leading-[1.8]">
                     <code>
                       <span className="text-[#c678dd]">import</span>
                       <span className="text-[#cdd6f4]">{" { "}</span>
@@ -297,7 +297,7 @@ export default function LandingPage() {
             </div>
 
             {/* Step 2 */}
-            <div className="relative flex gap-6 pb-14">
+            <div className="relative flex gap-4 sm:gap-6 pb-14">
               <div className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-muted font-mono text-sm font-bold text-muted-foreground">
                 2
               </div>
@@ -315,7 +315,7 @@ export default function LandingPage() {
             </div>
 
             {/* Step 3 */}
-            <div className="relative flex gap-6">
+            <div className="relative flex gap-4 sm:gap-6">
               <div className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-muted font-mono text-sm font-bold text-muted-foreground">
                 3
               </div>

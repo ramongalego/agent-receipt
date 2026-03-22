@@ -1,0 +1,54 @@
+export function LogoIcon({ className = "h-5 w-5" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 32 32"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M4 27l3 3 3-3 3 3 3-3 3 3 3-3 3 3V5a3 3 0 00-3-3H7a3 3 0 00-3 3v22z"
+        fill="currentColor"
+        className="text-foreground"
+      />
+      <line
+        x1="10"
+        y1="10"
+        x2="22"
+        y2="10"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        className="text-muted"
+      />
+      <line
+        x1="10"
+        y1="14.5"
+        x2="22"
+        y2="14.5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        className="text-muted"
+      />
+      <line
+        x1="10"
+        y1="19"
+        x2="17"
+        y2="19"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        className="text-muted"
+      />
+      <circle cx="22" cy="22" r="6" className="text-green-500" fill="currentColor" />
+      <path
+        d="M19.5 22l1.5 1.5 3-3"
+        stroke="white"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}

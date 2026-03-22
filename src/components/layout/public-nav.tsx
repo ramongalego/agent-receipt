@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { LogoIcon } from "@/components/ui/logo-icon";
 
 export function PublicNav() {
   return (
@@ -9,8 +10,9 @@ export function PublicNav() {
     >
       <Link
         href="/"
-        className="text-lg font-semibold tracking-tight text-foreground"
+        className="flex items-center gap-1 text-lg font-semibold tracking-tight text-foreground"
       >
+        <LogoIcon className="h-[18px] w-[18px]" />
         AgentReceipt
       </Link>
       <div className="flex items-center gap-5">

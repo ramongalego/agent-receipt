@@ -29,8 +29,10 @@ export function ThemeToggle() {
 
   const toggle = useCallback(() => {
     const next = !document.documentElement.classList.contains("dark");
+    const value = next ? "dark" : "light";
     document.documentElement.classList.toggle("dark", next);
-    localStorage.setItem("theme", next ? "dark" : "light");
+    localStorage.setItem("theme", value);
+    document.cookie = `theme=${value};path=/;max-age=31536000`;
   }, []);
 
   return (

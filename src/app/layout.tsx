@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { Analytics } from "@vercel/analytics/next";
@@ -43,17 +44,21 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const theme = cookieStore.get("theme")?.value;
+  const isDark = theme !== "light";
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={isDark ? "dark" : ""} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){var t=localStorage.getItem('theme');var d=t!=='light';if(d)document.documentElement.classList.add('dark');})();`,
+            __html: `(function(){var t=localStorage.getItem('theme');if(t){document.cookie='theme='+t+';path=/;max-age=31536000';var d=t!=='light';document.documentElement.classList.toggle('dark',d);}})();`,
           }}
         />
       </head>

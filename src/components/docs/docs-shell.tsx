@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { LogoIcon } from "@/components/ui/logo-icon";
 
 type NavItem = {
   label: string;
@@ -177,7 +178,11 @@ export function DocsShell({ children }: DocsShellProps) {
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-6">
-            <Link href="/" className="text-lg font-semibold tracking-tight">
+            <Link
+              href="/"
+              className="flex items-center gap-1 text-lg font-semibold tracking-tight"
+            >
+              <LogoIcon className="h-[18px] w-[18px]" />
               AgentReceipt
             </Link>
             <Link

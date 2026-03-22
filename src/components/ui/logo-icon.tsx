@@ -41,7 +41,13 @@ export function LogoIcon({ className = "h-5 w-5" }: { className?: string }) {
         strokeLinecap="round"
         className="text-muted"
       />
-      <circle cx="22" cy="22" r="6" className="text-green-500" fill="currentColor" />
+      <circle
+        cx="22"
+        cy="22"
+        r="6"
+        className="text-green-500"
+        fill="currentColor"
+      />
       <path
         d="M19.5 22l1.5 1.5 3-3"
         stroke="white"

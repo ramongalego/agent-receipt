@@ -207,7 +207,8 @@ function PiiBadge({ dataCategory }: { dataCategory?: string }) {
 
 const PAGE_SIZE = 50;
 
-export function EventTimeline({ events }: EventTimelineProps) {
+export function EventTimeline({ events: rawEvents }: EventTimelineProps) {
+  const events = rawEvents.filter((e) => e.name !== "session.end");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [payload, setPayload] = useState<{
     input?: unknown;

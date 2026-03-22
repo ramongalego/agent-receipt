@@ -63,7 +63,7 @@ export default function ConceptsPage() {
                 </span>
               </td>
               <td className="py-2 text-muted-foreground">
-                Last event was less than 5 minutes ago.
+                Last event was less than 3 minutes ago.
               </td>
             </tr>
             <tr className="border-b border-border/50">
@@ -73,7 +73,7 @@ export default function ConceptsPage() {
                 </span>
               </td>
               <td className="py-2 text-muted-foreground">
-                No new events for 5 minutes and no errors.
+                No new events for 3 minutes and no errors.
               </td>
             </tr>
             <tr className="border-b border-border/50">
@@ -89,6 +89,27 @@ export default function ConceptsPage() {
           </tbody>
         </table>
       </div>
+
+      <h3 className="mt-8 text-lg font-semibold">Completing a session</h3>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        Sessions complete automatically 3 minutes after the last event. To
+        complete a session immediately, call{" "}
+        <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+          session.end()
+        </code>{" "}
+        at the end of your agent run. This triggers summary generation and Rekor
+        anchoring right away rather than waiting for the timeout.
+      </p>
+      <CodeBlock
+        code={`const session = ar.startSession("Process invoice #441")
+
+try {
+  // your agent logic
+} finally {
+  await session.end() // always call this when your agent finishes
+}`}
+        filename="session-end.ts"
+      />
 
       <h3 className="mt-8 text-lg font-semibold">Event limit</h3>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
@@ -243,6 +264,16 @@ export default function ConceptsPage() {
           depends on the event before it, forming the chain.
         </p>
       </div>
+
+      <h3 className="mt-8 text-lg font-semibold">External verification</h3>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        Pro and Business receipts are anchored to the Sigstore Rekor
+        transparency log after the session completes. Rekor is a public,
+        append-only log run by the Linux Foundation. The anchor proves the
+        receipt existed at a specific time and has not been changed since. Click
+        the &quot;Anchored on Rekor&quot; badge on any receipt to verify the
+        entry independently.
+      </p>
 
       {/* Compliance metadata */}
       <h2

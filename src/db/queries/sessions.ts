@@ -17,6 +17,7 @@ export async function getSessionsByProject(
         status: agentSessions.status,
         startedAt: agentSessions.startedAt,
         completedAt: agentSessions.completedAt,
+        explicitlyCompletedAt: agentSessions.explicitlyCompletedAt,
         eventCount: sql<number>`cast(count(${events.id}) as int)`,
         lastEventAt: sql<Date | null>`max(${events.timestamp})`,
         hasError: sql<boolean>`bool_or(${events.type} = 'error')`,

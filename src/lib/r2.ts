@@ -54,6 +54,27 @@ export async function putPayload(
   }
 }
 
+export async function putRekorProof(
+  sessionId: string,
+  data: unknown,
+): Promise<Result<void>> {
+  try {
+    const client = getR2Client();
+    await client.send(
+      new PutObjectCommand({
+        Bucket: process.env.R2_BUCKET_NAME!,
+        Key: `sessions/${sessionId}/rekor-proof.json`,
+        Body: JSON.stringify(data),
+        ContentType: "application/json",
+      }),
+    );
+    return ok(undefined);
+  } catch (e) {
+    console.error("[r2] Rekor proof upload failed:", e);
+    return err("Storage operation failed.", "R2_UPLOAD_ERROR");
+  }
+}
+
 export async function getPayload(eventId: string): Promise<Result<unknown>> {
   try {
     const client = getR2Client();

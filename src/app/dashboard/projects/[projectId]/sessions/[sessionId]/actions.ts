@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { getUserTeam } from "@/lib/access";
 import { getPayload } from "@/lib/r2";
 import { updateSessionSummary } from "@/db/queries/sessions";
+import { anchorSessionIfEligible } from "@/lib/anchor-session";
 import { db } from "@/db";
 import { events, agentSessions, projects } from "@/db/schema";
 
@@ -197,4 +198,46 @@ function generateFallbackSummary(
   }
 
   return "No actions were recorded in this session.";
+}
+
+export async function retryRekorAnchor(
+  sessionId: string,
+): Promise<{ error?: string }> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: "Not authenticated." };
+  }
+
+  const team = await getUserTeam(session.user.id);
+
+  // Verify the session belongs to this team
+  const agentSession = await db
+    .select({
+      id: agentSessions.id,
+      projectId: agentSessions.projectId,
+      rekorStatus: agentSessions.rekorStatus,
+    })
+    .from(agentSessions)
+    .innerJoin(projects, eq(projects.id, agentSessions.projectId))
+    .where(and(eq(agentSessions.id, sessionId), eq(projects.teamId, team.id)))
+    .limit(1)
+    .then((rows) => rows[0] ?? null);
+
+  if (!agentSession) {
+    return { error: "Session not found or you do not have access." };
+  }
+
+  if (agentSession.rekorStatus !== "failed") {
+    return { error: "Only failed anchors can be retried." };
+  }
+
+  // Reset status and re-trigger, awaiting so the page revalidates after
+  await db
+    .update(agentSessions)
+    .set({ rekorStatus: null })
+    .where(eq(agentSessions.id, sessionId));
+
+  await anchorSessionIfEligible(sessionId, agentSession.projectId, team.id);
+
+  return {};
 }

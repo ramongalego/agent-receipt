@@ -123,6 +123,14 @@ export async function processIngestEvent(
     });
   }
 
+  // Mark session as explicitly completed when session.end event is received
+  if (input.event.name === "session.end") {
+    await db
+      .update(agentSessions)
+      .set({ explicitlyCompletedAt: new Date() })
+      .where(eq(agentSessions.id, input.sessionId));
+  }
+
   // Update API key last used (fire-and-forget, non-critical)
   void updateApiKeyLastUsed(keyId);
 

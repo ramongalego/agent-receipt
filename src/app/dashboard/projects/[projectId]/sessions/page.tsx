@@ -70,6 +70,7 @@ export default async function SessionsListPage({
       lastEventAt: s.lastEventAt,
       hasError: s.hasError ?? false,
       hasLimitReached: s.hasLimitReached ?? false,
+      explicitlyCompletedAt: s.explicitlyCompletedAt,
     }),
     duration: formatDuration(s.startedAt, s.lastEventAt),
   }));

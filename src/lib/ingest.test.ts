@@ -5,6 +5,9 @@
 const mockLimit = jest.fn();
 const mockValues = jest.fn();
 
+const mockUpdateSet = jest.fn();
+const mockUpdateWhere = jest.fn().mockResolvedValue(undefined);
+
 jest.mock("@/db", () => {
   const selectChain = {
     select: jest.fn(),
@@ -33,6 +36,12 @@ jest.mock("@/db", () => {
       limit: selectChain.limit,
       insert: insertChain.insert,
       values: insertChain.values,
+      update: jest.fn().mockReturnValue({
+        set: (...args: unknown[]) => {
+          mockUpdateSet(...args);
+          return { where: mockUpdateWhere };
+        },
+      }),
     },
   };
 });
@@ -134,6 +143,64 @@ describe("processIngestEvent", () => {
       input: { foo: "bar" },
       output: { result: true },
     });
+  });
+
+  it("sets explicitlyCompletedAt when session.end event is received", async () => {
+    mockLimit
+      .mockResolvedValueOnce([{ id: "existing-session" }]) // session exists
+      .mockResolvedValueOnce([{ hash: "prev-hash" }]); // previous events
+
+    mockValues.mockReturnValue({
+      returning: jest.fn().mockResolvedValue([{ id: "evt-end-1" }]),
+    });
+
+    mockPutPayload.mockResolvedValue({ ok: true, value: undefined });
+
+    const input = {
+      sessionId: "550e8400-e29b-41d4-a716-446655440000",
+      event: {
+        type: "decision" as const,
+        name: "session.end",
+        input: { reasoning: "Session explicitly ended by SDK" },
+        output: { outcome: "complete" },
+        durationMs: 0,
+      },
+    };
+
+    await processIngestEvent("proj-1", "key-1", input);
+
+    expect(mockUpdateSet).toHaveBeenCalledWith(
+      expect.objectContaining({
+        explicitlyCompletedAt: expect.any(Date),
+      }),
+    );
+  });
+
+  it("does not set explicitlyCompletedAt for regular events", async () => {
+    mockLimit
+      .mockResolvedValueOnce([]) // new session
+      .mockResolvedValueOnce([]); // no previous events
+
+    mockValues.mockReturnValue({
+      returning: jest.fn().mockResolvedValue([{ id: "evt-reg-1" }]),
+    });
+
+    mockPutPayload.mockResolvedValue({ ok: true, value: undefined });
+
+    const input = {
+      sessionId: "550e8400-e29b-41d4-a716-446655440000",
+      event: {
+        type: "tool_call" as const,
+        name: "send-email",
+        input: { to: "test@example.com" },
+        output: { success: true },
+        durationMs: 100,
+      },
+    };
+
+    await processIngestEvent("proj-1", "key-1", input);
+
+    expect(mockUpdateSet).not.toHaveBeenCalled();
   });
 });
 

@@ -13,6 +13,8 @@ const mockDbWhere = jest.fn();
 const mockDbLimit = jest.fn();
 const mockDbThen = jest.fn();
 
+const mockAnchorSessionIfEligible = jest.fn();
+
 jest.mock("@/lib/auth", () => ({ auth: () => mockAuth() }));
 jest.mock("@/lib/access", () => ({
   getUserTeam: (userId: string) => mockGetUserTeam(userId),
@@ -23,6 +25,14 @@ jest.mock("@/lib/r2", () => ({
 jest.mock("@/db/queries/sessions", () => ({
   updateSessionSummary: jest.fn(),
 }));
+jest.mock("@/lib/anchor-session", () => ({
+  anchorSessionIfEligible: (...args: unknown[]) =>
+    mockAnchorSessionIfEligible(...args),
+}));
+const mockDbUpdate = jest.fn();
+const mockDbSet = jest.fn();
+const mockDbUpdateWhere = jest.fn();
+
 jest.mock("@/db", () => ({
   db: {
     select: () => {
@@ -66,6 +76,20 @@ jest.mock("@/db", () => ({
         }),
       };
     },
+    update: () => {
+      mockDbUpdate();
+      return {
+        set: () => {
+          mockDbSet();
+          return {
+            where: () => {
+              mockDbUpdateWhere();
+              return Promise.resolve();
+            },
+          };
+        },
+      };
+    },
   },
 }));
 jest.mock("@/db/schema", () => ({
@@ -78,7 +102,11 @@ jest.mock("drizzle-orm", () => ({
   and: jest.fn(),
 }));
 
-import { fetchEventPayload, generateSessionSummary } from "./actions";
+import {
+  fetchEventPayload,
+  generateSessionSummary,
+  retryRekorAnchor,
+} from "./actions";
 
 describe("fetchEventPayload", () => {
   beforeEach(() => {
@@ -155,5 +183,82 @@ describe("generateSessionSummary", () => {
       error: "You do not have access to this session.",
       code: "FORBIDDEN",
     });
+  });
+});
+
+describe("retryRekorAnchor", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("returns error if not authenticated", async () => {
+    mockAuth.mockResolvedValue(null);
+
+    const result = await retryRekorAnchor("session-1");
+
+    expect(result).toEqual({ error: "Not authenticated." });
+    expect(mockAnchorSessionIfEligible).not.toHaveBeenCalled();
+  });
+
+  it("returns error if session does not belong to caller's team", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user_A" } });
+    mockGetUserTeam.mockResolvedValue({ id: "team_A", name: "Team A" });
+    // DB returns no rows for session lookup
+    mockDbThen.mockImplementation((fn: (rows: unknown[]) => unknown) =>
+      Promise.resolve(fn([])),
+    );
+
+    const result = await retryRekorAnchor("session-from-other-team");
+
+    expect(result).toEqual({
+      error: "Session not found or you do not have access.",
+    });
+    expect(mockAnchorSessionIfEligible).not.toHaveBeenCalled();
+  });
+
+  it("returns error if rekorStatus is not failed", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user_A" } });
+    mockGetUserTeam.mockResolvedValue({ id: "team_A", name: "Team A" });
+    // DB returns session with "anchored" status
+    mockDbThen.mockImplementation((fn: (rows: unknown[]) => unknown) =>
+      Promise.resolve(
+        fn([
+          {
+            id: "session-1",
+            projectId: "project-1",
+            rekorStatus: "anchored",
+          },
+        ]),
+      ),
+    );
+
+    const result = await retryRekorAnchor("session-1");
+
+    expect(result).toEqual({
+      error: "Only failed anchors can be retried.",
+    });
+    expect(mockAnchorSessionIfEligible).not.toHaveBeenCalled();
+  });
+
+  it("resets status and triggers anchoring for failed sessions", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user_A" } });
+    mockGetUserTeam.mockResolvedValue({ id: "team_A", name: "Team A" });
+    // DB returns session with "failed" status
+    mockDbThen.mockImplementation((fn: (rows: unknown[]) => unknown) =>
+      Promise.resolve(
+        fn([
+          {
+            id: "session-1",
+            projectId: "project-1",
+            rekorStatus: "failed",
+          },
+        ]),
+      ),
+    );
+
+    const result = await retryRekorAnchor("session-1");
+
+    expect(result).toEqual({});
+    expect(mockDbUpdate).toHaveBeenCalled();
   });
 });

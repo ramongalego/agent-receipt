@@ -505,6 +505,51 @@ async function runFeatures(method: string) {
         },
       };
     }
+    case "explicit-end": {
+      const session = ar.startSession("TestLord: Explicit session.end()");
+
+      await session.trackTool(
+        "fetch-order",
+        { orderId: "ord-9921" },
+        async () => ({
+          id: "ord-9921",
+          item: "Widget Pro",
+          quantity: 3,
+          total: 89.97,
+        }),
+      );
+
+      await session.trackDecision(
+        "approve-shipment",
+        "Order total $89.97 is under $100 auto-ship threshold. Stock available.",
+        "approved",
+      );
+
+      await session.trackTool(
+        "create-shipment",
+        { orderId: "ord-9921", carrier: "USPS" },
+        async () => ({
+          shipmentId: "shp-4401",
+          trackingNumber: "9400111899223456789012",
+          status: "label_created",
+        }),
+      );
+
+      await session.end();
+
+      return {
+        output: {
+          sessionId: session.id,
+          events: [
+            "tool_call (fetch-order)",
+            "decision (approve-shipment)",
+            "tool_call (create-shipment)",
+            "decision (session.end)",
+          ],
+          note: "Session explicitly completed via session.end()",
+        },
+      };
+    }
     case "combined": {
       const session = ar.startSession(
         "TestLord: Full session with human review and PII",

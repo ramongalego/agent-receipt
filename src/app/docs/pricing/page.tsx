@@ -41,22 +41,24 @@ export default function PricingPage() {
             <tr className="border-b border-border/50">
               <td className="py-3 pr-6 font-medium">Pro</td>
               <td className="py-3 pr-6 text-muted-foreground">$49 / month</td>
-              <td className="py-3 pr-6 text-muted-foreground">5,000</td>
+              <td className="py-3 pr-6 text-muted-foreground">2,500</td>
               <td className="py-3 text-muted-foreground">90 days</td>
             </tr>
             <tr className="border-b border-border/50">
               <td className="py-3 pr-6 font-medium">Business</td>
               <td className="py-3 pr-6 text-muted-foreground">$199 / month</td>
-              <td className="py-3 pr-6 text-muted-foreground">50,000</td>
+              <td className="py-3 pr-6 text-muted-foreground">15,000</td>
               <td className="py-3 text-muted-foreground">1 year</td>
             </tr>
           </tbody>
         </table>
       </div>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-        All plans include the same features: hash chain verification, compliance
-        metadata, human review tracking, and all SDK wrappers. Plans differ only
-        in session volume and retention.{" "}
+        All plans include hash chain verification, compliance metadata, human
+        review tracking, and all SDK wrappers. Pro, Business, and Enterprise
+        plans also include Sigstore Rekor anchoring, which creates a public,
+        independent record that each receipt existed at a specific time and has
+        not been changed.{" "}
         <Link
           href="/sign-in"
           className="text-foreground underline underline-offset-4 transition-colors hover:text-foreground/80"

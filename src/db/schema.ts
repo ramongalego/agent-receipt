@@ -157,6 +157,13 @@ export const agentSessions = pgTable(
     summary: text("summary"),
     startedAt: timestamp("started_at", { mode: "date" }).defaultNow().notNull(),
     completedAt: timestamp("completed_at", { mode: "date" }),
+    explicitlyCompletedAt: timestamp("explicitly_completed_at", {
+      mode: "date",
+    }),
+    rekorUuid: text("rekor_uuid"),
+    rekorLogIndex: integer("rekor_log_index"),
+    rekorAnchoredAt: timestamp("rekor_anchored_at", { mode: "date" }),
+    rekorStatus: text("rekor_status"),
   },
   (table) => [index("agent_sessions_project_id_idx").on(table.projectId)],
 );

@@ -211,10 +211,18 @@ await session.trackHumanReview({
 
 ## Ending a session
 
-Call `end()` to flush any queued events. Always call this before your process exits.
+Call `end()` to flush any queued events and mark the session as complete. This triggers summary generation and Rekor anchoring right away rather than waiting for the inactivity timeout. If you do not call `end()`, the session completes automatically after 3 minutes of inactivity.
+
+Always use a `try`/`finally` block so `end()` runs even if your agent throws an error.
 
 ```typescript
-await session.end();
+const session = ar.startSession("Process invoice #441");
+
+try {
+  // your agent logic
+} finally {
+  await session.end(); // always call this when your agent finishes
+}
 ```
 
 ## Configuration

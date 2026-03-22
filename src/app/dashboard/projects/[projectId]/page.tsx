@@ -120,6 +120,7 @@ export default async function ProjectDetailPage({
                     lastEventAt: s.lastEventAt,
                     hasError: s.hasError ?? false,
                     hasLimitReached: s.hasLimitReached ?? false,
+                    explicitlyCompletedAt: s.explicitlyCompletedAt,
                   });
                   return (
                     <Link

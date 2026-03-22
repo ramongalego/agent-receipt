@@ -138,6 +138,12 @@ export function PricingCards({ plans }: PricingCardsProps) {
                   <CheckSvg />
                   Hash chain verification
                 </li>
+                {plan.plan !== "free" && (
+                  <li className="flex items-center gap-3">
+                    <CheckSvg />
+                    Anchored on Sigstore Rekor
+                  </li>
+                )}
                 <li className="flex items-center gap-3">
                   <CheckSvg />
                   Unlimited projects
@@ -180,6 +186,10 @@ export function PricingCards({ plans }: PricingCardsProps) {
             <li className="flex items-center gap-3">
               <CheckSvg />
               Hash chain verification
+            </li>
+            <li className="flex items-center gap-3">
+              <CheckSvg />
+              Anchored on Sigstore Rekor
             </li>
             <li className="flex items-center gap-3">
               <CheckSvg />

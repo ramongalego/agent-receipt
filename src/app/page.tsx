@@ -502,17 +502,20 @@ export default function LandingPage() {
                   className="text-muted-foreground"
                   aria-hidden="true"
                 >
-                  <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
-                  <path d="M16 3h-8l-2 4h12l-2-4Z" />
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="2" y1="12" x2="22" y2="12" />
+                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
                 </svg>
               </div>
               <h3 className="mb-2 text-base font-semibold">
-                Works with every major provider
+                Anchored on a public log
               </h3>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                Wrap OpenAI, Anthropic, Gemini, Mistral, or the Vercel AI SDK
-                with one line of code. Switch providers without changing your
-                audit setup.
+                Pro and Business receipts are anchored to the Sigstore Rekor
+                transparency log after every session. This is a public,
+                permanent record that proves the receipt existed at a specific
+                time and has not been changed. Anyone can verify it
+                independently.
               </p>
             </section>
           </div>

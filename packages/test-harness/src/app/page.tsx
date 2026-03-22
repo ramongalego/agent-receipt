@@ -179,6 +179,12 @@ const PROVIDERS: { name: string; tests: TestDef[] }[] = [
         method: "pii-compliance",
       },
       {
+        id: "features-explicit-end",
+        label: "Explicit session.end() (immediate completion)",
+        provider: "features",
+        method: "explicit-end",
+      },
+      {
         id: "features-combined",
         label: "Full session: tool + human review + PII",
         provider: "features",

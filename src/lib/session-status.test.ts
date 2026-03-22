@@ -9,7 +9,7 @@ describe("computeSessionStatus", () => {
     expect(result).toBe("error");
   });
 
-  it("returns 'running' if last event was less than 5 minutes ago", () => {
+  it("returns 'running' if last event was less than 3 minutes ago", () => {
     const result = computeSessionStatus({
       lastEventAt: new Date(Date.now() - 60_000), // 1 minute ago
       hasError: false,
@@ -17,7 +17,7 @@ describe("computeSessionStatus", () => {
     expect(result).toBe("running");
   });
 
-  it("returns 'complete' if last event was more than 5 minutes ago and no errors", () => {
+  it("returns 'complete' if last event was more than 3 minutes ago and no errors", () => {
     const result = computeSessionStatus({
       lastEventAt: new Date(Date.now() - 10 * 60_000), // 10 minutes ago
       hasError: false,
@@ -57,5 +57,23 @@ describe("computeSessionStatus", () => {
       hasLimitReached: true,
     });
     expect(result).toBe("error");
+  });
+
+  it("returns 'complete' immediately when explicitlyCompletedAt is set", () => {
+    const result = computeSessionStatus({
+      lastEventAt: new Date(), // just now, would normally be "running"
+      hasError: false,
+      explicitlyCompletedAt: new Date(),
+    });
+    expect(result).toBe("complete");
+  });
+
+  it("uses 3 minute threshold when explicitlyCompletedAt is null", () => {
+    const result = computeSessionStatus({
+      lastEventAt: new Date(Date.now() - 60_000), // 1 min ago
+      hasError: false,
+      explicitlyCompletedAt: null,
+    });
+    expect(result).toBe("running");
   });
 });

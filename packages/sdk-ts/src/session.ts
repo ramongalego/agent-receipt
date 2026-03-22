@@ -109,6 +109,25 @@ export function createSession(ingest: IngestClient, name?: string): Session {
 
   async function end(): Promise<void> {
     await ingest.flush();
+
+    // Send explicit session completion marker
+    await ingest
+      .send({
+        sessionId: id,
+        sessionName: name,
+        event: {
+          type: "decision",
+          name: "session.end",
+          input: { reasoning: "Session explicitly ended by SDK" },
+          output: { outcome: "complete" },
+          durationMs: 0,
+        },
+      })
+      .catch(() => {
+        // Silently ignore ingest errors
+      });
+
+    await ingest.flush();
   }
 
   return {

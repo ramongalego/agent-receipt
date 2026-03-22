@@ -212,6 +212,10 @@ function UpgradeModal({ onClose }: { onClose: () => void }) {
                     <CheckIcon />
                     Hash chain verification
                   </li>
+                  <li className="flex items-center gap-2.5">
+                    <CheckIcon />
+                    Anchored on Sigstore Rekor
+                  </li>
                 </ul>
                 <Button
                   className="mt-6 w-full"
@@ -246,6 +250,10 @@ function UpgradeModal({ onClose }: { onClose: () => void }) {
               <li className="flex items-center gap-2.5">
                 <CheckIcon />
                 Hash chain verification
+              </li>
+              <li className="flex items-center gap-2.5">
+                <CheckIcon />
+                Anchored on Sigstore Rekor
               </li>
             </ul>
             <a

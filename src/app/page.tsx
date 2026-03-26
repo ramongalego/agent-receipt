@@ -529,7 +529,7 @@ export default function LandingPage() {
             Pricing
           </p>
           <h2 className="mb-4 text-center text-2xl font-bold tracking-tight sm:text-3xl">
-            Simple, predictable pricing
+            Pricing
           </h2>
           <p className="mx-auto mb-10 max-w-lg text-center text-sm text-muted-foreground">
             Start free. Upgrade when you need more sessions or longer retention.

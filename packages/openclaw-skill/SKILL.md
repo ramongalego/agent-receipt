@@ -23,14 +23,17 @@ Use this skill to log your agent's actions and get a receipt link at the end of 
 ## How to use
 
 At the start of any multi-step task:
+
 - Run: `node {baseDir}/agentreceipt.js start-session "<task name>"`
 - Save the SESSION_ID from the output
 
 After each significant action (tool call, decision, or LLM response):
+
 - Run: `node {baseDir}/agentreceipt.js log-event <SESSION_ID> <type> "<name>" "<brief description>"`
 - Use type: `tool_call` for external actions, `decision` for choices made, `llm_call` for model responses
 
 At the end of the task:
+
 - Run: `node {baseDir}/agentreceipt.js end-session <SESSION_ID>`
 - Share the RECEIPT_URL with whoever needs to see what happened
 

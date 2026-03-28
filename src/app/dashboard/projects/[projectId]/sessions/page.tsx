@@ -27,29 +27,22 @@ export async function generateMetadata({
   return { title: `Sessions \u00B7 ${project?.name ?? "Project"}` };
 }
 
-const PAGE_SIZE = 20;
-
 export default async function SessionsListPage({
   params,
-  searchParams,
 }: {
   params: Promise<{ projectId: string }>;
-  searchParams: Promise<{ page?: string }>;
 }) {
   const { projectId } = await params;
-  const { page: pageParam } = await searchParams;
   const session = await auth();
   const team = await getUserTeamCached(session!.user!.id!);
-  const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
-  const [project, { rows: sessions, total }] = await Promise.all([
+  const [project, { rows: sessions }] = await Promise.all([
     getCachedProject(projectId, team.id),
-    getSessionsByProject(projectId, page, PAGE_SIZE),
+    getSessionsByProject(projectId),
   ]);
 
   if (!project) {
     notFound();
   }
-  const totalPages = Math.ceil(total / PAGE_SIZE);
 
   function formatDuration(start: Date, end: Date | string | null) {
     if (!end) return "—";
@@ -94,42 +87,7 @@ export default async function SessionsListPage({
             description="Sessions appear here once your agent starts sending events through the SDK."
           />
         ) : (
-          <>
-            <SessionsTable sessions={sessionRows} projectId={projectId} />
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="mt-6 flex items-center justify-center gap-4">
-                {page > 1 ? (
-                  <Link
-                    href={`/dashboard/projects/${projectId}/sessions?page=${page - 1}`}
-                    className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-card-foreground shadow-sm transition-colors hover:bg-muted"
-                  >
-                    Previous
-                  </Link>
-                ) : (
-                  <span className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-muted-foreground opacity-50 shadow-sm">
-                    Previous
-                  </span>
-                )}
-                <span className="text-sm text-muted-foreground">
-                  Page {page} of {totalPages}
-                </span>
-                {page < totalPages ? (
-                  <Link
-                    href={`/dashboard/projects/${projectId}/sessions?page=${page + 1}`}
-                    className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-card-foreground shadow-sm transition-colors hover:bg-muted"
-                  >
-                    Next
-                  </Link>
-                ) : (
-                  <span className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-muted-foreground opacity-50 shadow-sm">
-                    Next
-                  </span>
-                )}
-              </div>
-            )}
-          </>
+          <SessionsTable sessions={sessionRows} projectId={projectId} />
         )}
       </div>
     </div>

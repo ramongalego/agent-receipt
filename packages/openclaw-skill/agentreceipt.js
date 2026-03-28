@@ -20,24 +20,30 @@ function request(method, path, body) {
     const url = new URL(path, BASE_URL);
     const mod = url.protocol === "https:" ? https : http;
     const data = body ? JSON.stringify(body) : null;
-    const req = mod.request(url, {
-      method,
-      headers: {
-        "Authorization": `Bearer ${API_KEY}`,
-        "Content-Type": "application/json",
-        ...(data ? { "Content-Length": Buffer.byteLength(data) } : {}),
+    const req = mod.request(
+      url,
+      {
+        method,
+        headers: {
+          Authorization: `Bearer ${API_KEY}`,
+          "Content-Type": "application/json",
+          ...(data ? { "Content-Length": Buffer.byteLength(data) } : {}),
+        },
       },
-    }, (res) => {
-      let chunks = "";
-      res.on("data", (c) => { chunks += c; });
-      res.on("end", () => {
-        if (res.statusCode >= 400) {
-          reject(new Error(`HTTP ${res.statusCode}: ${chunks}`));
-        } else {
-          resolve(JSON.parse(chunks));
-        }
-      });
-    });
+      (res) => {
+        let chunks = "";
+        res.on("data", (c) => {
+          chunks += c;
+        });
+        res.on("end", () => {
+          if (res.statusCode >= 400) {
+            reject(new Error(`HTTP ${res.statusCode}: ${chunks}`));
+          } else {
+            resolve(JSON.parse(chunks));
+          }
+        });
+      },
+    );
     req.on("error", reject);
     if (data) req.write(data);
     req.end();
@@ -92,7 +98,7 @@ async function endSession(sessionId) {
   process.stdout.write(`RECEIPT_URL=${share.data.url}\n`);
 }
 
-const [,, cmd, ...args] = process.argv;
+const [, , cmd, ...args] = process.argv;
 
 (async () => {
   try {
@@ -100,7 +106,8 @@ const [,, cmd, ...args] = process.argv;
       if (!args[0]) fail("Usage: start-session <sessionName>");
       await startSession(args[0]);
     } else if (cmd === "log-event") {
-      if (args.length < 4) fail("Usage: log-event <sessionId> <type> <name> <description>");
+      if (args.length < 4)
+        fail("Usage: log-event <sessionId> <type> <name> <description>");
       await logEvent(args[0], args[1], args[2], args[3]);
     } else if (cmd === "end-session") {
       if (!args[0]) fail("Usage: end-session <sessionId>");

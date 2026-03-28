@@ -33,8 +33,8 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-xl font-semibold">Who we are</h2>
           <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-            AgentReceipt is based in the United
-            Kingdom. If you have questions about this policy, contact us at{" "}
+            AgentReceipt is based in the United Kingdom. If you have questions
+            about this policy, contact us at{" "}
             <a
               href="mailto:support@agentreceipt.co"
               className="text-foreground underline underline-offset-4 transition-colors hover:text-foreground/80"

@@ -1,44 +1,35 @@
 import crypto from "crypto";
-import { eq, and, desc, asc, sql, count } from "drizzle-orm";
+import { eq, and, desc, asc, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { agentSessions, events, projects, teams } from "@/db/schema";
 
-export async function getSessionsByProject(
-  projectId: string,
-  page: number,
-  limit: number,
-) {
-  const offset = (page - 1) * limit;
+export async function getSessionsByProject(projectId: string, limit?: number) {
+  let query = db
+    .select({
+      id: agentSessions.id,
+      name: agentSessions.name,
+      status: agentSessions.status,
+      startedAt: agentSessions.startedAt,
+      completedAt: agentSessions.completedAt,
+      explicitlyCompletedAt: agentSessions.explicitlyCompletedAt,
+      eventCount: sql<number>`cast(count(${events.id}) as int)`,
+      lastEventAt: sql<Date | null>`max(${events.timestamp})`,
+      hasError: sql<boolean>`bool_or(${events.type} = 'error')`,
+      hasLimitReached: sql<boolean>`bool_or(${events.name} = 'session.limit_reached')`,
+    })
+    .from(agentSessions)
+    .leftJoin(events, eq(events.sessionId, agentSessions.id))
+    .where(eq(agentSessions.projectId, projectId))
+    .groupBy(agentSessions.id)
+    .orderBy(desc(agentSessions.startedAt))
+    .$dynamic();
 
-  const [rows, totalRows] = await Promise.all([
-    db
-      .select({
-        id: agentSessions.id,
-        name: agentSessions.name,
-        status: agentSessions.status,
-        startedAt: agentSessions.startedAt,
-        completedAt: agentSessions.completedAt,
-        explicitlyCompletedAt: agentSessions.explicitlyCompletedAt,
-        eventCount: sql<number>`cast(count(${events.id}) as int)`,
-        lastEventAt: sql<Date | null>`max(${events.timestamp})`,
-        hasError: sql<boolean>`bool_or(${events.type} = 'error')`,
-        hasLimitReached: sql<boolean>`bool_or(${events.name} = 'session.limit_reached')`,
-      })
-      .from(agentSessions)
-      .leftJoin(events, eq(events.sessionId, agentSessions.id))
-      .where(eq(agentSessions.projectId, projectId))
-      .groupBy(agentSessions.id)
-      .orderBy(desc(agentSessions.startedAt))
-      .limit(limit)
-      .offset(offset),
-    db
-      .select({ total: count() })
-      .from(agentSessions)
-      .where(eq(agentSessions.projectId, projectId))
-      .then((r) => r[0]?.total ?? 0),
-  ]);
+  if (limit !== undefined) {
+    query = query.limit(limit);
+  }
 
-  return { rows, total: totalRows };
+  const rows = await query;
+  return { rows };
 }
 
 export function getSessionById(sessionId: string, projectId: string) {

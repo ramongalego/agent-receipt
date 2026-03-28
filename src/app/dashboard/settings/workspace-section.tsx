@@ -247,7 +247,9 @@ function MembersCard({
           return next;
         });
       } else {
-        toast.success(`Role changed to ${newRole === "viewer" ? "member" : "owner"}.`);
+        toast.success(
+          `Role changed to ${newRole === "viewer" ? "member" : "owner"}.`,
+        );
         router.refresh();
       }
     });

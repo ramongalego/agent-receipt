@@ -40,7 +40,7 @@ export default async function ProjectDetailPage({
   const [role, project, { rows: recentSessions }] = await Promise.all([
     getUserRole(session!.user!.id!, team.id),
     getCachedProject(projectId, team.id),
-    getSessionsByProject(projectId, 1, 10),
+    getSessionsByProject(projectId, 10),
   ]);
 
   if (!project) {

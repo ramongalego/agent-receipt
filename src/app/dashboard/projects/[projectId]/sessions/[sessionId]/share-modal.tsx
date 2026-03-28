@@ -105,10 +105,8 @@ function ShareModal({
     startRevoke(async () => {
       const result = await revokeShareLink(sessionId);
       if ("success" in result) {
-        setToken(null);
-        setTokenCreatedAt(null);
-        setConfirmRevoke(false);
         router.refresh();
+        onClose();
       }
     });
   }

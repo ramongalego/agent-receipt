@@ -215,7 +215,7 @@ export default function LandingPage() {
 
       {/* How it works */}
       <section className="px-6 py-24 sm:py-32">
-        <div className="mx-auto max-w-3xl">
+        <div className="mx-auto max-w-3xl lg:max-w-4xl">
           <p className="mb-4 text-center text-sm font-medium uppercase tracking-widest text-muted-foreground">
             How it works
           </p>

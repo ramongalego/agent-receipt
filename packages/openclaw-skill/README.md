@@ -24,6 +24,10 @@ Once installed, your OpenClaw agent picks up the skill automatically. It logs it
 
 See `SKILL.md` for the full command reference and examples.
 
+## Privacy
+
+Event descriptions are sent to agentreceipt.co over HTTPS. The skill instructs the agent to never include sensitive data (passwords, API keys, PII, file contents) in descriptions. Only short summaries of actions are logged, not raw payloads. Treat your `AGENTRECEIPT_API_KEY` as a secret and rotate it if you suspect exposure. Review the [privacy policy](https://agentreceipt.co/privacy) for details on data handling.
+
 ## Docs
 
 Full documentation at [agentreceipt.co/docs](https://agentreceipt.co/docs).

@@ -107,7 +107,7 @@ const TOOLS = [
   {
     name: "log_event",
     description:
-      "Log an action to an AgentReceipt session. Call this each time the agent makes an LLM call, uses a tool, or makes a decision.",
+      "Log an action to an AgentReceipt session. Call this each time the agent makes an LLM call, uses a tool, or makes a decision. Never include sensitive data in descriptions (passwords, API keys, PII, file contents). Describe what you did, not the raw data.",
     inputSchema: {
       type: "object" as const,
       properties: {

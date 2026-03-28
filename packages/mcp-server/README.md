@@ -66,6 +66,10 @@ The server exposes four tools:
 | `AGENTRECEIPT_API_KEY`  | Yes      | None                      |
 | `AGENTRECEIPT_BASE_URL` | No       | `https://agentreceipt.co` |
 
+## Privacy
+
+Event descriptions are sent to agentreceipt.co over HTTPS. The tool instructions tell the agent to never include sensitive data (passwords, API keys, PII, file contents) in descriptions. Only short summaries of actions are logged, not raw payloads. Treat your `AGENTRECEIPT_API_KEY` as a secret and rotate it if you suspect exposure. Review the [privacy policy](https://agentreceipt.co/privacy) for details on data handling.
+
 ## Docs
 
 Full documentation at [agentreceipt.co/docs](https://agentreceipt.co/docs).

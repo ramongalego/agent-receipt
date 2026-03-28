@@ -81,5 +81,6 @@ Tell the user: "Done. Here's your receipt: <RECEIPT_URL>"
 
 - Only log actions that matter. Skip trivial steps like reading config or formatting output.
 - Keep descriptions short. One sentence.
+- Never include sensitive data in descriptions. No passwords, API keys, tokens, personal information, email addresses, full file paths, or file contents. Describe what you did, not the raw data.
 - Always call end-session when the task is done, even if something went wrong along the way.
 - Do not log the same action twice.

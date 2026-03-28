@@ -93,6 +93,10 @@ async function endSession(sessionId) {
       durationMs: 0,
     },
   });
+  process.stdout.write("Session ended.\n");
+}
+
+async function shareSession(sessionId) {
   const share = await request("POST", `/api/sessions/${sessionId}/share`, {});
   if (!share.data) fail("Unexpected response from share endpoint.");
   process.stdout.write(`RECEIPT_URL=${share.data.url}\n`);
@@ -112,8 +116,13 @@ const [, , cmd, ...args] = process.argv;
     } else if (cmd === "end-session") {
       if (!args[0]) fail("Usage: end-session <sessionId>");
       await endSession(args[0]);
+    } else if (cmd === "share-session") {
+      if (!args[0]) fail("Usage: share-session <sessionId>");
+      await shareSession(args[0]);
     } else {
-      fail("Unknown command. Use: start-session, log-event, or end-session");
+      fail(
+        "Unknown command. Use: start-session, log-event, end-session, or share-session",
+      );
     }
   } catch (e) {
     fail(e.message);

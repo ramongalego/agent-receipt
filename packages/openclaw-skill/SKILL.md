@@ -45,6 +45,14 @@ Pick the right type for what you did:
 node {baseDir}/agentreceipt.js end-session <SESSION_ID>
 ```
 
+This marks the session as complete.
+
+**4. Share the session to get a receipt URL:**
+
+```
+node {baseDir}/agentreceipt.js share-session <SESSION_ID>
+```
+
 This gives you a `RECEIPT_URL`. Share it with the user so they can see what you did.
 
 ## Example
@@ -61,6 +69,9 @@ node {baseDir}/agentreceipt.js log-event abc-123 llm_call "extract-data" "Extrac
 node {baseDir}/agentreceipt.js log-event abc-123 decision "approve-total" "Total $1,240 within budget"
 
 node {baseDir}/agentreceipt.js end-session abc-123
+→ Session ended.
+
+node {baseDir}/agentreceipt.js share-session abc-123
 → RECEIPT_URL=https://agentreceipt.co/s/xyz...
 ```
 

@@ -400,6 +400,140 @@ node {baseDir}/agentreceipt.js end-session $SESSION_ID
         </p>
       </div>
 
+      {/* Claude (MCP) */}
+      <h2
+        id="claude-mcp"
+        className="mt-16 scroll-mt-24 text-2xl font-bold tracking-tight"
+      >
+        Claude (MCP)
+      </h2>
+      <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+        If you use Claude Desktop, Claude Code, or Cursor, you can add
+        AgentReceipt as an MCP server. Claude will log its actions during tasks
+        and share a receipt link when it is done. You set it up once.
+      </p>
+
+      <h3 className="mt-8 text-lg font-semibold">Setup (you do this once)</h3>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        Add the server to your MCP config. For Claude Desktop, edit{" "}
+        <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+          ~/Library/Application Support/Claude/claude_desktop_config.json
+        </code>{" "}
+        on macOS. For Claude Code, add it to{" "}
+        <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+          .claude/settings.json
+        </code>
+        . The format is the same for all clients.
+      </p>
+      <CodeBlock
+        code={`{
+  "mcpServers": {
+    "agentreceipt": {
+      "command": "npx",
+      "args": ["-y", "@agentreceipt/mcp"],
+      "env": {
+        "AGENTRECEIPT_API_KEY": "ar_live_your_key_here"
+      }
+    }
+  }
+}`}
+        filename="MCP config"
+      />
+      <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+        Replace the API key with your own. You can find it in the project
+        settings page of your dashboard. Restart your client after saving.
+      </p>
+
+      <h3 className="mt-8 text-lg font-semibold">
+        What happens during a conversation
+      </h3>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        When Claude works on a multi-step task, it has access to four tools from
+        the AgentReceipt server:
+      </p>
+      <div className="mt-4 overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border text-left">
+              <th className="pb-2 pr-6 font-medium">Tool</th>
+              <th className="pb-2 font-medium">What it does</th>
+            </tr>
+          </thead>
+          <tbody className="text-muted-foreground">
+            <tr className="border-b border-border">
+              <td className="py-2 pr-6">
+                <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+                  start_session
+                </code>
+              </td>
+              <td className="py-2">Creates a new session and returns an ID</td>
+            </tr>
+            <tr className="border-b border-border">
+              <td className="py-2 pr-6">
+                <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+                  log_event
+                </code>
+              </td>
+              <td className="py-2">
+                Records a tool call, LLM call, or decision
+              </td>
+            </tr>
+            <tr className="border-b border-border">
+              <td className="py-2 pr-6">
+                <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+                  end_session
+                </code>
+              </td>
+              <td className="py-2">Marks the session as complete</td>
+            </tr>
+            <tr className="border-b border-border">
+              <td className="py-2 pr-6">
+                <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+                  share_session
+                </code>
+              </td>
+              <td className="py-2">Generates a shareable receipt URL</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+        Claude calls these tools on its own during the conversation. At the end
+        of the task, it shares the receipt link with you. The link works without
+        signing in, so you can forward it to anyone.
+      </p>
+
+      <h3 className="mt-8 text-lg font-semibold">Works with any MCP client</h3>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        The server uses the{" "}
+        <a
+          href="https://modelcontextprotocol.io"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline underline-offset-4 transition-colors hover:text-foreground/80"
+        >
+          Model Context Protocol
+        </a>
+        , so it works with any compatible client. Claude Desktop, Claude Code,
+        Cursor, and others all use the same config format.
+      </p>
+
+      <div className="mt-6 rounded-lg border border-border bg-muted/50 px-4 py-3">
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          <strong className="text-foreground">Tip:</strong> The MCP server is
+          published as{" "}
+          <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+            @agentreceipt/mcp
+          </code>{" "}
+          on npm. Using{" "}
+          <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+            npx -y
+          </code>{" "}
+          in the config means it downloads automatically. No manual install
+          needed.
+        </p>
+      </div>
+
       {/* Handling errors */}
       <h2
         id="handling-errors"

@@ -20,7 +20,7 @@ AGENTRECEIPT_API_KEY=ar_live_...
 
 ## What happens
 
-Once installed, your OpenClaw agent picks up the skill automatically. It logs its actions during multi-step tasks and hands you a receipt link when it is done. You do not need to write any code or change your agent's prompts.
+Once installed, your OpenClaw agent picks up the skill automatically. It logs its actions during multi-step tasks, marks the session complete, and then shares a receipt link with you. You do not need to write any code or change your agent's prompts.
 
 See `SKILL.md` for the full command reference and examples.
 

@@ -1,0 +1,45 @@
+{
+  "name": "@agentreceipt/mcp",
+  "version": "0.1.0",
+  "description": "MCP server for logging AI agent actions to AgentReceipt",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "@agentreceipt/mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build",
+    "type-check": "tsc --noEmit"
+  },
+  "keywords": [
+    "ai",
+    "agent",
+    "audit",
+    "receipt",
+    "mcp",
+    "model-context-protocol",
+    "observability"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/agentreceipt/agentreceipt",
+    "directory": "packages/mcp-server"
+  },
+  "homepage": "https://agentreceipt.co/docs/mcp",
+  "bugs": {
+    "url": "https://github.com/agentreceipt/agentreceipt/issues"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

@@ -275,6 +275,131 @@ await session.end()`}
         exactly the kind of audit trail that compliance teams need.
       </p>
 
+      {/* OpenClaw agents */}
+      <h2
+        id="openclaw-agents"
+        className="mt-16 scroll-mt-24 text-2xl font-bold tracking-tight"
+      >
+        OpenClaw agents
+      </h2>
+      <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+        If your agent runs inside{" "}
+        <a
+          href="https://openclaw.dev"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline underline-offset-4 transition-colors hover:text-foreground/80"
+        >
+          OpenClaw
+        </a>
+        , you can install the AgentReceipt skill so your agent automatically
+        logs its actions and produces a receipt link at the end of every task.
+        No TypeScript SDK needed. You set it up once, and the agent handles the
+        rest.
+      </p>
+
+      <h3 className="mt-8 text-lg font-semibold">Setup (you do this once)</h3>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        Install the skill and set your API key. You can find the key in the
+        project settings page of your dashboard.
+      </p>
+      <CodeBlock
+        code={`clawhub install agentreceipt
+export AGENTRECEIPT_API_KEY=ar_live_...`}
+        language="bash"
+      />
+      <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+        That is it. Once the skill is installed, your OpenClaw agent reads the
+        skill instructions automatically and knows how to use it. You do not
+        need to write any code or modify your agent&apos;s prompts.
+      </p>
+
+      <h3 className="mt-8 text-lg font-semibold">What happens during a run</h3>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        When your agent starts a multi-step task, the skill tells it to call
+        these commands behind the scenes:
+      </p>
+      <CodeBlock
+        code={`# Agent starts a session
+node {baseDir}/agentreceipt.js start-session "Process invoices"
+# → SESSION_ID=a1b2c3d4-...
+
+# Agent logs each action as it goes
+node {baseDir}/agentreceipt.js log-event $SESSION_ID tool_call "read-files" "Read 3 invoice files"
+node {baseDir}/agentreceipt.js log-event $SESSION_ID llm_call "extract-data" "Extracted totals"
+node {baseDir}/agentreceipt.js log-event $SESSION_ID decision "approve-total" "Total $1,240 within budget"
+
+# Agent ends the session and gets a receipt link
+node {baseDir}/agentreceipt.js end-session $SESSION_ID
+# → RECEIPT_URL=https://agentreceipt.co/s/xyz...`}
+        language="bash"
+      />
+      <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+        The agent runs these commands on its own. At the end of the task, it
+        shares the receipt URL with you. The link works without signing in, so
+        you can forward it to anyone who needs to see what happened.
+      </p>
+
+      <h3 className="mt-8 text-lg font-semibold">Event types</h3>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        The skill supports three event types. The agent picks the right one
+        based on what it is doing.
+      </p>
+      <div className="mt-4 overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border text-left">
+              <th className="pb-2 pr-6 font-medium">Type</th>
+              <th className="pb-2 font-medium">When to use</th>
+            </tr>
+          </thead>
+          <tbody className="text-muted-foreground">
+            <tr className="border-b border-border">
+              <td className="py-2 pr-6">
+                <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+                  tool_call
+                </code>
+              </td>
+              <td className="py-2">
+                External actions like reading files, calling APIs, sending
+                emails
+              </td>
+            </tr>
+            <tr className="border-b border-border">
+              <td className="py-2 pr-6">
+                <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+                  llm_call
+                </code>
+              </td>
+              <td className="py-2">
+                Model responses like parsing documents, classifying data,
+                generating text
+              </td>
+            </tr>
+            <tr className="border-b border-border">
+              <td className="py-2 pr-6">
+                <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+                  decision
+                </code>
+              </td>
+              <td className="py-2">
+                Choices the agent makes, like approving a payment or routing a
+                ticket
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div className="mt-6 rounded-lg border border-border bg-muted/50 px-4 py-3">
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          <strong className="text-foreground">Tip:</strong> The skill
+          instructions tell the agent to only log actions that matter and keep
+          descriptions short. If you want to change that behavior, you can edit
+          the SKILL.md file after installing.
+        </p>
+      </div>
+
       {/* Handling errors */}
       <h2
         id="handling-errors"

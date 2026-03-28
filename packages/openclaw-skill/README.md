@@ -18,9 +18,11 @@ clawhub install agentreceipt
 AGENTRECEIPT_API_KEY=ar_live_...
 ```
 
-## Usage
+## What happens
 
-See `SKILL.md` for the full guide and examples.
+Once installed, your OpenClaw agent picks up the skill automatically. It logs its actions during multi-step tasks and hands you a receipt link when it is done. You do not need to write any code or change your agent's prompts.
+
+See `SKILL.md` for the full command reference and examples.
 
 ## Docs
 

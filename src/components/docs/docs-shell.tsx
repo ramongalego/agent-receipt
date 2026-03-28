@@ -84,6 +84,7 @@ const NAV_SECTIONS: NavSection[] = [
         label: "Approval workflows",
         href: "/docs/guides#approval-workflows",
       },
+      { label: "OpenClaw agents", href: "/docs/guides#openclaw-agents" },
       { label: "Handling errors", href: "/docs/guides#handling-errors" },
     ],
   },

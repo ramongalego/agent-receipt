@@ -11,51 +11,64 @@ metadata:
 
 # AgentReceipt
 
-Use this skill to log your agent's actions and get a receipt link at the end of every session.
+Use this skill to log your actions during multi-step tasks. At the end, you get a shareable receipt link to hand back to the user.
 
-## Setup
+## How to use this
 
-1. Sign up at agentreceipt.co
-2. Create a project and copy your API key
-3. Add it to your OpenClaw config:
-   `AGENTRECEIPT_API_KEY=ar_live_...`
+When you start a multi-step task (processing files, making API calls, anything with more than one action), follow this pattern:
 
-## How to use
+**1. Start a session at the beginning of the task:**
 
-At the start of any multi-step task:
+```
+node {baseDir}/agentreceipt.js start-session "<short task name>"
+```
 
-- Run: `node {baseDir}/agentreceipt.js start-session "<task name>"`
-- Save the SESSION_ID from the output
+Save the `SESSION_ID` from the output. You will need it for every call after this.
 
-After each significant action (tool call, decision, or LLM response):
+**2. Log each significant action as you go:**
 
-- Run: `node {baseDir}/agentreceipt.js log-event <SESSION_ID> <type> "<name>" "<brief description>"`
-- Use type: `tool_call` for external actions, `decision` for choices made, `llm_call` for model responses
+```
+node {baseDir}/agentreceipt.js log-event <SESSION_ID> <type> "<name>" "<one-sentence description>"
+```
 
-At the end of the task:
+Pick the right type for what you did:
 
-- Run: `node {baseDir}/agentreceipt.js end-session <SESSION_ID>`
-- Share the RECEIPT_URL with whoever needs to see what happened
+| Type        | When to use                                                              |
+| ----------- | ------------------------------------------------------------------------ |
+| `tool_call` | External actions: reading files, calling APIs, sending emails            |
+| `llm_call`  | Model responses: parsing documents, classifying data, generating text    |
+| `decision`  | Choices you made: approving a payment, routing a ticket, skipping a step |
+
+**3. End the session when the task is done:**
+
+```
+node {baseDir}/agentreceipt.js end-session <SESSION_ID>
+```
+
+This gives you a `RECEIPT_URL`. Share it with the user so they can see what you did.
 
 ## Example
 
 User asks: "Process the invoices in my downloads folder"
 
-1. `node {baseDir}/agentreceipt.js start-session "Process invoices"`
-   → `SESSION_ID=abc-123`
-2. [read files]
-   `node {baseDir}/agentreceipt.js log-event abc-123 tool_call "read-files" "Read 3 invoice files from downloads"`
-3. [extract data]
-   `node {baseDir}/agentreceipt.js log-event abc-123 llm_call "extract-data" "Extracted totals from each invoice"`
-4. [make decision]
-   `node {baseDir}/agentreceipt.js log-event abc-123 decision "approve-total" "Total $1,240 within budget"`
-5. `node {baseDir}/agentreceipt.js end-session abc-123`
-   → `RECEIPT_URL=https://agentreceipt.co/s/xyz...`
+```
+node {baseDir}/agentreceipt.js start-session "Process invoices"
+→ SESSION_ID=abc-123
+
+# Do the work, logging as you go
+node {baseDir}/agentreceipt.js log-event abc-123 tool_call "read-files" "Read 3 invoice files from downloads"
+node {baseDir}/agentreceipt.js log-event abc-123 llm_call "extract-data" "Extracted totals from each invoice"
+node {baseDir}/agentreceipt.js log-event abc-123 decision "approve-total" "Total $1,240 within budget"
+
+node {baseDir}/agentreceipt.js end-session abc-123
+→ RECEIPT_URL=https://agentreceipt.co/s/xyz...
+```
 
 Tell the user: "Done. Here's your receipt: <RECEIPT_URL>"
 
-## Notes
+## Guidelines
 
-- Only log actions that matter. Skip trivial steps.
-- Keep descriptions short, one sentence.
-- Always call end-session when the task is done, even if something went wrong.
+- Only log actions that matter. Skip trivial steps like reading config or formatting output.
+- Keep descriptions short. One sentence.
+- Always call end-session when the task is done, even if something went wrong along the way.
+- Do not log the same action twice.

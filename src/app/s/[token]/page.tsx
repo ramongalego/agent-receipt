@@ -6,6 +6,7 @@ import { computeSessionStatus } from "@/lib/session-status";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { HashChainBadge } from "@/components/ui/hash-chain-badge";
+import { LogoIcon } from "@/components/ui/logo-icon";
 import { PublicEventTimeline } from "./public-event-timeline";
 
 type PageProps = {
@@ -136,20 +137,19 @@ export default async function SharedReceiptPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Shared banner */}
-      <div className="border-b border-border bg-muted/50 px-6 py-2.5">
-        <div className="mx-auto flex max-w-6xl items-center justify-between">
-          <p className="text-xs text-muted-foreground">
-            Shared by {session.teamName} · View only
-          </p>
-          <Link
-            href="/"
-            className="text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
-          >
-            AgentReceipt
-          </Link>
-        </div>
-      </div>
+      {/* Header */}
+      <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
+        <Link
+          href="/"
+          className="flex items-center gap-1 text-lg font-semibold tracking-tight text-foreground"
+        >
+          <LogoIcon className="h-[18px] w-[18px]" />
+          AgentReceipt
+        </Link>
+        <p className="text-sm text-muted-foreground">
+          Shared by {session.teamName} · View only
+        </p>
+      </nav>
 
       <div className="mx-auto max-w-6xl px-6 py-10">
         {/* Header */}

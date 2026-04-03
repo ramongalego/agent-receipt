@@ -522,6 +522,78 @@ describe("POST /api/ingest", () => {
     });
   });
 
+  describe("decision context", () => {
+    it("passes sessionContext and event context through to processIngestEvent", async () => {
+      setupHappyPath();
+
+      const body = {
+        ...VALID_BODY,
+        sessionContext: {
+          systemPrompt: "You are a payment agent.",
+          activeRules: [
+            { id: "auto-approve", description: "Auto-approve under $5k" },
+          ],
+          permissions: ["write:payments"],
+        },
+        event: {
+          ...VALID_BODY.event,
+          context: {
+            rulesEvaluated: ["auto-approve"],
+            stateAtDecision: { amount: 4500, threshold: 5000 },
+          },
+        },
+      };
+
+      const req = createRequest({
+        body,
+        headers: { authorization: `Bearer ${VALID_API_KEY}` },
+      });
+      const res = await POST(req);
+
+      expect(res.status).toBe(201);
+      expect(mockProcessIngestEvent).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(String),
+        expect.objectContaining({
+          sessionContext: expect.objectContaining({
+            systemPrompt: "You are a payment agent.",
+            activeRules: expect.arrayContaining([
+              expect.objectContaining({ id: "auto-approve" }),
+            ]),
+          }),
+          event: expect.objectContaining({
+            context: expect.objectContaining({
+              rulesEvaluated: ["auto-approve"],
+            }),
+          }),
+        }),
+      );
+    });
+
+    it("accepts context_change event type", async () => {
+      setupHappyPath();
+
+      const body = {
+        sessionId: "550e8400-e29b-41d4-a716-446655440000",
+        event: {
+          type: "context_change" as const,
+          name: "threshold-updated",
+          input: { previous: { threshold: 5000 } },
+          output: { current: { threshold: 10000 } },
+          durationMs: 0,
+        },
+      };
+
+      const req = createRequest({
+        body,
+        headers: { authorization: `Bearer ${VALID_API_KEY}` },
+      });
+      const res = await POST(req);
+
+      expect(res.status).toBe(201);
+    });
+  });
+
   describe("processing errors", () => {
     it("returns 500 when processIngestEvent fails", async () => {
       mockValidateApiKey.mockResolvedValue(VALID_KEY_RESULT);

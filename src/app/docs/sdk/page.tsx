@@ -368,7 +368,11 @@ const { text } = await ai.generateText({
         or decisions that happen outside of an LLM call, or when you want
         explicit control over session boundaries.
       </p>
-      <CodeBlock code={`function startSession(name?: string): Session`} />
+      <CodeBlock
+        code={`function startSession(name?: string, options?: {
+  context?: SessionContext
+}): Session`}
+      />
       <ParamTable
         params={[
           {
@@ -377,6 +381,13 @@ const { text } = await ai.generateText({
             required: false,
             description:
               'A human-readable name for this session. Shows up in the dashboard, e.g. "Process invoice #441".',
+          },
+          {
+            name: "options.context",
+            type: "SessionContext",
+            required: false,
+            description:
+              "The decision context for this session. Captures the system prompt, active rules, permissions, and environment. See Decision context in Concepts.",
           },
         ]}
       />
@@ -391,8 +402,10 @@ const { text } = await ai.generateText({
         code={`type Session = {
   readonly id: string
   readonly name?: string
-  trackTool: (name: string, input: unknown, fn: () => Promise<unknown>) => Promise<unknown>
-  trackDecision: (name: string, reasoning: string, outcome: string) => Promise<void>
+  trackTool: (name, input, fn, options?) => Promise<unknown>
+  trackDecision: (name, reasoning, outcome, options?) => Promise<void>
+  trackHumanReview: (params) => Promise<void>
+  trackContextChange: (name, previous, current) => Promise<void>
   end: () => Promise<void>
 }`}
       />
@@ -400,9 +413,16 @@ const { text } = await ai.generateText({
         code={`import { createClient } from '@agentreceipt/sdk'
 
 const ar = createClient({ apiKey: process.env.AGENTRECEIPT_API_KEY })
-const session = ar.startSession('Process invoice #441')
+const session = ar.startSession('Process invoice #441', {
+  context: {
+    systemPrompt: 'You are an accounts payable agent.',
+    activeRules: [
+      { id: 'auto-approve', description: 'Auto-approve under $5k', parameters: { threshold: 5000 } }
+    ],
+    permissions: ['read:invoices', 'write:payments']
+  }
+})
 
-// Track tool calls and decisions within this session
 await session.trackTool('look-up-vendor', { name: 'Acme Corp' }, async () => {
   return await db.vendors.findByName('Acme Corp')
 })
@@ -429,7 +449,7 @@ await session.end()`}
   name: string,
   input: unknown,
   fn: () => Promise<T>,
-  options?: { compliance?: ComplianceMetadata }
+  options?: { compliance?: ComplianceMetadata, context?: EventContext }
 ): Promise<T>`}
       />
       <ParamTable
@@ -461,6 +481,13 @@ await session.end()`}
             required: false,
             description:
               "Optional compliance tags for this event. See Compliance metadata.",
+          },
+          {
+            name: "options.context",
+            type: "EventContext",
+            required: false,
+            description:
+              "Per-event decision context. Which rules were evaluated, the state at decision time. See Decision context in Concepts.",
           },
         ]}
       />
@@ -495,7 +522,7 @@ console.log(vendor.name) // "Acme Corp"`}
   name: string,
   reasoning: string,
   outcome: string,
-  options?: { compliance?: ComplianceMetadata }
+  options?: { compliance?: ComplianceMetadata, context?: EventContext }
 ): Promise<void>`}
       />
       <ParamTable
@@ -527,13 +554,26 @@ console.log(vendor.name) // "Acme Corp"`}
             required: false,
             description: "Optional compliance tags for this event.",
           },
+          {
+            name: "options.context",
+            type: "EventContext",
+            required: false,
+            description:
+              "Per-event decision context. Which rules were evaluated, the state at decision time.",
+          },
         ]}
       />
       <CodeBlock
         code={`await session.trackDecision(
   'approve-payment',
   'Invoice amount $4,500 is within the $5,000 auto-approval limit. Vendor is verified.',
-  'approved'
+  'approved',
+  {
+    context: {
+      rulesEvaluated: ['auto-approve-threshold', 'vendor-must-be-verified'],
+      stateAtDecision: { invoiceAmount: 4500, threshold: 5000, vendorVerified: true }
+    }
+  }
 )`}
         filename="track-decision-example.ts"
       />
@@ -594,6 +634,68 @@ console.log(vendor.name) // "Acme Corp"`}
 })`}
         filename="track-human-review-example.ts"
       />
+
+      {/* trackContextChange */}
+      <h2
+        id="trackcontextchange"
+        className="mt-16 scroll-mt-24 text-2xl font-bold tracking-tight"
+      >
+        trackContextChange(name, previous, current)
+      </h2>
+      <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+        Records a context change mid-session. Use this when rules, thresholds,
+        or permissions change while the agent is running. The change enters the
+        hash chain as a{" "}
+        <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+          context_change
+        </code>{" "}
+        event, so the receipt shows exactly when the operating environment
+        shifted.
+      </p>
+      <CodeBlock
+        code={`function trackContextChange(
+  name: string,
+  previous: Record<string, unknown>,
+  current: Record<string, unknown>
+): Promise<void>`}
+      />
+      <ParamTable
+        params={[
+          {
+            name: "name",
+            type: "string",
+            required: true,
+            description:
+              'A descriptive name for the change, e.g. "approval-threshold-updated".',
+          },
+          {
+            name: "previous",
+            type: "Record<string, unknown>",
+            required: true,
+            description: "The state before the change.",
+          },
+          {
+            name: "current",
+            type: "Record<string, unknown>",
+            required: true,
+            description: "The state after the change.",
+          },
+        ]}
+      />
+      <CodeBlock
+        code={`// Threshold was raised mid-session by an admin
+await session.trackContextChange(
+  'approval-threshold-updated',
+  { threshold: 5000 },
+  { threshold: 10000 }
+)`}
+        filename="track-context-change-example.ts"
+      />
+      <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+        Context changes render in the receipt timeline with a
+        &quot;Previous&quot; and &quot;Current&quot; view instead of the usual
+        Input/Output columns.
+      </p>
     </article>
   );
 }

@@ -8,6 +8,7 @@ import { wrapMistral } from "./wrappers/mistral";
 import type {
   ClientOptions,
   Client,
+  SessionOptions,
   TrackEventInput,
   Result,
   WrapperOptions,
@@ -21,8 +22,8 @@ export function createClient(options: ClientOptions): Client {
   const ingest = createIngestClient(options.apiKey, baseUrl);
 
   return {
-    startSession(name?: string) {
-      return createSession(ingest, name);
+    startSession(name?: string, options?: SessionOptions) {
+      return createSession(ingest, name, options?.context);
     },
 
     async track(

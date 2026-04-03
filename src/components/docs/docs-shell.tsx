@@ -39,6 +39,10 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "trackTool", href: "/docs/sdk#tracktool" },
       { label: "trackDecision", href: "/docs/sdk#trackdecision" },
       { label: "trackHumanReview", href: "/docs/sdk#trackhumanreview" },
+      {
+        label: "trackContextChange",
+        href: "/docs/sdk#trackcontextchange",
+      },
     ],
   },
   {
@@ -51,6 +55,10 @@ const NAV_SECTIONS: NavSection[] = [
       {
         label: "Compliance metadata",
         href: "/docs/concepts#compliance-metadata",
+      },
+      {
+        label: "Decision context",
+        href: "/docs/concepts#decision-context",
       },
     ],
   },

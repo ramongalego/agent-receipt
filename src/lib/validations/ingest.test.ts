@@ -83,12 +83,86 @@ describe("ingestEventSchema", () => {
   });
 
   it("accepts all valid event types", () => {
-    for (const type of ["llm_call", "tool_call", "decision", "error"]) {
-      const result = ingestEventSchema.safeParse({
-        ...validPayload,
-        event: { ...validPayload.event, type },
-      });
+    for (const type of [
+      "llm_call",
+      "tool_call",
+      "decision",
+      "error",
+      "human_review",
+      "context_change",
+    ]) {
+      const payload =
+        type === "human_review"
+          ? {
+              ...validPayload,
+              event: {
+                ...validPayload.event,
+                type,
+                metadata: {
+                  reviewer: "test@example.com",
+                  decision: "approved",
+                },
+              },
+            }
+          : { ...validPayload, event: { ...validPayload.event, type } };
+      const result = ingestEventSchema.safeParse(payload);
       expect(result.success).toBe(true);
     }
+  });
+
+  it("accepts a payload with sessionContext", () => {
+    const result = ingestEventSchema.safeParse({
+      ...validPayload,
+      sessionContext: {
+        systemPrompt: "You are an accounts payable agent.",
+        activeRules: [
+          {
+            id: "auto-approve",
+            description: "Auto-approve under $5k",
+            parameters: { threshold: 5000 },
+          },
+        ],
+        permissions: ["read:invoices", "write:payments"],
+        environment: { region: "us-east-1" },
+      },
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts a payload with event context", () => {
+    const result = ingestEventSchema.safeParse({
+      ...validPayload,
+      event: {
+        ...validPayload.event,
+        type: "decision",
+        context: {
+          rulesEvaluated: ["auto-approve", "vendor-verified"],
+          stateAtDecision: { amount: 4500, threshold: 5000 },
+        },
+      },
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects sessionContext with invalid rule (missing id)", () => {
+    const result = ingestEventSchema.safeParse({
+      ...validPayload,
+      sessionContext: {
+        activeRules: [{ description: "A rule without an id" }],
+      },
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts context_change event type", () => {
+    const result = ingestEventSchema.safeParse({
+      ...validPayload,
+      event: {
+        ...validPayload.event,
+        type: "context_change",
+        name: "threshold-updated",
+      },
+    });
+    expect(result.success).toBe(true);
   });
 });

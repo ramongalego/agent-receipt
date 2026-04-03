@@ -185,6 +185,18 @@ const PROVIDERS: { name: string; tests: TestDef[] }[] = [
         method: "explicit-end",
       },
       {
+        id: "features-decision-context",
+        label: "Session + event decision context (invoice flow)",
+        provider: "features",
+        method: "decision-context",
+      },
+      {
+        id: "features-context-change",
+        label: "Mid-session context change (threshold update)",
+        provider: "features",
+        method: "context-change",
+      },
+      {
         id: "features-combined",
         label: "Full session: tool + human review + PII",
         provider: "features",

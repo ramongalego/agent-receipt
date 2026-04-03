@@ -153,6 +153,16 @@ export const agentSessions = pgTable(
       .default("running")
       .notNull(),
     metadata: jsonb("metadata"),
+    context: jsonb("context").$type<{
+      systemPrompt?: string;
+      activeRules?: {
+        id: string;
+        description: string;
+        parameters?: Record<string, unknown>;
+      }[];
+      permissions?: string[];
+      environment?: Record<string, unknown>;
+    }>(),
     receiptHash: text("receipt_hash"),
     summary: text("summary"),
     startedAt: timestamp("started_at", { mode: "date" }).defaultNow().notNull(),
@@ -185,6 +195,7 @@ export const events = pgTable(
         "error",
         "custom",
         "human_review",
+        "context_change",
       ],
     }).notNull(),
     name: text("name").notNull(),

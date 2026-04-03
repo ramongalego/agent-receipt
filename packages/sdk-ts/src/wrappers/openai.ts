@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import type { IngestClient, WrapperOptions } from "../types";
+import type { IngestClient, EventContext, WrapperOptions } from "../types";
 
 function isAsyncIterable(value: unknown): value is AsyncIterable<unknown> {
   return (
@@ -65,6 +65,27 @@ function extractToolCalls(result: unknown): OpenAIToolCall[] {
   );
 }
 
+function extractSystemPrompt(
+  params: Record<string, unknown>,
+): EventContext | undefined {
+  const messages = params?.messages;
+  if (!Array.isArray(messages)) return undefined;
+  const systemMessages = messages.filter(
+    (m) =>
+      typeof m === "object" &&
+      m !== null &&
+      (m as { role?: string }).role === "system",
+  );
+  if (systemMessages.length === 0) return undefined;
+  const combined = systemMessages
+    .map((m) => {
+      const content = (m as { content?: unknown }).content;
+      return typeof content === "string" ? content : JSON.stringify(content);
+    })
+    .join("\n");
+  return { systemPrompt: combined };
+}
+
 function sendToolCallEvents(
   toolCalls: OpenAIToolCall[],
   ingest: IngestClient,
@@ -102,6 +123,7 @@ function wrapStream(
   sessionName: string | undefined,
   params: Record<string, unknown>,
   start: number,
+  eventContext: EventContext | undefined,
 ): AsyncIterable<unknown> {
   return {
     [Symbol.asyncIterator]() {
@@ -128,6 +150,7 @@ function wrapStream(
                   input: params,
                   output: { chunks },
                   durationMs,
+                  context: eventContext,
                 },
               })
               .catch(() => {});
@@ -194,6 +217,7 @@ export function wrapOpenAI<T extends object>(
                             sessionName,
                             params,
                             start,
+                            extractSystemPrompt(params),
                           );
                         }
 
@@ -201,6 +225,7 @@ export function wrapOpenAI<T extends object>(
                           params,
                           result,
                         );
+                        const eventContext = extractSystemPrompt(params);
                         ingest
                           .send({
                             sessionId,
@@ -212,6 +237,7 @@ export function wrapOpenAI<T extends object>(
                               output: structured.output,
                               durationMs,
                               metadata: structured.metadata,
+                              context: eventContext,
                             },
                           })
                           .catch(() => {});

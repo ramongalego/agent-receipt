@@ -65,7 +65,15 @@ export async function processIngestEvent(
       projectId,
       name: input.sessionName,
       status: "running",
+      context: input.sessionContext ?? null,
     });
+  } else if (input.sessionContext) {
+    // Update context if provided on a subsequent event (first one wins for safety,
+    // but allow setting it if it was not set on session creation)
+    await db
+      .update(agentSessions)
+      .set({ context: input.sessionContext })
+      .where(eq(agentSessions.id, input.sessionId));
   }
 
   const previousHash =
@@ -100,10 +108,14 @@ export async function processIngestEvent(
   // Store raw payloads in R2 (skip for human_review events which have no payload)
   if (input.event.type !== "human_review") {
     console.debug("[ingest] Uploading payload to R2...");
-    const r2Result = await putPayload(insertedEvent.id, {
+    const r2Payload: { input: unknown; output: unknown; context?: unknown } = {
       input: input.event.input,
       output: input.event.output,
-    });
+    };
+    if (input.event.context) {
+      r2Payload.context = input.event.context;
+    }
+    const r2Result = await putPayload(insertedEvent.id, r2Payload);
 
     if (!r2Result.ok) {
       console.error("[ingest] R2 upload failed", {

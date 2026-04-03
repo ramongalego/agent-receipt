@@ -1,9 +1,43 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { PublicNav } from "@/components/layout/public-nav";
 import { HashChainBadge } from "@/components/ui/hash-chain-badge";
-import { DemoTimeline, DemoRekorBadge } from "./demo-timeline";
+import { DemoTimeline, DemoRekorBadge, DemoContextCard } from "./demo-timeline";
+
+const DEMO_SESSION_CONTEXT = {
+  systemPrompt:
+    "You are an accounts payable agent. Process incoming invoices by extracting data, verifying vendors, and triggering payments when appropriate. Follow all approval rules strictly.",
+  activeRules: [
+    {
+      id: "auto-approve-threshold",
+      description: "Auto-approve payments under $5,000 for verified vendors",
+      parameters: { threshold: 5000, currency: "USD" },
+    },
+    {
+      id: "vendor-must-be-verified",
+      description:
+        "Vendor must exist in the database and be marked as verified",
+    },
+    {
+      id: "duplicate-check",
+      description:
+        "Reject invoices with the same number from the same vendor within 30 days",
+      parameters: { windowDays: 30 },
+    },
+  ],
+  permissions: [
+    "read:invoices",
+    "read:vendors",
+    "write:payments",
+    "write:audit-log",
+  ],
+  environment: {
+    accountTier: "business",
+    region: "us-east-1",
+    approver: "agent@widgetinc.com",
+  },
+};
 
 const DEMO_EVENTS = [
   {
@@ -65,6 +99,19 @@ const DEMO_EVENTS = [
     output: {
       outcome: "approved",
       approvalType: "automatic",
+    },
+    context: {
+      rulesEvaluated: [
+        "auto-approve-threshold",
+        "vendor-must-be-verified",
+        "duplicate-check",
+      ],
+      stateAtDecision: {
+        invoiceAmount: 4500,
+        approvalThreshold: 5000,
+        vendorVerified: true,
+        duplicateFound: false,
+      },
     },
   },
   {
@@ -135,8 +182,8 @@ export default function DemoPage() {
 
         {/* Summary */}
         <Card>
-          <CardContent>
-            <div className="mb-4 flex items-center gap-2">
+          <div className="px-5 py-4">
+            <div className="flex items-center gap-2">
               <svg
                 width="18"
                 height="18"
@@ -156,15 +203,22 @@ export default function DemoPage() {
               </svg>
               <h2 className="text-base font-semibold">Receipt summary</h2>
             </div>
+          </div>
+          <div className="border-t border-border px-5 pb-5 pt-4">
             <p className="text-sm leading-relaxed text-muted-foreground">
               {DEMO_SUMMARY}
             </p>
-          </CardContent>
+          </div>
         </Card>
+
+        {/* Decision Context — collapsible */}
+        <div className="mt-6">
+          <DemoContextCard context={DEMO_SESSION_CONTEXT} />
+        </div>
 
         {/* Timeline */}
         <Card className="mt-6">
-          <CardHeader>
+          <div className="px-5 py-4">
             <div className="flex items-center gap-2">
               <svg
                 width="18"
@@ -182,7 +236,7 @@ export default function DemoPage() {
               </svg>
               <h2 className="text-base font-semibold">Event timeline</h2>
             </div>
-          </CardHeader>
+          </div>
           <DemoTimeline events={DEMO_EVENTS} />
         </Card>
 

@@ -4,10 +4,11 @@ import { getSessionByShareToken } from "@/db/queries/sessions";
 import { verifyChain } from "@/lib/hash";
 import { computeSessionStatus } from "@/lib/session-status";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { HashChainBadge } from "@/components/ui/hash-chain-badge";
 import { LogoIcon } from "@/components/ui/logo-icon";
 import { PublicEventTimeline } from "./public-event-timeline";
+import { CollapsibleContextCard } from "@/components/ui/collapsible-context-card";
 
 type PageProps = {
   params: Promise<{ token: string }>;
@@ -204,8 +205,8 @@ export default async function SharedReceiptPage({ params }: PageProps) {
         {/* Receipt Summary */}
         {session.summary && (
           <Card>
-            <CardContent>
-              <div className="mb-4 flex items-center gap-2">
+            <div className="px-5 py-4">
+              <div className="flex items-center gap-2">
                 <svg
                   width="18"
                   height="18"
@@ -225,16 +226,25 @@ export default async function SharedReceiptPage({ params }: PageProps) {
                 </svg>
                 <h2 className="text-base font-semibold">Receipt summary</h2>
               </div>
+            </div>
+            <div className="border-t border-border px-5 pb-5 pt-4">
               <p className="text-sm leading-relaxed text-muted-foreground">
                 {session.summary}
               </p>
-            </CardContent>
+            </div>
           </Card>
         )}
 
+        {/* Decision Context — collapsible */}
+        {session.context && (
+          <div className="mt-6">
+            <CollapsibleContextCard context={session.context} />
+          </div>
+        )}
+
         {/* Event Timeline */}
-        <Card className={session.summary ? "mt-6" : ""}>
-          <CardHeader>
+        <Card className={session.summary || session.context ? "mt-6" : ""}>
+          <div className="px-5 py-4">
             <div className="flex items-center gap-2">
               <svg
                 width="18"
@@ -252,7 +262,7 @@ export default async function SharedReceiptPage({ params }: PageProps) {
               </svg>
               <h2 className="text-base font-semibold">Event timeline</h2>
             </div>
-          </CardHeader>
+          </div>
           <PublicEventTimeline
             shareToken={token}
             events={events.map((e) => ({

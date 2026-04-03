@@ -2,13 +2,19 @@ import { randomUUID } from "crypto";
 import type {
   IngestClient,
   Session,
+  SessionContext,
   TrackEventInput,
   TrackOptions,
   HumanReviewParams,
 } from "./types";
 
-export function createSession(ingest: IngestClient, name?: string): Session {
+export function createSession(
+  ingest: IngestClient,
+  name?: string,
+  sessionContext?: SessionContext,
+): Session {
   const id = randomUUID();
+  let contextSent = false;
 
   async function trackTool<T>(
     toolName: string,
@@ -38,18 +44,29 @@ export function createSession(ingest: IngestClient, name?: string): Session {
           : output,
         durationMs,
         compliance: options?.compliance,
+        context: options?.context,
       };
 
+      // Attach session context on first event only
+      const payload: {
+        sessionId: string;
+        sessionName?: string;
+        sessionContext?: SessionContext;
+        event: TrackEventInput;
+      } = {
+        sessionId: id,
+        sessionName: name,
+        event,
+      };
+      if (sessionContext && !contextSent) {
+        payload.sessionContext = sessionContext;
+        contextSent = true;
+      }
+
       // Fire and forget. Never block the caller.
-      ingest
-        .send({
-          sessionId: id,
-          sessionName: name,
-          event,
-        })
-        .catch(() => {
-          // Silently ignore ingest errors
-        });
+      ingest.send(payload).catch(() => {
+        // Silently ignore ingest errors
+      });
     }
   }
 
@@ -59,22 +76,32 @@ export function createSession(ingest: IngestClient, name?: string): Session {
     outcome: string,
     options?: TrackOptions,
   ): Promise<void> {
-    await ingest
-      .send({
-        sessionId: id,
-        sessionName: name,
-        event: {
-          type: "decision",
-          name: decisionName,
-          input: { reasoning },
-          output: { outcome },
-          durationMs: 0,
-          compliance: options?.compliance,
-        },
-      })
-      .catch(() => {
-        // Silently ignore ingest errors
-      });
+    const payload: {
+      sessionId: string;
+      sessionName?: string;
+      sessionContext?: SessionContext;
+      event: TrackEventInput;
+    } = {
+      sessionId: id,
+      sessionName: name,
+      event: {
+        type: "decision",
+        name: decisionName,
+        input: { reasoning },
+        output: { outcome },
+        durationMs: 0,
+        compliance: options?.compliance,
+        context: options?.context,
+      },
+    };
+    if (sessionContext && !contextSent) {
+      payload.sessionContext = sessionContext;
+      contextSent = true;
+    }
+
+    await ingest.send(payload).catch(() => {
+      // Silently ignore ingest errors
+    });
   }
 
   async function trackHumanReview(
@@ -88,18 +115,50 @@ export function createSession(ingest: IngestClient, name?: string): Session {
       metadata.notes = params.notes;
     }
 
+    const payload: {
+      sessionId: string;
+      sessionName?: string;
+      sessionContext?: SessionContext;
+      event: TrackEventInput;
+    } = {
+      sessionId: id,
+      sessionName: name,
+      event: {
+        type: "human_review",
+        name: "human_review",
+        input: "",
+        output: "",
+        durationMs: 0,
+        metadata,
+        compliance: params.compliance,
+        context: params.context,
+      },
+    };
+    if (sessionContext && !contextSent) {
+      payload.sessionContext = sessionContext;
+      contextSent = true;
+    }
+
+    await ingest.send(payload).catch(() => {
+      // Silently ignore ingest errors
+    });
+  }
+
+  async function trackContextChange(
+    changeName: string,
+    previous: Record<string, unknown>,
+    current: Record<string, unknown>,
+  ): Promise<void> {
     await ingest
       .send({
         sessionId: id,
         sessionName: name,
         event: {
-          type: "human_review",
-          name: "human_review",
-          input: "",
-          output: "",
+          type: "context_change",
+          name: changeName,
+          input: { previous },
+          output: { current },
           durationMs: 0,
-          metadata,
-          compliance: params.compliance,
         },
       })
       .catch(() => {
@@ -140,6 +199,7 @@ export function createSession(ingest: IngestClient, name?: string): Session {
     trackTool,
     trackDecision,
     trackHumanReview,
+    trackContextChange,
     end,
   };
 }

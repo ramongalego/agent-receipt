@@ -189,6 +189,123 @@ describe("Session", () => {
     });
   });
 
+  describe("session context", () => {
+    it("sends sessionContext with the first event only", async () => {
+      const ctx = {
+        systemPrompt: "You are a test agent.",
+        activeRules: [{ id: "rule-1", description: "Test rule" }],
+        permissions: ["read:data"],
+      };
+      const session = createSession(ingest, "Test", ctx);
+
+      await session.trackDecision("first", "reasoning", "outcome");
+      await session.trackDecision("second", "reasoning", "outcome");
+      await session.end();
+
+      const calls = mockFetch.mock.calls;
+      const firstPayload = findEventPayload(
+        calls,
+        (p) => p.event.name === "first",
+      );
+      const secondPayload = findEventPayload(
+        calls,
+        (p) => p.event.name === "second",
+      );
+
+      expect(firstPayload).not.toBeNull();
+      expect(firstPayload.sessionContext).toEqual(ctx);
+      expect(secondPayload).not.toBeNull();
+      expect(secondPayload.sessionContext).toBeUndefined();
+    });
+
+    it("does not include sessionContext when none is provided", async () => {
+      const session = createSession(ingest, "Test");
+      await session.trackDecision("test", "reasoning", "outcome");
+      await session.end();
+
+      const payload = findEventPayload(
+        mockFetch.mock.calls,
+        (p) => p.event.name === "test",
+      );
+      expect(payload).not.toBeNull();
+      expect(payload.sessionContext).toBeUndefined();
+    });
+  });
+
+  describe("event context", () => {
+    it("trackTool passes event context through to the ingest call", async () => {
+      const session = createSession(ingest, "Test");
+      await session.trackTool(
+        "approve-payment",
+        { amount: 4500 },
+        async () => ({ ok: true }),
+        {
+          context: {
+            rulesEvaluated: ["auto-approve"],
+            stateAtDecision: { threshold: 5000 },
+          },
+        },
+      );
+      await session.end();
+
+      const payload = findEventPayload(
+        mockFetch.mock.calls,
+        (p) => p.event.name === "approve-payment",
+      );
+      expect(payload).not.toBeNull();
+      expect(payload.event.context).toEqual({
+        rulesEvaluated: ["auto-approve"],
+        stateAtDecision: { threshold: 5000 },
+      });
+    });
+
+    it("trackDecision passes event context through to the ingest call", async () => {
+      const session = createSession(ingest, "Test");
+      await session.trackDecision("approve", "within limit", "approved", {
+        context: { rulesEvaluated: ["threshold-check"] },
+      });
+      await session.end();
+
+      const payload = findEventPayload(
+        mockFetch.mock.calls,
+        (p) => p.event.name === "approve",
+      );
+      expect(payload).not.toBeNull();
+      expect(payload.event.context).toEqual({
+        rulesEvaluated: ["threshold-check"],
+      });
+    });
+  });
+
+  describe("trackContextChange", () => {
+    it("sends a context_change event with previous and current state", async () => {
+      const session = createSession(ingest, "Test");
+      await session.trackContextChange(
+        "threshold-updated",
+        { threshold: 5000 },
+        { threshold: 10000 },
+      );
+      await session.end();
+
+      const payload = findEventPayload(
+        mockFetch.mock.calls,
+        (p) => p.event.name === "threshold-updated",
+      );
+      expect(payload).not.toBeNull();
+      expect(payload.event.type).toBe("context_change");
+      expect(payload.event.input).toEqual({ previous: { threshold: 5000 } });
+      expect(payload.event.output).toEqual({ current: { threshold: 10000 } });
+    });
+
+    it("does not throw if ingest fails", async () => {
+      mockFetch.mockRejectedValue(new Error("Network error"));
+      const session = createSession(ingest);
+      await expect(
+        session.trackContextChange("update", { a: 1 }, { a: 2 }),
+      ).resolves.not.toThrow();
+    });
+  });
+
   describe("trackHumanReview", () => {
     it("sends event with correct type and metadata", async () => {
       const session = createSession(ingest, "Test");

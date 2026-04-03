@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import type { IngestClient, WrapperOptions } from "../types";
+import type { IngestClient, EventContext, WrapperOptions } from "../types";
 
 function hasOnMethod(value: unknown): value is {
   on: (event: string, cb: (...args: unknown[]) => void) => unknown;
@@ -69,6 +69,27 @@ function extractToolCalls(result: unknown): AnthropicToolUse[] {
   );
 }
 
+function extractSystemPrompt(
+  params: Record<string, unknown>,
+): EventContext | undefined {
+  const system = params?.system;
+  if (!system) return undefined;
+  if (typeof system === "string") return { systemPrompt: system };
+  if (Array.isArray(system)) {
+    const text = system
+      .filter(
+        (b) =>
+          typeof b === "object" &&
+          b !== null &&
+          (b as { type?: string }).type === "text",
+      )
+      .map((b) => (b as { text?: string }).text ?? "")
+      .join("\n");
+    if (text) return { systemPrompt: text };
+  }
+  return undefined;
+}
+
 function sendToolCallEvents(
   toolCalls: AnthropicToolUse[],
   ingest: IngestClient,
@@ -116,6 +137,7 @@ export function wrapAnthropic<T extends object>(
               ): Promise<unknown> {
                 const start = Date.now();
                 const params = args[0] as Record<string, unknown>;
+                const eventContext = extractSystemPrompt(params);
                 try {
                   const result = await (
                     msgValue as (...a: unknown[]) => Promise<unknown>
@@ -137,6 +159,7 @@ export function wrapAnthropic<T extends object>(
                             output: structured.output,
                             durationMs: finalDurationMs,
                             metadata: structured.metadata,
+                            context: eventContext,
                           },
                         })
                         .catch(() => {});
@@ -165,6 +188,7 @@ export function wrapAnthropic<T extends object>(
                         output: structured.output,
                         durationMs,
                         metadata: structured.metadata,
+                        context: eventContext,
                       },
                     })
                     .catch(() => {});
@@ -193,6 +217,7 @@ export function wrapAnthropic<T extends object>(
                           error: e instanceof Error ? e.message : String(e),
                         },
                         durationMs,
+                        context: eventContext,
                       },
                     })
                     .catch(() => {});
@@ -205,6 +230,7 @@ export function wrapAnthropic<T extends object>(
               return function wrappedStream(...args: unknown[]): unknown {
                 const start = Date.now();
                 const params = args[0] as Record<string, unknown>;
+                const eventContext = extractSystemPrompt(params);
                 const result = (msgValue as (...a: unknown[]) => unknown).apply(
                   msgTarget,
                   args,
@@ -225,6 +251,7 @@ export function wrapAnthropic<T extends object>(
                           output: structured.output,
                           durationMs,
                           metadata: structured.metadata,
+                          context: eventContext,
                         },
                       })
                       .catch(() => {});

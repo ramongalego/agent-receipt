@@ -550,6 +550,181 @@ async function runFeatures(method: string) {
         },
       };
     }
+    case "decision-context": {
+      const session = ar.startSession(
+        "TestLord: Invoice processing with decision context",
+        {
+          context: {
+            systemPrompt:
+              "You are an accounts payable agent. Process invoices, verify vendors, and trigger payments. Follow all approval rules.",
+            activeRules: [
+              {
+                id: "auto-approve-threshold",
+                description:
+                  "Auto-approve payments under $5,000 for verified vendors",
+                parameters: { threshold: 5000, currency: "USD" },
+              },
+              {
+                id: "vendor-must-be-verified",
+                description:
+                  "Vendor must exist in the database and be marked as verified",
+              },
+              {
+                id: "duplicate-invoice-check",
+                description:
+                  "Reject invoices with the same number from the same vendor within 30 days",
+                parameters: { windowDays: 30 },
+              },
+            ],
+            permissions: [
+              "read:invoices",
+              "read:vendors",
+              "write:payments",
+              "write:audit-log",
+            ],
+            environment: {
+              accountTier: "business",
+              region: "us-east-1",
+              approver: "ap-agent@widgetinc.com",
+            },
+          },
+        },
+      );
+
+      // Step 1: Parse invoice
+      await session.trackTool(
+        "parse-invoice",
+        {
+          rawText:
+            "Invoice #892\nFrom: Acme Corp\nAmount: $3,200\nDue: 2026-05-01",
+        },
+        async () => ({
+          invoiceNumber: "892",
+          vendor: "Acme Corp",
+          amount: 3200,
+          currency: "USD",
+          dueDate: "2026-05-01",
+        }),
+      );
+
+      // Step 2: Vendor lookup
+      await session.trackTool(
+        "lookup-vendor",
+        { vendorName: "Acme Corp" },
+        async () => ({
+          id: "vendor_0042",
+          name: "Acme Corp",
+          verified: true,
+          autoApprovalLimit: 5000,
+        }),
+      );
+
+      // Step 3: Decision with per-event context
+      await session.trackDecision(
+        "approve-payment",
+        "Invoice amount $3,200 is under the $5,000 auto-approval threshold. Vendor is verified. No duplicate invoices found.",
+        "approved",
+        {
+          context: {
+            rulesEvaluated: [
+              "auto-approve-threshold",
+              "vendor-must-be-verified",
+              "duplicate-invoice-check",
+            ],
+            stateAtDecision: {
+              invoiceAmount: 3200,
+              approvalThreshold: 5000,
+              vendorVerified: true,
+              duplicateFound: false,
+            },
+          },
+        },
+      );
+
+      // Step 4: Trigger payment
+      await session.trackTool(
+        "trigger-payment",
+        { vendorId: "vendor_0042", amount: 3200, currency: "USD" },
+        async () => ({
+          paymentId: "pay_7x2m9k",
+          status: "initiated",
+          estimatedArrival: "2026-04-05",
+        }),
+      );
+
+      await session.end();
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      return {
+        output: {
+          sessionId: session.id,
+          events: [
+            "tool_call (parse-invoice)",
+            "tool_call (lookup-vendor)",
+            "decision (approve-payment, with context)",
+            "tool_call (trigger-payment)",
+          ],
+          sessionContext:
+            "system prompt + 3 rules + 4 permissions + environment",
+        },
+      };
+    }
+    case "context-change": {
+      const session = ar.startSession("TestLord: Mid-session context change", {
+        context: {
+          systemPrompt: "You are a payment processing agent.",
+          activeRules: [
+            {
+              id: "approval-threshold",
+              description: "Auto-approve under $5,000",
+              parameters: { threshold: 5000 },
+            },
+          ],
+          permissions: ["write:payments"],
+        },
+      });
+
+      await session.trackTool(
+        "check-balance",
+        { accountId: "acct-001" },
+        async () => ({ balance: 25000, currency: "USD" }),
+      );
+
+      // Mid-session rule change
+      await session.trackContextChange(
+        "approval-threshold-updated",
+        { threshold: 5000 },
+        { threshold: 10000 },
+      );
+
+      await session.trackDecision(
+        "approve-large-payment",
+        "Payment of $8,500 is under the updated $10,000 threshold.",
+        "approved",
+        {
+          context: {
+            rulesEvaluated: ["approval-threshold"],
+            stateAtDecision: {
+              paymentAmount: 8500,
+              currentThreshold: 10000,
+              previousThreshold: 5000,
+            },
+          },
+        },
+      );
+
+      await session.end();
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      return {
+        output: {
+          sessionId: session.id,
+          events: [
+            "tool_call (check-balance)",
+            "context_change (approval-threshold-updated)",
+            "decision (approve-large-payment, with context)",
+          ],
+        },
+      };
+    }
     case "combined": {
       const session = ar.startSession(
         "TestLord: Full session with human review and PII",

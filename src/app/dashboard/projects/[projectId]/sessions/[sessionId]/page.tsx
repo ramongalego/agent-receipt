@@ -13,7 +13,7 @@ import { verifyChain } from "@/lib/hash";
 import { computeSessionStatus } from "@/lib/session-status";
 import { getTeamPlan } from "@/lib/anchor-session";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { EventTimeline } from "./event-timeline";
 import { ReceiptSummary } from "./receipt-summary";
 import { HashChainBadge } from "@/components/ui/hash-chain-badge";
@@ -21,6 +21,7 @@ import { RekorBadge } from "./rekor-badge";
 import { AnchorTrigger } from "./anchor-trigger";
 import { ShareButton } from "./share-modal";
 import { FormattedDate } from "@/components/ui/formatted-date";
+import { CollapsibleContextCard } from "@/components/ui/collapsible-context-card";
 
 const getCachedProject = cache((projectId: string, teamId: string) =>
   getProjectById(projectId, teamId),
@@ -196,8 +197,8 @@ export default async function SessionDetailPage({
         {/* Receipt Summary — only shown for complete/error sessions */}
         {status !== "running" && (
           <Card>
-            <CardContent>
-              <div className="mb-4 flex items-center gap-2">
+            <div className="px-5 py-4">
+              <div className="flex items-center gap-2">
                 <svg
                   width="18"
                   height="18"
@@ -217,6 +218,8 @@ export default async function SessionDetailPage({
                 </svg>
                 <h2 className="text-base font-semibold">Receipt summary</h2>
               </div>
+            </div>
+            <div className="border-t border-border px-5 pb-5 pt-4">
               <ReceiptSummary
                 sessionId={sessionId}
                 sessionName={agentSession.name}
@@ -233,13 +236,20 @@ export default async function SessionDetailPage({
                     | undefined,
                 }))}
               />
-            </CardContent>
+            </div>
           </Card>
+        )}
+
+        {/* Decision Context — collapsible, shown when session has context */}
+        {agentSession.context && (
+          <div className="mt-6">
+            <CollapsibleContextCard context={agentSession.context} />
+          </div>
         )}
 
         {/* Event Timeline */}
         <Card className="mt-6">
-          <CardHeader>
+          <div className="px-5 py-4">
             <div className="flex items-center gap-2">
               <svg
                 width="18"
@@ -257,7 +267,7 @@ export default async function SessionDetailPage({
               </svg>
               <h2 className="text-base font-semibold">Event timeline</h2>
             </div>
-          </CardHeader>
+          </div>
           <EventTimeline
             events={events.map((e) => ({
               ...e,

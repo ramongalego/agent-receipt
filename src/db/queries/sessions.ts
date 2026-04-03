@@ -135,6 +135,7 @@ export async function getSessionByShareToken(token: string) {
       completedAt: agentSessions.completedAt,
       explicitlyCompletedAt: agentSessions.explicitlyCompletedAt,
       summary: agentSessions.summary,
+      context: agentSessions.context,
       rekorUuid: agentSessions.rekorUuid,
       rekorLogIndex: agentSessions.rekorLogIndex,
       rekorStatus: agentSessions.rekorStatus,

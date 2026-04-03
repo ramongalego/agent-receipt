@@ -3,12 +3,32 @@ export type EventType =
   | "tool_call"
   | "decision"
   | "error"
-  | "human_review";
+  | "human_review"
+  | "context_change";
 
 export type ComplianceMetadata = {
   containsPII?: boolean;
   dataCategory?: string;
   retentionOverride?: number;
+};
+
+export type Rule = {
+  id: string;
+  description: string;
+  parameters?: Record<string, unknown>;
+};
+
+export type SessionContext = {
+  systemPrompt?: string;
+  activeRules?: Rule[];
+  permissions?: string[];
+  environment?: Record<string, unknown>;
+};
+
+export type EventContext = {
+  rulesEvaluated?: string[];
+  stateAtDecision?: Record<string, unknown>;
+  systemPrompt?: string;
 };
 
 export type TrackEventInput = {
@@ -19,11 +39,13 @@ export type TrackEventInput = {
   durationMs: number;
   metadata?: Record<string, unknown>;
   compliance?: ComplianceMetadata;
+  context?: EventContext;
 };
 
 export type IngestPayload = {
   sessionId: string;
   sessionName?: string;
+  sessionContext?: SessionContext;
   event: TrackEventInput;
 };
 
@@ -55,6 +77,7 @@ export type HumanReviewParams = {
 
 export type TrackOptions = {
   compliance?: ComplianceMetadata;
+  context?: EventContext;
 };
 
 export type Session = {
@@ -73,6 +96,11 @@ export type Session = {
     options?: TrackOptions,
   ) => Promise<void>;
   trackHumanReview: (params: HumanReviewParams & TrackOptions) => Promise<void>;
+  trackContextChange: (
+    name: string,
+    previous: Record<string, unknown>,
+    current: Record<string, unknown>,
+  ) => Promise<void>;
   end: () => Promise<void>;
 };
 
@@ -87,8 +115,12 @@ export type VercelAIFunctions = {
   streamObject: (...args: unknown[]) => Promise<unknown>;
 };
 
+export type SessionOptions = {
+  context?: SessionContext;
+};
+
 export type Client = {
-  startSession: (name?: string) => Session;
+  startSession: (name?: string, options?: SessionOptions) => Session;
   track: (sessionId: string, event: TrackEventInput) => Promise<Result<string>>;
   wrapOpenAI: <T extends object>(client: T, options?: WrapperOptions) => T;
   wrapAnthropic: <T extends object>(client: T, options?: WrapperOptions) => T;

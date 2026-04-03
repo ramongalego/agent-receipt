@@ -16,22 +16,22 @@ export function highlightJson(json: string): string {
       punct: string | undefined,
     ) => {
       if (key !== undefined) {
-        return `<span class="text-blue-300">${escape(key)}</span><span class="text-zinc-400">:</span>`;
+        return `<span class="text-blue-700 dark:text-blue-300">${escape(key)}</span><span class="text-zinc-500 dark:text-zinc-400">:</span>`;
       }
       if (str !== undefined) {
-        return `<span class="text-green-300">${escape(str)}</span>`;
+        return `<span class="text-green-700 dark:text-green-300">${escape(str)}</span>`;
       }
       if (num !== undefined) {
-        return `<span class="text-amber-300">${escape(num)}</span>`;
+        return `<span class="text-amber-700 dark:text-amber-300">${escape(num)}</span>`;
       }
       if (bool !== undefined) {
-        return `<span class="text-purple-300">${escape(bool)}</span>`;
+        return `<span class="text-purple-700 dark:text-purple-300">${escape(bool)}</span>`;
       }
       if (nil !== undefined) {
-        return `<span class="text-zinc-500">${escape(nil)}</span>`;
+        return `<span class="text-zinc-400 dark:text-zinc-500">${escape(nil)}</span>`;
       }
       if (punct !== undefined) {
-        return `<span class="text-zinc-400">${escape(punct)}</span>`;
+        return `<span class="text-zinc-500 dark:text-zinc-400">${escape(punct)}</span>`;
       }
       return escape(match);
     },

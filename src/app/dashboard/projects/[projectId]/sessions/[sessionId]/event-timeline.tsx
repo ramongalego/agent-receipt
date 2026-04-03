@@ -37,6 +37,7 @@ const eventTypeBadge: Record<string, EventTypeBadgeVariant> = {
   decision: "warning",
   error: "error",
   human_review: "purple",
+  context_change: "warning",
 };
 
 const eventTypeLabel: Record<string, string> = {
@@ -45,6 +46,7 @@ const eventTypeLabel: Record<string, string> = {
   decision: "Decision",
   error: "Error",
   human_review: "Human Review",
+  context_change: "Context Changed",
 };
 
 const STRING_LIMIT = 500;
@@ -194,8 +196,8 @@ function HumanReviewDetail({
 function PiiBadge({ dataCategory }: { dataCategory?: string }) {
   const label = `Contains personally identifiable information${dataCategory ? `. Category: ${dataCategory}` : ""}`;
   return (
-    <span className="group relative">
-      <span className="rounded border border-purple-200 bg-purple-50 px-1.5 py-0.5 text-[10px] font-medium text-purple-700 dark:border-purple-900 dark:bg-purple-950/40 dark:text-purple-400">
+    <span className="group relative inline-flex items-center">
+      <span className="rounded border border-purple-200 bg-purple-50 px-1.5 py-0.5 text-[10px] font-medium leading-none text-purple-700 dark:border-purple-900 dark:bg-purple-950/40 dark:text-purple-400">
         PII
       </span>
       <span className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-1.5 hidden -translate-x-1/2 whitespace-nowrap rounded bg-foreground px-2 py-1 text-[11px] text-background group-hover:block">
@@ -213,8 +215,10 @@ export function EventTimeline({ events: rawEvents }: EventTimelineProps) {
   const [payload, setPayload] = useState<{
     input?: unknown;
     output?: unknown;
+    context?: unknown;
   } | null>(null);
   const [loadingPayload, setLoadingPayload] = useState(false);
+  const [activeTab, setActiveTab] = useState<"payload" | "context">("payload");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   async function toggleExpand(eventId: string) {
@@ -225,12 +229,19 @@ export function EventTimeline({ events: rawEvents }: EventTimelineProps) {
     }
 
     setExpandedId(eventId);
+    setActiveTab("payload");
     setLoadingPayload(true);
 
     try {
       const result = await fetchEventPayload(eventId);
       if ("data" in result) {
-        setPayload(result.data as { input?: unknown; output?: unknown });
+        setPayload(
+          result.data as {
+            input?: unknown;
+            output?: unknown;
+            context?: unknown;
+          },
+        );
       } else {
         setPayload({ input: { error: "Failed to load payload." } });
       }
@@ -263,7 +274,7 @@ export function EventTimeline({ events: rawEvents }: EventTimelineProps) {
         {visibleEvents.map((event, index) => (
           <div
             key={event.id}
-            className={`${event.type === "error" ? "bg-red-50/50 dark:bg-red-950/10" : ""}`}
+            className={`${event.type === "error" ? "bg-red-50/50 dark:bg-red-950/10" : event.type === "context_change" ? "bg-amber-50/50 dark:bg-amber-950/10" : ""}`}
           >
             <button
               type="button"
@@ -338,19 +349,52 @@ export function EventTimeline({ events: rawEvents }: EventTimelineProps) {
                     Loading payload...
                   </div>
                 ) : (
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div>
-                      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        Input
-                      </p>
-                      <TruncatedJson data={payload?.input ?? null} />
-                    </div>
-                    <div>
-                      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        Output
-                      </p>
-                      <TruncatedJson data={payload?.output ?? null} />
-                    </div>
+                  <div>
+                    {payload?.context != null && (
+                      <div className="mb-4 flex gap-4 border-b border-border text-sm font-medium">
+                        <button
+                          type="button"
+                          onClick={() => setActiveTab("payload")}
+                          className={`-mb-px border-b-2 pb-2 transition-colors ${activeTab === "payload" ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+                        >
+                          Input / Output
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setActiveTab("context")}
+                          className={`-mb-px border-b-2 pb-2 transition-colors ${activeTab === "context" ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+                        >
+                          Context
+                        </button>
+                      </div>
+                    )}
+                    {activeTab === "payload" ? (
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <div>
+                          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                            {event.type === "context_change"
+                              ? "Previous"
+                              : "Input"}
+                          </p>
+                          <TruncatedJson data={payload?.input ?? null} />
+                        </div>
+                        <div>
+                          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                            {event.type === "context_change"
+                              ? "Current"
+                              : "Output"}
+                          </p>
+                          <TruncatedJson data={payload?.output ?? null} />
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          Decision context
+                        </p>
+                        <TruncatedJson data={payload?.context ?? null} />
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

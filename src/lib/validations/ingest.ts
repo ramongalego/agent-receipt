@@ -10,10 +10,30 @@ const complianceSchema = z
   })
   .optional();
 
+const ruleSchema = z.object({
+  id: z.string().min(1).max(100),
+  description: z.string().max(500),
+  parameters: z.record(z.string(), z.unknown()).optional(),
+});
+
+export const sessionContextSchema = z.object({
+  systemPrompt: z.string().max(50000).optional(),
+  activeRules: z.array(ruleSchema).max(50).optional(),
+  permissions: z.array(z.string().max(200)).max(100).optional(),
+  environment: z.record(z.string(), z.unknown()).optional(),
+});
+
+export const eventContextSchema = z.object({
+  rulesEvaluated: z.array(z.string().max(100)).max(50).optional(),
+  stateAtDecision: z.record(z.string(), z.unknown()).optional(),
+  systemPrompt: z.string().max(50000).optional(),
+});
+
 export const ingestEventSchema = z
   .object({
     sessionId: z.string().uuid("sessionId must be a valid UUID."),
     sessionName: z.string().max(200).optional(),
+    sessionContext: sessionContextSchema.optional(),
     event: z.object({
       type: z.enum([
         "llm_call",
@@ -21,6 +41,7 @@ export const ingestEventSchema = z
         "decision",
         "error",
         "human_review",
+        "context_change",
       ]),
       name: z.string().min(1, "Event name is required.").max(100),
       input: z.unknown(),
@@ -28,6 +49,7 @@ export const ingestEventSchema = z
       durationMs: z.number().int().nonnegative(),
       metadata: z.record(z.string(), z.unknown()).optional(),
       compliance: complianceSchema,
+      context: eventContextSchema.optional(),
     }),
   })
   .refine(

@@ -192,6 +192,23 @@ try {
                 Any error captured by the SDK or recorded by the system.
               </td>
             </tr>
+            <tr className="border-b border-border/50">
+              <td className="py-2 pr-4">
+                <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+                  context_change
+                </code>
+              </td>
+              <td className="py-2 text-muted-foreground">
+                A mid-session change to rules, thresholds, or permissions. See{" "}
+                <a
+                  href="#decision-context"
+                  className="text-foreground underline underline-offset-4 transition-colors hover:text-foreground/80"
+                >
+                  Decision context
+                </a>
+                .
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -338,6 +355,173 @@ try {
 )`}
         filename="compliance-example.ts"
       />
+      {/* Decision context */}
+      <h2
+        id="decision-context"
+        className="mt-16 scroll-mt-24 text-2xl font-bold tracking-tight"
+      >
+        Decision context
+      </h2>
+      <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+        Knowing what an agent did is not enough. An auditor needs to know why it
+        was valid at the time. Decision context captures the conditions that
+        informed an action: the system prompt, the rules that were active, the
+        permissions the agent had, and the state it was looking at when it made
+        a choice.
+      </p>
+      <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+        Decision context works at two levels. Session context captures the
+        baseline operating environment when the agent run starts. Event context
+        captures the specific conditions that applied to an individual action.
+      </p>
+
+      <h3 className="mt-8 text-lg font-semibold">Session context</h3>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        Passed once when you start a session. It describes the environment the
+        agent was running in. The receipt shows this as a collapsible
+        &quot;Decision context&quot; panel.
+      </p>
+      <CodeBlock
+        code={`const session = ar.startSession('Process invoice #441', {
+  context: {
+    systemPrompt: 'You are an accounts payable agent...',
+    activeRules: [
+      {
+        id: 'auto-approve-threshold',
+        description: 'Auto-approve payments under $5,000 for verified vendors',
+        parameters: { threshold: 5000, currency: 'USD' }
+      }
+    ],
+    permissions: ['read:invoices', 'write:payments'],
+    environment: { region: 'us-east-1', accountTier: 'business' }
+  }
+})`}
+        filename="session-context.ts"
+      />
+      <div className="my-4 overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border text-left">
+              <th className="pb-2 pr-4 font-semibold">Field</th>
+              <th className="pb-2 font-semibold">What it captures</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="border-b border-border/50">
+              <td className="py-2 pr-4">
+                <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+                  systemPrompt
+                </code>
+              </td>
+              <td className="py-2 text-muted-foreground">
+                The instructions given to the agent at the start of the run.
+              </td>
+            </tr>
+            <tr className="border-b border-border/50">
+              <td className="py-2 pr-4">
+                <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+                  activeRules
+                </code>
+              </td>
+              <td className="py-2 text-muted-foreground">
+                Guardrails, policies, and thresholds. Each rule has an id,
+                description, and optional parameters.
+              </td>
+            </tr>
+            <tr className="border-b border-border/50">
+              <td className="py-2 pr-4">
+                <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+                  permissions
+                </code>
+              </td>
+              <td className="py-2 text-muted-foreground">
+                What the agent is allowed to do. Displayed as a list of scopes.
+              </td>
+            </tr>
+            <tr className="border-b border-border/50">
+              <td className="py-2 pr-4">
+                <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+                  environment
+                </code>
+              </td>
+              <td className="py-2 text-muted-foreground">
+                Any application-specific state relevant to the run (account
+                tier, region, user role, etc.).
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        All fields are optional. Pass whatever is relevant to your use case.
+        Even just the system prompt on its own adds significant audit value.
+      </p>
+
+      <h3 className="mt-8 text-lg font-semibold">Event context</h3>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        Attached to individual events, typically decisions or tool calls. It
+        answers: &quot;For this specific action, what rules were checked and
+        what state was the agent looking at?&quot;
+      </p>
+      <CodeBlock
+        code={`await session.trackDecision(
+  'approve-payment',
+  'Amount $3,200 is under threshold. Vendor verified.',
+  'approved',
+  {
+    context: {
+      rulesEvaluated: ['auto-approve-threshold', 'vendor-must-be-verified'],
+      stateAtDecision: {
+        invoiceAmount: 3200,
+        approvalThreshold: 5000,
+        vendorVerified: true
+      }
+    }
+  }
+)`}
+        filename="event-context.ts"
+      />
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        Event context is stored alongside the input and output in the event
+        payload. In the receipt, it appears as a &quot;Context&quot; tab when
+        you expand an event.
+      </p>
+
+      <h3 className="mt-8 text-lg font-semibold">Context changes</h3>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        If rules, permissions, or thresholds change mid-session, record it with{" "}
+        <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+          trackContextChange
+        </code>
+        . This creates a{" "}
+        <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+          context_change
+        </code>{" "}
+        event in the hash chain, so the receipt shows exactly when and what
+        changed.
+      </p>
+      <CodeBlock
+        code={`await session.trackContextChange(
+  'approval-threshold-updated',
+  { threshold: 5000 },   // previous
+  { threshold: 10000 }   // current
+)`}
+        filename="context-change.ts"
+      />
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        Context changes render as a distinct event in the timeline with a
+        &quot;Previous&quot; and &quot;Current&quot; view instead of the usual
+        Input/Output.
+      </p>
+
+      <h3 className="mt-8 text-lg font-semibold">Automatic capture</h3>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        The OpenAI and Anthropic wrappers automatically extract the system
+        prompt from LLM calls and attach it as event context. You get partial
+        context capture for free without any extra code. For business rules and
+        permissions, you need to pass them explicitly since those are specific
+        to your application.
+      </p>
     </article>
   );
 }

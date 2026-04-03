@@ -142,9 +142,9 @@ export default async function SharedReceiptPage({ params }: PageProps) {
       <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
         <Link
           href="/"
-          className="flex items-center gap-1 text-lg font-semibold tracking-tight text-foreground"
+          className="flex items-center gap-2 text-lg font-semibold tracking-tight text-foreground"
         >
-          <LogoIcon className="h-[18px] w-[18px]" />
+          <LogoIcon className="h-6 w-6" />
           AgentReceipt
         </Link>
         <p className="text-sm text-muted-foreground">

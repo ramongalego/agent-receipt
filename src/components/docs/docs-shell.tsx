@@ -188,9 +188,9 @@ export function DocsShell({ children }: DocsShellProps) {
           <div className="flex items-center gap-6">
             <Link
               href="/"
-              className="flex items-center gap-1 text-lg font-semibold tracking-tight"
+              className="flex items-center gap-2 text-lg font-semibold tracking-tight"
             >
-              <LogoIcon className="h-[18px] w-[18px]" />
+              <LogoIcon className="h-6 w-6" />
               AgentReceipt
             </Link>
             <Link

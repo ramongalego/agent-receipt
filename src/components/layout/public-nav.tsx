@@ -10,9 +10,9 @@ export function PublicNav() {
     >
       <Link
         href="/"
-        className="flex items-center gap-1 text-lg font-semibold tracking-tight text-foreground"
+        className="flex items-center gap-2 text-lg font-semibold tracking-tight text-foreground"
       >
-        <LogoIcon className="h-[18px] w-[18px]" />
+        <LogoIcon className="h-6 w-6" />
         AgentReceipt
       </Link>
       <div className="flex items-center gap-5">

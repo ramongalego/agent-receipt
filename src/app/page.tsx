@@ -129,7 +129,7 @@ const PROBLEMS = [
     ),
     title: "Audits need answers",
     description:
-      "Wrong payment to the wrong vendor. An email sent to the wrong customer. Your audit asks what your AI did last Tuesday. You need to be able to answer.",
+      "Wrong payment to the wrong vendor. An email sent to the wrong customer. Your audit asks what your AI did last Tuesday. A log of what happened is not enough. You need to know what the agent saw and what rules it was following when it made the call.",
   },
 ];
 
@@ -144,6 +144,19 @@ export default function LandingPage() {
 
       {/* Hero */}
       <section className="relative overflow-hidden px-6 pb-32 pt-24 sm:pb-40 sm:pt-32">
+        {/* Dot grid background */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle, rgba(99, 102, 241, 0.25) 1px, transparent 1px)",
+            backgroundSize: "24px 24px",
+            maskImage:
+              "radial-gradient(ellipse 60% 50% at 50% 0%, black 20%, transparent 100%)",
+            WebkitMaskImage:
+              "radial-gradient(ellipse 60% 50% at 50% 0%, black 20%, transparent 100%)",
+          }}
+        />
         {/* Radial gradient glow */}
         <div
           className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2"
@@ -151,7 +164,7 @@ export default function LandingPage() {
             width: "800px",
             height: "600px",
             background:
-              "radial-gradient(ellipse at center, rgba(99, 102, 241, 0.08) 0%, rgba(99, 102, 241, 0.03) 40%, transparent 70%)",
+              "radial-gradient(ellipse at center, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.04) 40%, transparent 70%)",
           }}
         />
         <div className="relative mx-auto max-w-3xl text-center">
@@ -323,9 +336,11 @@ export default function LandingPage() {
                 <h3 className="mb-2 text-lg font-semibold">View the receipt</h3>
                 <p className="text-sm leading-relaxed text-muted-foreground">
                   Open the dashboard and see a human-readable timeline of
-                  everything your agent did. Each event is hash-chained for
-                  tamper-proof verification. Share any receipt with a one-click
-                  link. Anyone with the link can view it.
+                  everything your agent did. Each receipt shows the full
+                  decision context: the rules, permissions, and state your agent
+                  was operating under when it acted. Every event is hash-chained
+                  for tamper-proof verification. Share any receipt with a
+                  one-click link.
                 </p>
               </div>
             </div>

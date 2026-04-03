@@ -69,8 +69,10 @@ export default function PrivacyPage() {
             When you integrate the AgentReceipt SDK into your application, we
             receive and store the events your agent sends. This includes LLM
             call inputs and outputs, tool call data, decisions, and any metadata
-            you attach. This data may contain personal information depending on
-            what your agent processes.
+            you attach. If you use decision context, we also store the session
+            context you provide: system prompts, active rules and their
+            parameters, permissions, and environment state. This data may
+            contain personal information depending on what your agent processes.
           </p>
           <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
             Raw payloads from LLM calls are stored in Cloudflare R2. Event

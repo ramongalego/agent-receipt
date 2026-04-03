@@ -36,9 +36,9 @@ export function DesktopSidebar({ workspaceName }: SidebarProps) {
           <div className="flex items-center justify-between px-5 py-5">
             <Link
               href="/dashboard"
-              className="flex items-center gap-2 text-lg font-semibold text-foreground tracking-tight"
+              className="flex items-center gap-1 text-lg font-semibold text-foreground tracking-tight"
             >
-              <LogoIcon className="h-6 w-6" />
+              <LogoIcon className="h-[18px] w-[18px]" />
               AgentReceipt
             </Link>
             <ThemeToggle />
@@ -132,9 +132,9 @@ export function MobileHeader({ workspaceName }: SidebarProps) {
       <header className="flex items-center justify-between border-b border-border bg-card px-4 py-3 md:hidden">
         <Link
           href="/dashboard"
-          className="flex items-center gap-2 text-lg font-semibold text-foreground"
+          className="flex items-center gap-1 text-lg font-semibold text-foreground"
         >
-          <LogoIcon className="h-6 w-6" />
+          <LogoIcon className="h-[18px] w-[18px]" />
           AgentReceipt
         </Link>
         <div className="flex items-center gap-2">

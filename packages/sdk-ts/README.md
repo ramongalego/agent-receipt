@@ -175,7 +175,13 @@ Human review events appear with a purple badge in the dashboard. No payload is s
 
 ## Compliance metadata
 
-Tag any event with compliance metadata to flag sensitive data. Events with `containsPII: true` or a `dataCategory` show a PII badge in the dashboard.
+Tag any event with compliance metadata to flag sensitive data.
+
+When you set `containsPII: true` or a `dataCategory` on an event:
+
+- The event shows a **PII badge** in the dashboard timeline.
+- The event payload is **hidden by default**. Team members must click "Reveal sensitive data" to view input and output.
+- On **shared receipts**, the payload is fully redacted. Public viewers can see that the event happened, but cannot access the payload at all.
 
 ```typescript
 await session.trackTool(
@@ -229,12 +235,12 @@ const session = ar.startSession("Process invoice #441", {
 
 All fields are optional. Use whichever ones are relevant to your agent.
 
-| Field | Type | Purpose |
-|-------|------|---------|
-| `systemPrompt` | `string` | The system prompt the LLM was given |
-| `activeRules` | `Rule[]` | Business rules governing the agent's behavior |
-| `permissions` | `string[]` | What the agent is allowed to do |
-| `environment` | `Record<string, unknown>` | Runtime info (region, version, feature flags) |
+| Field          | Type                      | Purpose                                       |
+| -------------- | ------------------------- | --------------------------------------------- |
+| `systemPrompt` | `string`                  | The system prompt the LLM was given           |
+| `activeRules`  | `Rule[]`                  | Business rules governing the agent's behavior |
+| `permissions`  | `string[]`                | What the agent is allowed to do               |
+| `environment`  | `Record<string, unknown>` | Runtime info (region, version, feature flags) |
 
 ## Event context
 
@@ -267,11 +273,11 @@ await session.trackDecision(
 );
 ```
 
-| Field | Type | Purpose |
-|-------|------|---------|
-| `rulesEvaluated` | `string[]` | Which rules the agent checked for this action |
-| `stateAtDecision` | `Record<string, unknown>` | Key values the agent used to decide |
-| `systemPrompt` | `string` | The system prompt at the time (if it changed mid-session) |
+| Field             | Type                      | Purpose                                                   |
+| ----------------- | ------------------------- | --------------------------------------------------------- |
+| `rulesEvaluated`  | `string[]`                | Which rules the agent checked for this action             |
+| `stateAtDecision` | `Record<string, unknown>` | Key values the agent used to decide                       |
+| `systemPrompt`    | `string`                  | The system prompt at the time (if it changed mid-session) |
 
 ## trackContextChange
 

@@ -94,6 +94,43 @@ export default function CompliancePage() {
         </p>
       </div>
 
+      {/* PII handling */}
+      <h2
+        id="pii-handling"
+        className="mt-16 scroll-mt-24 text-2xl font-bold tracking-tight"
+      >
+        PII handling
+      </h2>
+      <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+        When you tag an event with{" "}
+        <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+          containsPII: true
+        </code>{" "}
+        or set a{" "}
+        <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+          dataCategory
+        </code>
+        , AgentReceipt treats that event&apos;s payload as sensitive. This
+        affects how the payload is displayed and shared.
+      </p>
+
+      <h3 className="mt-8 text-lg font-semibold">In the dashboard</h3>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        PII-flagged events show a purple PII badge in the timeline. The payload
+        is hidden by default. Team members must click &ldquo;Reveal sensitive
+        data&rdquo; to view the input and output. This prevents accidental
+        exposure during screen shares or demos.
+      </p>
+
+      <h3 className="mt-8 text-lg font-semibold">In shared receipts</h3>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        When a session is shared via link, PII-flagged events are fully
+        redacted. Public viewers can see that the event happened (the event
+        name, type, and timestamp are still visible), but they cannot access the
+        payload. This is enforced server-side. The payload is never sent to the
+        browser for shared receipt viewers.
+      </p>
+
       {/* GDPR and data deletion */}
       <h2
         id="gdpr-and-data-deletion"

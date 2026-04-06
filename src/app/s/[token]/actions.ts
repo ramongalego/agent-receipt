@@ -11,7 +11,7 @@ export async function fetchPublicEventPayload(
 ) {
   // Verify the event belongs to a session with this share token
   const row = await db
-    .select({ id: events.id })
+    .select({ id: events.id, compliance: events.compliance })
     .from(events)
     .innerJoin(agentSessions, eq(agentSessions.id, events.sessionId))
     .where(eq(agentSessions.shareToken, shareToken))
@@ -19,6 +19,14 @@ export async function fetchPublicEventPayload(
 
   if (!row) {
     return { error: "Event not found.", code: "NOT_FOUND" };
+  }
+
+  if (row.compliance?.containsPII || row.compliance?.dataCategory) {
+    return {
+      error:
+        "This event contains sensitive data and is not available in shared receipts.",
+      code: "PII_REDACTED",
+    };
   }
 
   const result = await getPayload(eventId);

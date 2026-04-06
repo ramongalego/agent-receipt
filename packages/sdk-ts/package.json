@@ -1,6 +1,6 @@
 {
   "name": "@agentreceipt/sdk",
-  "version": "0.2.0",
+  "version": "0.3.1",
   "description": "TypeScript SDK for AgentReceipt, capture immutable audit trails of AI agent actions",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -36,7 +36,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/agentreceipt/agentreceipt",
+    "url": "git+https://github.com/agentreceipt/agentreceipt.git",
     "directory": "packages/sdk-ts"
   },
   "homepage": "https://agentreceipt.co/docs/sdk",

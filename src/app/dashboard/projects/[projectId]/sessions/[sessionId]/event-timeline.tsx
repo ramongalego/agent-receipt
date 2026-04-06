@@ -218,20 +218,16 @@ export function EventTimeline({ events: rawEvents }: EventTimelineProps) {
     context?: unknown;
   } | null>(null);
   const [loadingPayload, setLoadingPayload] = useState(false);
+  const [piiRevealed, setPiiRevealed] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<"payload" | "context">("payload");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
-  async function toggleExpand(eventId: string) {
-    if (expandedId === eventId) {
-      setExpandedId(null);
-      setPayload(null);
-      return;
-    }
+  function hasPii(event: TimelineEvent) {
+    return !!(event.compliance?.containsPII || event.compliance?.dataCategory);
+  }
 
-    setExpandedId(eventId);
-    setActiveTab("payload");
+  async function loadPayload(eventId: string) {
     setLoadingPayload(true);
-
     try {
       const result = await fetchEventPayload(eventId);
       if ("data" in result) {
@@ -250,6 +246,30 @@ export function EventTimeline({ events: rawEvents }: EventTimelineProps) {
     } finally {
       setLoadingPayload(false);
     }
+  }
+
+  function toggleExpand(eventId: string) {
+    if (expandedId === eventId) {
+      setExpandedId(null);
+      setPayload(null);
+      return;
+    }
+
+    const event = events.find((e) => e.id === eventId);
+    setExpandedId(eventId);
+    setActiveTab("payload");
+    setPayload(null);
+
+    if (event && hasPii(event) && !piiRevealed.has(eventId)) {
+      return;
+    }
+
+    loadPayload(eventId);
+  }
+
+  function revealPii(eventId: string) {
+    setPiiRevealed((prev) => new Set(prev).add(eventId));
+    loadPayload(eventId);
   }
 
   if (events.length === 0) {
@@ -323,7 +343,52 @@ export function EventTimeline({ events: rawEvents }: EventTimelineProps) {
 
             {expandedId === event.id && (
               <div className="border-t border-border bg-muted/50 px-5 py-4">
-                {event.type === "human_review" ? (
+                {hasPii(event) && !piiRevealed.has(event.id) ? (
+                  <div className="flex flex-col items-center gap-3 py-6 text-center">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-950/50">
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="text-purple-600 dark:text-purple-400"
+                      >
+                        <rect
+                          x="3"
+                          y="11"
+                          width="18"
+                          height="11"
+                          rx="2"
+                          ry="2"
+                        />
+                        <path d="M7 11V7a5 5 0 0110 0v4" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">
+                        This event contains sensitive data
+                        {event.compliance?.dataCategory
+                          ? ` (${event.compliance.dataCategory})`
+                          : ""}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Payload is hidden by default because this event is
+                        flagged as containing PII.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => revealPii(event.id)}
+                      className="rounded-md border border-purple-300 bg-purple-50 px-4 py-1.5 text-sm font-medium text-purple-700 transition-colors hover:bg-purple-100 dark:border-purple-800 dark:bg-purple-950/40 dark:text-purple-400 dark:hover:bg-purple-950/60"
+                    >
+                      Reveal sensitive data
+                    </button>
+                  </div>
+                ) : event.type === "human_review" ? (
                   <HumanReviewDetail metadata={event.metadata} />
                 ) : loadingPayload ? (
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">

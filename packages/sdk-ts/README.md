@@ -209,6 +209,84 @@ await session.trackHumanReview({
 });
 ```
 
+## Session context
+
+Attach context to a session to capture the conditions your agent started with. This is sent once, with the first event.
+
+```typescript
+const session = ar.startSession("Process invoice #441", {
+  context: {
+    systemPrompt: "You are an accounts payable agent...",
+    activeRules: [
+      { id: "auto-approve", description: "Auto-approve invoices under $500" },
+      { id: "vendor-check", description: "Verify vendor exists in DB" },
+    ],
+    permissions: ["payments:create", "vendors:read"],
+    environment: { region: "us-east-1", version: "2.1.0" },
+  },
+});
+```
+
+All fields are optional. Use whichever ones are relevant to your agent.
+
+| Field | Type | Purpose |
+|-------|------|---------|
+| `systemPrompt` | `string` | The system prompt the LLM was given |
+| `activeRules` | `Rule[]` | Business rules governing the agent's behavior |
+| `permissions` | `string[]` | What the agent is allowed to do |
+| `environment` | `Record<string, unknown>` | Runtime info (region, version, feature flags) |
+
+## Event context
+
+Add context to individual events to capture what the agent knew at the time of a specific action.
+
+```typescript
+await session.trackTool(
+  "charge-card",
+  { amount: 450, currency: "USD" },
+  async () => stripe.charges.create({ amount: 45000, currency: "usd" }),
+  {
+    context: {
+      rulesEvaluated: ["auto-approve", "fraud-check"],
+      stateAtDecision: { invoiceTotal: 450, approvalThreshold: 500 },
+    },
+  },
+);
+
+await session.trackDecision(
+  "approve-payment",
+  "Amount is under auto-approval threshold.",
+  "approved",
+  {
+    context: {
+      rulesEvaluated: ["auto-approve"],
+      stateAtDecision: { amount: 450, limit: 500 },
+      systemPrompt: "You are an accounts payable agent...",
+    },
+  },
+);
+```
+
+| Field | Type | Purpose |
+|-------|------|---------|
+| `rulesEvaluated` | `string[]` | Which rules the agent checked for this action |
+| `stateAtDecision` | `Record<string, unknown>` | Key values the agent used to decide |
+| `systemPrompt` | `string` | The system prompt at the time (if it changed mid-session) |
+
+## trackContextChange
+
+Records when your agent's operating context changes mid-session. Useful for agents that update their rules, permissions, or configuration during a run.
+
+```typescript
+await session.trackContextChange(
+  "rules-updated",
+  { approvalThreshold: 500 },
+  { approvalThreshold: 1000 },
+);
+```
+
+This creates a `context_change` event with the previous and current state, so the receipt shows exactly when and how the agent's context shifted.
+
 ## Ending a session
 
 Call `end()` to flush any queued events and mark the session as complete. This triggers summary generation and Rekor anchoring right away rather than waiting for the inactivity timeout. If you do not call `end()`, the session completes automatically after 3 minutes of inactivity.

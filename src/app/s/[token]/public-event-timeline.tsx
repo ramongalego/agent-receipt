@@ -148,6 +148,20 @@ function TruncatedJson({ data }: { data: unknown }) {
   );
 }
 
+function PiiBadge({ dataCategory }: { dataCategory?: string }) {
+  const label = `Contains personally identifiable information${dataCategory ? `. Category: ${dataCategory}` : ""}`;
+  return (
+    <span className="group relative inline-flex items-center">
+      <span className="rounded border border-purple-200 bg-purple-50 px-1.5 py-0.5 text-[10px] font-medium leading-none text-purple-700 dark:border-purple-900 dark:bg-purple-950/40 dark:text-purple-400">
+        PII
+      </span>
+      <span className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-1.5 hidden -translate-x-1/2 whitespace-nowrap rounded bg-foreground px-2 py-1 text-[11px] text-background group-hover:block">
+        {label}
+      </span>
+    </span>
+  );
+}
+
 const PAGE_SIZE = 50;
 
 export function PublicEventTimeline({
@@ -165,6 +179,10 @@ export function PublicEventTimeline({
   const [activeTab, setActiveTab] = useState<"payload" | "context">("payload");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
+  function hasPii(event: TimelineEvent) {
+    return !!(event.compliance?.containsPII || event.compliance?.dataCategory);
+  }
+
   async function toggleExpand(eventId: string) {
     if (expandedId === eventId) {
       setExpandedId(null);
@@ -172,8 +190,15 @@ export function PublicEventTimeline({
       return;
     }
 
+    const event = events.find((e) => e.id === eventId);
     setExpandedId(eventId);
     setActiveTab("payload");
+    setPayload(null);
+
+    if (event && hasPii(event)) {
+      return;
+    }
+
     setLoadingPayload(true);
 
     try {
@@ -235,6 +260,9 @@ export function PublicEventTimeline({
                 <span className="text-sm font-medium text-foreground">
                   {event.name}
                 </span>
+                {hasPii(event) && (
+                  <PiiBadge dataCategory={event.compliance?.dataCategory} />
+                )}
               </div>
               <div className="flex items-center gap-3">
                 {event.durationMs !== null && event.durationMs > 0 && (
@@ -263,7 +291,45 @@ export function PublicEventTimeline({
 
             {expandedId === event.id && (
               <div className="border-t border-border bg-muted/50 px-5 py-4">
-                {loadingPayload ? (
+                {hasPii(event) ? (
+                  <div className="flex flex-col items-center gap-2 py-6 text-center">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-950/50">
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="text-purple-600 dark:text-purple-400"
+                      >
+                        <rect
+                          x="3"
+                          y="11"
+                          width="18"
+                          height="11"
+                          rx="2"
+                          ry="2"
+                        />
+                        <path d="M7 11V7a5 5 0 0110 0v4" />
+                      </svg>
+                    </div>
+                    <p className="text-sm font-medium text-foreground">
+                      Sensitive data hidden
+                    </p>
+                    <p className="max-w-sm text-xs text-muted-foreground">
+                      This event is flagged as containing personally
+                      identifiable information
+                      {event.compliance?.dataCategory
+                        ? ` (${event.compliance.dataCategory})`
+                        : ""}
+                      . Payloads for PII events are not available in shared
+                      receipts.
+                    </p>
+                  </div>
+                ) : loadingPayload ? (
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <svg
                       className="h-4 w-4 animate-spin"

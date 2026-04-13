@@ -6,6 +6,7 @@ import {
   createProject,
   updateProject,
   deleteProject,
+  getProjectById,
 } from "@/db/queries/projects";
 import { createApiKey, revokeApiKey } from "@/db/queries/api-keys";
 import {
@@ -134,6 +135,11 @@ export async function createApiKeyAction(
     return { error: "Only workspace owners can create API keys." };
   }
 
+  const project = await getProjectById(projectId, team.id);
+  if (!project) {
+    return { error: "Project not found." };
+  }
+
   const { key } = await createApiKey(projectId, name);
   return { key };
 }
@@ -153,6 +159,11 @@ export async function revokeApiKeyAction(
     await assertOwner(session.user.id, team.id);
   } catch {
     return { error: "Only workspace owners can revoke API keys." };
+  }
+
+  const project = await getProjectById(projectId, team.id);
+  if (!project) {
+    return { error: "Project not found." };
   }
 
   const revoked = await revokeApiKey(keyId, projectId);

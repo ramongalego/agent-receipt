@@ -1,6 +1,6 @@
 {
   "name": "@agentreceipt/sdk",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "TypeScript SDK for AgentReceipt, capture immutable audit trails of AI agent actions",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

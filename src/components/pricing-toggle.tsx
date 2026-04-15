@@ -23,11 +23,11 @@ type PricingCardsProps = {
   plans: PlanData[];
 };
 
-function CheckSvg() {
+function CheckSvg({ size = 16 }: { size?: number }) {
   return (
     <svg
-      width="16"
-      height="16"
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -82,7 +82,7 @@ export function PricingCards({ plans }: PricingCardsProps) {
           </button>
         </div>
       </div>
-      <div className="grid gap-6 sm:grid-cols-4">
+      <div className="grid gap-6 sm:grid-cols-3">
         {plans.map((plan) => {
           const showYearly = isYearly && plan.yearlyPrice;
           const displayPrice = showYearly ? plan.yearlyPrice : plan.price;
@@ -162,47 +162,57 @@ export function PricingCards({ plans }: PricingCardsProps) {
             </article>
           );
         })}
+      </div>
 
-        {/* Enterprise */}
-        <article className="relative flex flex-col rounded-2xl border border-border bg-card p-8">
-          <h3 className="text-lg font-semibold">Enterprise</h3>
-          <p className="mt-1 text-xs text-muted-foreground">
-            For regulated industries and large-scale deployments.
-          </p>
-          <div className="mt-4">
-            <p className="flex items-baseline gap-1">
-              <span className="text-4xl font-bold tracking-tight">Custom</span>
+      {/* Enterprise — horizontal banner, sits outside the plan grid */}
+      <div className="mt-6 rounded-2xl border border-border bg-card p-6 md:p-8">
+        <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+          <div className="min-w-0 flex-1">
+            <div className="mb-2 flex items-center gap-3">
+              <h3 className="text-lg font-semibold">Enterprise</h3>
+              <span className="rounded-full border border-border bg-background/40 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                Custom
+              </span>
+            </div>
+            <p className="mb-5 text-sm text-muted-foreground">
+              For regulated industries and large-scale deployments.
             </p>
+            <ul className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted-foreground">
+              <li className="flex items-center gap-1.5">
+                <CheckSvg size={12} />
+                Unlimited sessions
+              </li>
+              <li className="flex items-center gap-1.5">
+                <CheckSvg size={12} />
+                Custom retention (up to 7 years)
+              </li>
+              <li className="flex items-center gap-1.5">
+                <CheckSvg size={12} />
+                Hash chain verification
+              </li>
+              <li className="flex items-center gap-1.5">
+                <CheckSvg size={12} />
+                Anchored on Sigstore Rekor
+              </li>
+              <li className="flex items-center gap-1.5">
+                <CheckSvg size={12} />
+                Unlimited projects
+              </li>
+            </ul>
           </div>
-          <ul className="mt-8 flex-1 space-y-4 text-sm text-muted-foreground">
-            <li className="flex items-center gap-3">
-              <CheckSvg />
-              Unlimited sessions
-            </li>
-            <li className="flex items-center gap-3">
-              <CheckSvg />
-              Custom retention (up to 7 years)
-            </li>
-            <li className="flex items-center gap-3">
-              <CheckSvg />
-              Hash chain verification
-            </li>
-            <li className="flex items-center gap-3">
-              <CheckSvg />
-              Anchored on Sigstore Rekor
-            </li>
-            <li className="flex items-center gap-3">
-              <CheckSvg />
-              Unlimited projects
-            </li>
-          </ul>
           <Link
             href="mailto:sales@agentreceipt.com"
-            className="mt-10 block w-full rounded-xl border border-border py-3 text-center text-sm font-semibold text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+            className="group inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-border bg-background/50 px-6 py-3 text-sm font-semibold text-foreground transition-all hover:border-foreground/30 hover:shadow-[0_0_0_4px_rgba(99,102,241,0.12)]"
           >
             Contact sales
+            <span
+              aria-hidden="true"
+              className="inline-block transition-transform group-hover:translate-x-0.5"
+            >
+              →
+            </span>
           </Link>
-        </article>
+        </div>
       </div>
     </>
   );

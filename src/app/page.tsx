@@ -64,75 +64,6 @@ const PLANS = [
   },
 ];
 
-const PROBLEMS = [
-  {
-    icon: (
-      <svg
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        aria-hidden="true"
-      >
-        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-        <line x1="12" y1="9" x2="12" y2="13" />
-        <line x1="12" y1="17" x2="12.01" y2="17" />
-      </svg>
-    ),
-    title: "Agents take real actions",
-    description:
-      "Your AI agents approve expenses, send emails, update records, and trigger payments. These are not suggestions. They are real actions with real consequences.",
-  },
-  {
-    icon: (
-      <svg
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        aria-hidden="true"
-      >
-        <circle cx="12" cy="12" r="10" />
-        <line x1="12" y1="8" x2="12" y2="12" />
-        <line x1="12" y1="16" x2="12.01" y2="16" />
-      </svg>
-    ),
-    title: "No readable record exists",
-    description:
-      "When something goes wrong, there is no agent action log a non-technical person can read. No receipt you can hand to your compliance team or your customer.",
-  },
-  {
-    icon: (
-      <svg
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        aria-hidden="true"
-      >
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-        <line x1="12" y1="8" x2="12" y2="12" />
-        <line x1="12" y1="16" x2="12.01" y2="16" />
-      </svg>
-    ),
-    title: "Audits need answers",
-    description:
-      "Wrong payment to the wrong vendor. An email sent to the wrong customer. Your audit asks what your AI did last Tuesday. A log of what happened is not enough. You need to know what the agent saw and what rules it was following when it made the call.",
-  },
-];
-
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -149,30 +80,57 @@ export default function LandingPage() {
           className="pointer-events-none absolute inset-0"
           style={{
             backgroundImage:
-              "radial-gradient(circle, rgba(99, 102, 241, 0.25) 1px, transparent 1px)",
-            backgroundSize: "24px 24px",
+              "radial-gradient(circle, rgba(99, 102, 241, 0.35) 1px, transparent 1px)",
+            backgroundSize: "28px 28px",
             maskImage:
-              "radial-gradient(ellipse 60% 50% at 50% 0%, black 20%, transparent 100%)",
+              "radial-gradient(ellipse 65% 50% at 50% 0%, black 20%, transparent 100%)",
             WebkitMaskImage:
-              "radial-gradient(ellipse 60% 50% at 50% 0%, black 20%, transparent 100%)",
+              "radial-gradient(ellipse 65% 50% at 50% 0%, black 20%, transparent 100%)",
           }}
         />
         {/* Radial gradient glow */}
         <div
-          className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2"
+          className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 animate-[heroGlow_7s_ease-in-out_infinite]"
           style={{
-            width: "800px",
-            height: "600px",
+            width: "900px",
+            height: "620px",
             background:
-              "radial-gradient(ellipse at center, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.04) 40%, transparent 70%)",
+              "radial-gradient(ellipse at center, rgba(99, 102, 241, 0.22) 0%, rgba(99, 102, 241, 0.08) 40%, transparent 70%)",
           }}
         />
+        {/* Corner annotation marks */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-20 hidden justify-between px-6 text-muted-foreground/25 sm:flex"
+        >
+          <div className="h-7 w-7 border-l border-t border-current" />
+          <div className="h-7 w-7 border-r border-t border-current" />
+        </div>
+
         <div className="relative mx-auto max-w-3xl text-center">
           <p className="mb-6 text-sm font-medium uppercase tracking-widest text-indigo-500 dark:text-indigo-400">
             AI agent audit trail
           </p>
-          <h1 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-            Know exactly what your AI agent did
+          <h1 className="text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl lg:text-[4rem]">
+            Know exactly what your{" "}
+            <span className="relative inline-block">
+              <span className="relative z-10">AI agent</span>
+              <svg
+                className="absolute -bottom-2 left-0 z-0 h-3 w-full overflow-visible text-indigo-500"
+                viewBox="0 0 200 12"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M3 8 Q 50 2, 100 6 T 197 5"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  fill="none"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </span>{" "}
+            did
           </h1>
           <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-muted-foreground">
             Your agents send emails, trigger payments, and modify data.
@@ -182,15 +140,21 @@ export default function LandingPage() {
           <div className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               href="/sign-in"
-              className="inline-flex w-full items-center justify-center rounded-lg bg-foreground px-8 py-3.5 text-sm font-semibold text-background transition-colors hover:bg-foreground/85 sm:w-auto"
+              className="inline-flex w-full items-center justify-center rounded-lg bg-foreground px-8 py-3.5 text-sm font-semibold text-background transition-all hover:bg-foreground/85 hover:shadow-[0_0_0_4px_rgba(99,102,241,0.18)] sm:w-auto"
             >
               Start for free
             </Link>
             <Link
               href="/demo"
-              className="inline-flex w-full items-center justify-center rounded-lg border border-border px-8 py-3.5 text-sm font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground sm:w-auto"
+              className="group inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-border px-8 py-3.5 text-sm font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground sm:w-auto"
             >
               See a sample receipt
+              <span
+                aria-hidden="true"
+                className="inline-block transition-transform group-hover:translate-x-0.5"
+              >
+                →
+              </span>
             </Link>
           </div>
         </div>
@@ -205,23 +169,109 @@ export default function LandingPage() {
           <h2 className="mb-16 text-center text-2xl font-bold tracking-tight sm:text-3xl">
             Agents act. Nobody knows what they did.
           </h2>
-          <div className="grid gap-8 sm:grid-cols-3">
-            {PROBLEMS.map((problem) => (
-              <div
-                key={problem.title}
-                className="rounded-xl border border-border bg-card p-7"
-              >
-                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-                  {problem.icon}
+          <div className="grid gap-5 sm:grid-cols-3">
+            {/* 01 — amber */}
+            <article className="group relative rounded-2xl border border-border bg-card p-7 transition-all duration-300 hover:-translate-y-1 hover:border-amber-500/40 hover:shadow-[0_10px_30px_-12px_rgba(245,158,11,0.18)]">
+              <div className="mb-5 flex items-start justify-between">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-105 dark:text-amber-400">
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                    <line x1="12" y1="9" x2="12" y2="13" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                  </svg>
                 </div>
-                <h3 className="mb-2 text-base font-semibold">
-                  {problem.title}
-                </h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  {problem.description}
-                </p>
+                <span className="font-mono text-xs text-muted-foreground/50">
+                  01
+                </span>
               </div>
-            ))}
+              <h3 className="mb-2 text-base font-semibold">
+                Agents take real actions
+              </h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Your AI agents approve expenses, send emails, update records,
+                and trigger payments. These are not suggestions. They are real
+                actions with real consequences.
+              </p>
+            </article>
+
+            {/* 02 — rose */}
+            <article className="group relative rounded-2xl border border-border bg-card p-7 transition-all duration-300 hover:-translate-y-1 hover:border-rose-500/40 hover:shadow-[0_10px_30px_-12px_rgba(244,63,94,0.18)]">
+              <div className="mb-5 flex items-start justify-between">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-rose-500/10 text-rose-600 transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-105 dark:text-rose-400">
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                  </svg>
+                </div>
+                <span className="font-mono text-xs text-muted-foreground/50">
+                  02
+                </span>
+              </div>
+              <h3 className="mb-2 text-base font-semibold">
+                No readable record exists
+              </h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                When something goes wrong, there is no agent action log a
+                non-technical person can read. No receipt you can hand to your
+                compliance team or your customer.
+              </p>
+            </article>
+
+            {/* 03 — indigo */}
+            <article className="group relative rounded-2xl border border-border bg-card p-7 transition-all duration-300 hover:-translate-y-1 hover:border-indigo-500/40 hover:shadow-[0_10px_30px_-12px_rgba(99,102,241,0.18)]">
+              <div className="mb-5 flex items-start justify-between">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-600 transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-105 dark:text-indigo-400">
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                  </svg>
+                </div>
+                <span className="font-mono text-xs text-muted-foreground/50">
+                  03
+                </span>
+              </div>
+              <h3 className="mb-2 text-base font-semibold">
+                Audits need answers
+              </h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Wrong payment to the wrong vendor. An email sent to the wrong
+                customer. Your audit asks what your AI did last Tuesday. A log
+                of what happened is not enough. You need to know what the agent
+                saw and what rules it was following when it made the call.
+              </p>
+            </article>
           </div>
         </div>
       </section>
@@ -357,54 +407,79 @@ export default function LandingPage() {
           <h2 className="mb-20 text-center text-2xl font-bold tracking-tight sm:text-3xl">
             Every receipt is tamper-proof
           </h2>
-          <div className="grid gap-6 sm:grid-cols-3">
-            {/* Card 1 */}
-            <section className="rounded-xl border border-border bg-card p-8">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="text-muted-foreground"
-                  aria-hidden="true"
-                >
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                  <polyline points="9 12 12 15 16 10" />
-                </svg>
+          <div className="grid gap-4 md:grid-cols-3">
+            {/* Featured — Tamper-proof (span 2) */}
+            <section className="group relative overflow-hidden rounded-2xl border border-border bg-card p-8 transition-colors hover:border-foreground/20 md:col-span-2">
+              <div className="relative z-10">
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-border bg-background/40 px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
+                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                  </span>
+                  Hash chain
+                </div>
+                <h3 className="mb-2 text-lg font-semibold">
+                  Tamper-proof by design
+                </h3>
+                <p className="mb-6 max-w-md text-sm leading-relaxed text-muted-foreground">
+                  Every event is hash-chained to the one before it. Receipts are
+                  append-only. Nobody can edit or delete events after the fact.
+                  Not even you.
+                </p>
+                {/* Hash chain diagram */}
+                <div className="flex items-center gap-2 overflow-x-auto font-mono text-[10px]">
+                  <div className="shrink-0 rounded-md border border-border bg-background/60 px-2.5 py-1.5">
+                    <div className="text-muted-foreground/50">event[0]</div>
+                    <div className="text-muted-foreground">a1f3…9e2c</div>
+                  </div>
+                  <svg
+                    width="18"
+                    height="12"
+                    viewBox="0 0 18 12"
+                    fill="none"
+                    className="shrink-0 text-muted-foreground/40"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M0 6h14m0 0L10 2m4 4l-4 4"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  <div className="shrink-0 rounded-md border border-border bg-background/60 px-2.5 py-1.5">
+                    <div className="text-muted-foreground/50">event[1]</div>
+                    <div className="text-muted-foreground">b8d0…4a71</div>
+                  </div>
+                  <svg
+                    width="18"
+                    height="12"
+                    viewBox="0 0 18 12"
+                    fill="none"
+                    className="shrink-0 text-muted-foreground/40"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M0 6h14m0 0L10 2m4 4l-4 4"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  <div className="shrink-0 rounded-md border border-indigo-500/40 bg-indigo-500/10 px-2.5 py-1.5 text-indigo-600 dark:text-indigo-400">
+                    <div className="opacity-60">event[2]</div>
+                    <div>c72e…f031</div>
+                  </div>
+                </div>
               </div>
-              <h3 className="mb-2 text-base font-semibold">
-                Tamper-proof by design
-              </h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                Every event is hash-chained to the one before it. Receipts are
-                append-only. Nobody can edit or delete events after the fact.
-                Not even you.
-              </p>
             </section>
 
-            {/* Card 2 */}
-            <section className="rounded-xl border border-border bg-card p-8">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="text-muted-foreground"
-                  aria-hidden="true"
-                >
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                </svg>
+            {/* EU AI Act */}
+            <section className="group rounded-2xl border border-border bg-card p-8 transition-colors hover:border-foreground/20">
+              <div className="mb-4 inline-flex h-9 items-center rounded-md border border-border bg-background/50 px-3 font-mono text-xs font-semibold text-muted-foreground">
+                EU · ART. 19
               </div>
               <h3 className="mb-2 text-base font-semibold">
                 EU AI Act compliance
@@ -417,24 +492,21 @@ export default function LandingPage() {
               </p>
             </section>
 
-            {/* Card 3 */}
-            <section className="rounded-xl border border-border bg-card p-8">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="text-muted-foreground"
-                  aria-hidden="true"
-                >
-                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-                  <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-                </svg>
+            {/* US compliance */}
+            <section className="group rounded-2xl border border-border bg-card p-8 transition-colors hover:border-foreground/20">
+              <div className="mb-4 flex flex-wrap gap-1.5">
+                <span className="rounded bg-muted px-2 py-1 font-mono text-[10px] font-semibold text-muted-foreground">
+                  SOC 2
+                </span>
+                <span className="rounded bg-muted px-2 py-1 font-mono text-[10px] font-semibold text-muted-foreground">
+                  HIPAA
+                </span>
+                <span className="rounded bg-muted px-2 py-1 font-mono text-[10px] font-semibold text-muted-foreground">
+                  SOX
+                </span>
+                <span className="rounded bg-muted px-2 py-1 font-mono text-[10px] font-semibold text-muted-foreground">
+                  SEC
+                </span>
               </div>
               <h3 className="mb-2 text-base font-semibold">US compliance</h3>
               <p className="text-sm leading-relaxed text-muted-foreground">
@@ -445,25 +517,14 @@ export default function LandingPage() {
               </p>
             </section>
 
-            {/* Card 4 */}
-            <section className="rounded-xl border border-border bg-card p-8">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="text-muted-foreground"
-                  aria-hidden="true"
-                >
-                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                  <circle cx="9" cy="7" r="4" />
-                  <polyline points="16 11 18 13 22 9" />
-                </svg>
+            {/* Human review */}
+            <section className="group rounded-2xl border border-border bg-card p-8 transition-colors hover:border-foreground/20">
+              <div className="mb-4 flex -space-x-2">
+                <div className="h-8 w-8 rounded-full border-2 border-card bg-gradient-to-br from-indigo-400 to-indigo-600" />
+                <div className="h-8 w-8 rounded-full border-2 border-card bg-gradient-to-br from-emerald-400 to-emerald-600" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-card bg-muted font-mono text-[10px] text-muted-foreground">
+                  +1
+                </div>
               </div>
               <h3 className="mb-2 text-base font-semibold">
                 Human review, captured
@@ -475,24 +536,18 @@ export default function LandingPage() {
               </p>
             </section>
 
-            {/* Card 5 */}
-            <section className="rounded-xl border border-border bg-card p-8">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="text-muted-foreground"
-                  aria-hidden="true"
-                >
-                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                  <circle cx="12" cy="12" r="3" />
-                </svg>
+            {/* PII flagging */}
+            <section className="group rounded-2xl border border-border bg-card p-8 transition-colors hover:border-foreground/20">
+              <div className="mb-4 flex flex-wrap gap-1.5 font-mono text-[10px]">
+                <span className="rounded bg-amber-500/10 px-2 py-1 text-amber-600 dark:text-amber-400">
+                  [PII]
+                </span>
+                <span className="rounded bg-rose-500/10 px-2 py-1 text-rose-600 dark:text-rose-400">
+                  [MEDICAL]
+                </span>
+                <span className="rounded bg-indigo-500/10 px-2 py-1 text-indigo-600 dark:text-indigo-400">
+                  [FINANCIAL]
+                </span>
               </div>
               <h3 className="mb-2 text-base font-semibold">PII flagging</h3>
               <p className="text-sm leading-relaxed text-muted-foreground">
@@ -502,36 +557,57 @@ export default function LandingPage() {
               </p>
             </section>
 
-            {/* Card 6 */}
-            <section className="rounded-xl border border-border bg-card p-8">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="text-muted-foreground"
-                  aria-hidden="true"
-                >
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="2" y1="12" x2="22" y2="12" />
-                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                </svg>
+            {/* Featured — Sigstore (span 3) */}
+            <section className="group relative overflow-hidden rounded-2xl border border-border bg-card p-8 transition-colors hover:border-foreground/20 md:col-span-3">
+              <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+                <div className="max-w-xl">
+                  <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-border bg-background/40 px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                    Pro · Business
+                  </div>
+                  <h3 className="mb-2 text-base font-semibold">
+                    Anchored on a public log
+                  </h3>
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    Pro and Business receipts are anchored to the Sigstore Rekor
+                    transparency log after every session. This is a public,
+                    permanent record that proves the receipt existed at a
+                    specific time and has not been changed. Anyone can verify it
+                    independently.
+                  </p>
+                </div>
+                {/* Mini rekor-cli panel */}
+                <div className="w-full rounded-lg border border-border bg-background/60 p-4 font-mono text-[11px] text-muted-foreground md:w-auto md:min-w-[260px]">
+                  <div className="flex items-center gap-1.5 border-b border-border pb-2 text-muted-foreground/60">
+                    <span className="h-2 w-2 rounded-full bg-rose-500/70" />
+                    <span className="h-2 w-2 rounded-full bg-amber-500/70" />
+                    <span className="h-2 w-2 rounded-full bg-emerald-500/70" />
+                    <span className="ml-2 text-[10px]">rekor-cli</span>
+                  </div>
+                  <div className="mt-2 space-y-0.5">
+                    <div className="text-muted-foreground/60">
+                      $ rekor-cli search
+                    </div>
+                    <div>uuid: 24296fb2…ad77a</div>
+                    <div>index: 142893041</div>
+                    <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-500">
+                      <svg
+                        width="10"
+                        height="10"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      <span>verified</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <h3 className="mb-2 text-base font-semibold">
-                Anchored on a public log
-              </h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                Pro and Business receipts are anchored to the Sigstore Rekor
-                transparency log after every session. This is a public,
-                permanent record that proves the receipt existed at a specific
-                time and has not been changed. Anyone can verify it
-                independently.
-              </p>
             </section>
           </div>
         </div>
@@ -568,76 +644,263 @@ export default function LandingPage() {
           <h2 className="mb-16 text-center text-2xl font-bold tracking-tight sm:text-3xl">
             Common questions
           </h2>
-          <dl className="divide-y divide-border">
-            <div className="py-6">
-              <dt className="text-sm font-semibold text-foreground">
-                Will this slow down my agent?
-              </dt>
-              <dd className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          <div className="space-y-3">
+            <details className="group rounded-xl border border-border bg-card transition-colors hover:border-foreground/20 open:border-foreground/20">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-6 [&::-webkit-details-marker]:hidden">
+                <span className="flex items-center gap-4">
+                  <span className="font-mono text-xs text-muted-foreground/50">
+                    01
+                  </span>
+                  <span className="text-sm font-semibold text-foreground">
+                    Will this slow down my agent?
+                  </span>
+                </span>
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground transition-transform duration-300 group-open:rotate-180 group-open:border-foreground/30 group-open:text-foreground">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </span>
+              </summary>
+              <div className="px-6 pb-6 pl-[3.75rem] text-sm leading-relaxed text-muted-foreground">
                 No. The SDK sends events asynchronously in batches. If it cannot
                 reach our servers, it fails silently. Your agent keeps running
                 regardless.
-              </dd>
-            </div>
-            <div className="py-6">
-              <dt className="text-sm font-semibold text-foreground">
-                Where is my data stored?
-              </dt>
-              <dd className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              </div>
+            </details>
+
+            <details className="group rounded-xl border border-border bg-card transition-colors hover:border-foreground/20 open:border-foreground/20">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-6 [&::-webkit-details-marker]:hidden">
+                <span className="flex items-center gap-4">
+                  <span className="font-mono text-xs text-muted-foreground/50">
+                    02
+                  </span>
+                  <span className="text-sm font-semibold text-foreground">
+                    Where is my data stored?
+                  </span>
+                </span>
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground transition-transform duration-300 group-open:rotate-180 group-open:border-foreground/30 group-open:text-foreground">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </span>
+              </summary>
+              <div className="px-6 pb-6 pl-[3.75rem] text-sm leading-relaxed text-muted-foreground">
                 Event metadata is stored in our database. Raw LLM inputs and
                 outputs are stored separately in Cloudflare R2. You can request
                 deletion of raw payloads at any time to comply with GDPR Article
                 17.
-              </dd>
-            </div>
-            <div className="py-6">
-              <dt className="text-sm font-semibold text-foreground">
-                Who can see my receipts?
-              </dt>
-              <dd className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              </div>
+            </details>
+
+            <details className="group rounded-xl border border-border bg-card transition-colors hover:border-foreground/20 open:border-foreground/20">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-6 [&::-webkit-details-marker]:hidden">
+                <span className="flex items-center gap-4">
+                  <span className="font-mono text-xs text-muted-foreground/50">
+                    03
+                  </span>
+                  <span className="text-sm font-semibold text-foreground">
+                    Who can see my receipts?
+                  </span>
+                </span>
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground transition-transform duration-300 group-open:rotate-180 group-open:border-foreground/30 group-open:text-foreground">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </span>
+              </summary>
+              <div className="px-6 pb-6 pl-[3.75rem] text-sm leading-relaxed text-muted-foreground">
                 Only members of your workspace. You can invite your compliance
                 team, legal counsel, or any other stakeholder directly. They see
                 everything you see. You can also generate a shareable link for
                 any receipt and send it to anyone. No login required.
-              </dd>
-            </div>
-            <div className="py-6">
-              <dt className="text-sm font-semibold text-foreground">
-                What counts as a session?
-              </dt>
-              <dd className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              </div>
+            </details>
+
+            <details className="group rounded-xl border border-border bg-card transition-colors hover:border-foreground/20 open:border-foreground/20">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-6 [&::-webkit-details-marker]:hidden">
+                <span className="flex items-center gap-4">
+                  <span className="font-mono text-xs text-muted-foreground/50">
+                    04
+                  </span>
+                  <span className="text-sm font-semibold text-foreground">
+                    What counts as a session?
+                  </span>
+                </span>
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground transition-transform duration-300 group-open:rotate-180 group-open:border-foreground/30 group-open:text-foreground">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </span>
+              </summary>
+              <div className="px-6 pb-6 pl-[3.75rem] text-sm leading-relaxed text-muted-foreground">
                 One end-to-end agent run. Processing one invoice, handling one
                 support ticket, running one scheduled job. Each session captures
                 up to 200 events.
-              </dd>
-            </div>
-            <div className="py-6">
-              <dt className="text-sm font-semibold text-foreground">
-                Which AI providers does it support?
-              </dt>
-              <dd className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              </div>
+            </details>
+
+            <details className="group rounded-xl border border-border bg-card transition-colors hover:border-foreground/20 open:border-foreground/20">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-6 [&::-webkit-details-marker]:hidden">
+                <span className="flex items-center gap-4">
+                  <span className="font-mono text-xs text-muted-foreground/50">
+                    05
+                  </span>
+                  <span className="text-sm font-semibold text-foreground">
+                    Which AI providers does it support?
+                  </span>
+                </span>
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground transition-transform duration-300 group-open:rotate-180 group-open:border-foreground/30 group-open:text-foreground">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </span>
+              </summary>
+              <div className="px-6 pb-6 pl-[3.75rem] text-sm leading-relaxed text-muted-foreground">
                 OpenAI, Anthropic, Gemini, Mistral, and the Vercel AI SDK. Each
                 takes one line of code to integrate.
-              </dd>
-            </div>
-            <div className="py-6">
-              <dt className="text-sm font-semibold text-foreground">
-                Do I need to change my agent code?
-              </dt>
-              <dd className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              </div>
+            </details>
+
+            <details className="group rounded-xl border border-border bg-card transition-colors hover:border-foreground/20 open:border-foreground/20">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-6 [&::-webkit-details-marker]:hidden">
+                <span className="flex items-center gap-4">
+                  <span className="font-mono text-xs text-muted-foreground/50">
+                    06
+                  </span>
+                  <span className="text-sm font-semibold text-foreground">
+                    Do I need to change my agent code?
+                  </span>
+                </span>
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground transition-transform duration-300 group-open:rotate-180 group-open:border-foreground/30 group-open:text-foreground">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </span>
+              </summary>
+              <div className="px-6 pb-6 pl-[3.75rem] text-sm leading-relaxed text-muted-foreground">
                 No. You wrap your existing AI client with one line. The rest of
                 your code stays exactly as it is.
-              </dd>
-            </div>
-          </dl>
+              </div>
+            </details>
+          </div>
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section className="px-6 py-24 sm:py-32">
-        <div className="mx-auto max-w-2xl text-center">
+      {/* Final CTA — mirrors the hero's visual language */}
+      <section className="relative overflow-hidden px-6 py-24 sm:py-32">
+        {/* Dot grid background */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle, rgba(99, 102, 241, 0.22) 1px, transparent 1px)",
+            backgroundSize: "28px 28px",
+            maskImage:
+              "radial-gradient(ellipse 55% 70% at 50% 50%, black 20%, transparent 100%)",
+            WebkitMaskImage:
+              "radial-gradient(ellipse 55% 70% at 50% 50%, black 20%, transparent 100%)",
+          }}
+        />
+        {/* Radial gradient glow (breathing) */}
+        <div
+          className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-[heroGlow_7s_ease-in-out_infinite]"
+          style={{
+            width: "720px",
+            height: "480px",
+            background:
+              "radial-gradient(ellipse at center, rgba(99, 102, 241, 0.14) 0%, rgba(99, 102, 241, 0.05) 40%, transparent 70%)",
+          }}
+        />
+        {/* Bottom corner annotation marks — bookend to the hero */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-20 hidden justify-between px-6 text-muted-foreground/25 sm:flex"
+        >
+          <div className="h-7 w-7 border-b border-l border-current" />
+          <div className="h-7 w-7 border-b border-r border-current" />
+        </div>
+
+        <div className="relative mx-auto max-w-2xl text-center">
           <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-            Your agents are already taking actions.
+            Your agents are{" "}
+            <span className="relative inline-block">
+              <span className="relative z-10">already</span>
+              <svg
+                className="absolute -bottom-1.5 left-0 z-0 h-2.5 w-full overflow-visible text-indigo-500"
+                viewBox="0 0 200 12"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M3 8 Q 50 2, 100 6 T 197 5"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  fill="none"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </span>{" "}
+            taking actions
           </h2>
           <p className="mx-auto mt-6 max-w-lg text-base text-muted-foreground">
             Start keeping a record of them. Free plan, no credit card, five
@@ -646,7 +909,7 @@ export default function LandingPage() {
           <div className="mt-10">
             <Link
               href="/sign-in"
-              className="inline-flex rounded-xl bg-foreground px-8 py-3.5 text-sm font-semibold text-background transition-colors hover:bg-foreground/85"
+              className="inline-flex rounded-lg bg-foreground px-8 py-3.5 text-sm font-semibold text-background transition-all hover:bg-foreground/85 hover:shadow-[0_0_0_4px_rgba(99,102,241,0.18)]"
             >
               Get started for free
             </Link>

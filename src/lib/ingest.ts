@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { eq, and, desc } from "drizzle-orm";
 import { db } from "@/db";
 import { apiKeys, agentSessions, events } from "@/db/schema";
@@ -39,7 +40,9 @@ export async function processIngestEvent(
   keyId: string,
   input: IngestEventInput,
 ): Promise<Result<IngestResult>> {
-  // Upsert session and get previous hash in parallel
+  // Upsert session and get previous hash in parallel.
+  // Order by timestamp desc then id desc — the id tiebreaker ensures a
+  // deterministic pick when two events share the same millisecond.
   const [existingSession, previousEvents] = await Promise.all([
     db
       .select({ id: agentSessions.id })
@@ -55,7 +58,7 @@ export async function processIngestEvent(
       .select({ hash: events.hash })
       .from(events)
       .where(eq(events.sessionId, input.sessionId))
-      .orderBy(desc(events.timestamp))
+      .orderBy(desc(events.timestamp), desc(events.id))
       .limit(1),
   ]);
 
@@ -88,26 +91,14 @@ export async function processIngestEvent(
   };
   const hash = hashEvent(eventData, previousHash);
 
-  // Insert event row (without raw payloads)
-  const [insertedEvent] = await db
-    .insert(events)
-    .values({
-      sessionId: input.sessionId,
-      type: input.event.type,
-      name: input.event.name,
-      metadata: input.event.metadata ?? null,
-      durationMs: input.event.durationMs,
-      hash,
-      previousHash,
-      compliance: input.event.compliance ?? null,
-    })
-    .returning({ id: events.id });
+  // Pre-generate the event id so we can upload the payload to R2 before
+  // committing the row. If R2 fails we never insert — no orphaned rows with
+  // no payload, which would otherwise break the hash chain's audit promise
+  // and cause SDK retries to create duplicates.
+  const eventId = randomUUID();
 
-  console.debug("[ingest] Event inserted", { eventId: insertedEvent.id });
-
-  // Store raw payloads in R2 (skip for human_review events which have no payload)
+  // Store raw payloads in R2 first (skip for human_review events which have no payload)
   if (input.event.type !== "human_review") {
-    console.debug("[ingest] Uploading payload to R2...");
     const r2Payload: { input: unknown; output: unknown; context?: unknown } = {
       input: input.event.input,
       output: input.event.output,
@@ -115,11 +106,11 @@ export async function processIngestEvent(
     if (input.event.context) {
       r2Payload.context = input.event.context;
     }
-    const r2Result = await putPayload(insertedEvent.id, r2Payload);
+    const r2Result = await putPayload(eventId, r2Payload);
 
     if (!r2Result.ok) {
       console.error("[ingest] R2 upload failed", {
-        eventId: insertedEvent.id,
+        eventId,
         error: r2Result.error,
       });
       return err(
@@ -127,13 +118,20 @@ export async function processIngestEvent(
         "R2_UPLOAD_ERROR",
       );
     }
-
-    console.debug("[ingest] R2 upload done", { eventId: insertedEvent.id });
-  } else {
-    console.debug("[ingest] Skipping R2 upload for human_review event", {
-      eventId: insertedEvent.id,
-    });
   }
+
+  // Insert event row (without raw payloads)
+  await db.insert(events).values({
+    id: eventId,
+    sessionId: input.sessionId,
+    type: input.event.type,
+    name: input.event.name,
+    metadata: input.event.metadata ?? null,
+    durationMs: input.event.durationMs,
+    hash,
+    previousHash,
+    compliance: input.event.compliance ?? null,
+  });
 
   // Mark session as explicitly completed when session.end event is received
   if (input.event.name === "session.end") {
@@ -146,7 +144,7 @@ export async function processIngestEvent(
   // Update API key last used (fire-and-forget, non-critical)
   void updateApiKeyLastUsed(keyId);
 
-  return ok({ eventId: insertedEvent.id, sessionId: input.sessionId });
+  return ok({ eventId, sessionId: input.sessionId });
 }
 
 export async function insertSystemErrorEvent(
@@ -158,7 +156,7 @@ export async function insertSystemErrorEvent(
     .select({ hash: events.hash, name: events.name })
     .from(events)
     .where(eq(events.sessionId, sessionId))
-    .orderBy(desc(events.timestamp))
+    .orderBy(desc(events.timestamp), desc(events.id))
     .limit(1);
 
   if (previousEvents.length > 0 && previousEvents[0].name === name) {

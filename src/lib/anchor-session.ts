@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { eq, asc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { users, teams, agentSessions, events } from "@/db/schema";
@@ -49,7 +49,7 @@ export async function anchorSessionIfEligible(
       .select({ hash: events.hash, name: events.name })
       .from(events)
       .where(eq(events.sessionId, sessionId))
-      .orderBy(events.timestamp);
+      .orderBy(asc(events.timestamp), asc(events.id));
 
     // Filter out the session.end termination marker
     const realEvents = sessionEvents.filter((e) => e.name !== "session.end");

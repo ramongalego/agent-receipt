@@ -35,6 +35,12 @@ jest.mock("@/lib/validations/project", () => ({
       data: { name: "Updated", description: undefined },
     }),
   },
+  createApiKeySchema: {
+    safeParse: jest.fn((input: { name: string }) => ({
+      success: true,
+      data: { name: input.name },
+    })),
+  },
 }));
 
 const mockRedirect = jest.fn().mockImplementation(() => {

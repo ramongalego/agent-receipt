@@ -7,7 +7,7 @@ export function getEventsBySessionId(sessionId: string) {
     .select()
     .from(events)
     .where(eq(events.sessionId, sessionId))
-    .orderBy(asc(events.timestamp));
+    .orderBy(asc(events.timestamp), asc(events.id));
 }
 
 export async function getEventCountBySessionId(

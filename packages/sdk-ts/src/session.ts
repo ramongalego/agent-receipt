@@ -8,6 +8,13 @@ import type {
   HumanReviewParams,
 } from "./types";
 
+type SessionPayload = {
+  sessionId: string;
+  sessionName?: string;
+  sessionContext?: SessionContext;
+  event: TrackEventInput;
+};
+
 export function createSession(
   ingest: IngestClient,
   name?: string,
@@ -15,6 +22,26 @@ export function createSession(
 ): Session {
   const id = randomUUID();
   let contextSent = false;
+
+  function buildPayload(event: TrackEventInput): SessionPayload {
+    const payload: SessionPayload = {
+      sessionId: id,
+      sessionName: name,
+      event,
+    };
+    if (sessionContext && !contextSent) {
+      payload.sessionContext = sessionContext;
+      contextSent = true;
+    }
+    return payload;
+  }
+
+  function dispatch(event: TrackEventInput): void {
+    // Fire and forget. Never block the caller.
+    ingest.send(buildPayload(event)).catch(() => {
+      // Silently ignore ingest errors
+    });
+  }
 
   async function trackTool<T>(
     toolName: string,
@@ -35,7 +62,7 @@ export function createSession(
       throw e;
     } finally {
       const durationMs = Date.now() - start;
-      const event: TrackEventInput = {
+      dispatch({
         type: error ? "error" : "tool_call",
         name: toolName,
         input,
@@ -45,27 +72,6 @@ export function createSession(
         durationMs,
         compliance: options?.compliance,
         context: options?.context,
-      };
-
-      // Attach session context on first event only
-      const payload: {
-        sessionId: string;
-        sessionName?: string;
-        sessionContext?: SessionContext;
-        event: TrackEventInput;
-      } = {
-        sessionId: id,
-        sessionName: name,
-        event,
-      };
-      if (sessionContext && !contextSent) {
-        payload.sessionContext = sessionContext;
-        contextSent = true;
-      }
-
-      // Fire and forget. Never block the caller.
-      ingest.send(payload).catch(() => {
-        // Silently ignore ingest errors
       });
     }
   }
@@ -76,31 +82,14 @@ export function createSession(
     outcome: string,
     options?: TrackOptions,
   ): Promise<void> {
-    const payload: {
-      sessionId: string;
-      sessionName?: string;
-      sessionContext?: SessionContext;
-      event: TrackEventInput;
-    } = {
-      sessionId: id,
-      sessionName: name,
-      event: {
-        type: "decision",
-        name: decisionName,
-        input: { reasoning },
-        output: { outcome },
-        durationMs: 0,
-        compliance: options?.compliance,
-        context: options?.context,
-      },
-    };
-    if (sessionContext && !contextSent) {
-      payload.sessionContext = sessionContext;
-      contextSent = true;
-    }
-
-    await ingest.send(payload).catch(() => {
-      // Silently ignore ingest errors
+    dispatch({
+      type: "decision",
+      name: decisionName,
+      input: { reasoning },
+      output: { outcome },
+      durationMs: 0,
+      compliance: options?.compliance,
+      context: options?.context,
     });
   }
 
@@ -115,32 +104,15 @@ export function createSession(
       metadata.notes = params.notes;
     }
 
-    const payload: {
-      sessionId: string;
-      sessionName?: string;
-      sessionContext?: SessionContext;
-      event: TrackEventInput;
-    } = {
-      sessionId: id,
-      sessionName: name,
-      event: {
-        type: "human_review",
-        name: "human_review",
-        input: "",
-        output: "",
-        durationMs: 0,
-        metadata,
-        compliance: params.compliance,
-        context: params.context,
-      },
-    };
-    if (sessionContext && !contextSent) {
-      payload.sessionContext = sessionContext;
-      contextSent = true;
-    }
-
-    await ingest.send(payload).catch(() => {
-      // Silently ignore ingest errors
+    dispatch({
+      type: "human_review",
+      name: "human_review",
+      input: "",
+      output: "",
+      durationMs: 0,
+      metadata,
+      compliance: params.compliance,
+      context: params.context,
     });
   }
 
@@ -149,42 +121,26 @@ export function createSession(
     previous: Record<string, unknown>,
     current: Record<string, unknown>,
   ): Promise<void> {
-    await ingest
-      .send({
-        sessionId: id,
-        sessionName: name,
-        event: {
-          type: "context_change",
-          name: changeName,
-          input: { previous },
-          output: { current },
-          durationMs: 0,
-        },
-      })
-      .catch(() => {
-        // Silently ignore ingest errors
-      });
+    dispatch({
+      type: "context_change",
+      name: changeName,
+      input: { previous },
+      output: { current },
+      durationMs: 0,
+    });
   }
 
   async function end(): Promise<void> {
     await ingest.flush();
 
     // Send explicit session completion marker
-    await ingest
-      .send({
-        sessionId: id,
-        sessionName: name,
-        event: {
-          type: "decision",
-          name: "session.end",
-          input: { reasoning: "Session explicitly ended by SDK" },
-          output: { outcome: "complete" },
-          durationMs: 0,
-        },
-      })
-      .catch(() => {
-        // Silently ignore ingest errors
-      });
+    dispatch({
+      type: "decision",
+      name: "session.end",
+      input: { reasoning: "Session explicitly ended by SDK" },
+      output: { outcome: "complete" },
+      durationMs: 0,
+    });
 
     await ingest.flush();
   }

@@ -22,8 +22,13 @@ export function checkR2Config():
   return { ok: true };
 }
 
-function getR2Client() {
-  return new S3Client({
+// S3Client holds an HTTP connection pool. Reusing a single instance across
+// requests avoids re-establishing TLS for every ingest call.
+let cachedClient: S3Client | null = null;
+
+function getR2Client(): S3Client {
+  if (cachedClient) return cachedClient;
+  cachedClient = new S3Client({
     region: "auto",
     endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
     credentials: {
@@ -31,6 +36,7 @@ function getR2Client() {
       secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
     },
   });
+  return cachedClient;
 }
 
 export async function putPayload(

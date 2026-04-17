@@ -13,17 +13,22 @@ import { checkRateLimit, ingestRateLimit } from "@/lib/rate-limit";
 import { db } from "@/db";
 import { projects, teams } from "@/db/schema";
 
+const MAX_PAYLOAD_BYTES = 512 * 1024;
+
 export async function POST(request: NextRequest) {
   // Reject oversized payloads before parsing
   const contentLength = request.headers.get("content-length");
-  if (contentLength && parseInt(contentLength) > 512 * 1024) {
-    return NextResponse.json(
-      {
-        error: "Payload too large. Maximum size is 512KB.",
-        code: "PAYLOAD_TOO_LARGE",
-      },
-      { status: 413 },
-    );
+  if (contentLength) {
+    const size = Number.parseInt(contentLength, 10);
+    if (Number.isFinite(size) && size > MAX_PAYLOAD_BYTES) {
+      return NextResponse.json(
+        {
+          error: "Payload too large. Maximum size is 512KB.",
+          code: "PAYLOAD_TOO_LARGE",
+        },
+        { status: 413 },
+      );
+    }
   }
 
   // R2 is required for payload storage
@@ -51,7 +56,6 @@ export async function POST(request: NextRequest) {
   }
 
   const apiKey = authHeader.slice(7);
-  console.debug("[ingest] Validating API key...");
   const keyResult = await validateApiKey(apiKey);
 
   if (!keyResult.ok) {
@@ -60,10 +64,6 @@ export async function POST(request: NextRequest) {
       { status: 401 },
     );
   }
-
-  console.debug("[ingest] API key validated", {
-    projectId: keyResult.value.projectId,
-  });
 
   // Rate limit per API key
   const rl = await checkRateLimit(ingestRateLimit, keyResult.value.projectId);
@@ -107,7 +107,6 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  console.debug("[ingest] Body parsed");
   const parsed = ingestEventSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
@@ -137,8 +136,6 @@ export async function POST(request: NextRequest) {
       { status: 429 },
     );
   }
-
-  console.debug("[ingest] Validation passed");
 
   // Process the event
   const result = await processIngestEvent(

@@ -61,7 +61,7 @@ export function getEventsBySession(sessionId: string) {
     })
     .from(events)
     .where(eq(events.sessionId, sessionId))
-    .orderBy(asc(events.timestamp));
+    .orderBy(asc(events.timestamp), asc(events.id));
 }
 
 export function updateSessionSummary(sessionId: string, summary: string) {

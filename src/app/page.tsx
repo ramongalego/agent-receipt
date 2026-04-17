@@ -297,15 +297,16 @@ export default function LandingPage() {
 
                   {/* Barcode */}
                   <div className="mt-4 flex h-7 items-end justify-center gap-[2px]">
-                    {[3, 5, 2, 6, 3, 4, 2, 5, 3, 6, 2, 4, 5, 3, 6, 2, 4, 3, 5, 2, 6, 4, 3, 5, 2, 6, 3, 4].map(
-                      (h, i) => (
-                        <span
-                          key={i}
-                          className="block w-[2px] bg-foreground"
-                          style={{ height: `${h * 4}px` }}
-                        />
-                      )
-                    )}
+                    {[
+                      3, 5, 2, 6, 3, 4, 2, 5, 3, 6, 2, 4, 5, 3, 6, 2, 4, 3, 5,
+                      2, 6, 4, 3, 5, 2, 6, 3, 4,
+                    ].map((h, i) => (
+                      <span
+                        key={i}
+                        className="block w-[2px] bg-foreground"
+                        style={{ height: `${h * 4}px` }}
+                      />
+                    ))}
                   </div>
                   <div className="mt-1 text-center text-[10px] tracking-[0.25em] text-muted-foreground">
                     24296FB2·AD77A
@@ -390,18 +391,15 @@ export default function LandingPage() {
             Agents act. Nobody knows what they did.
           </h2>
           <p className="mx-auto mb-12 max-w-xl text-center text-sm text-muted-foreground">
-            Today, most AI agent deployments look like this. Actions happen,
-            and nobody can prove what actually ran.
+            Today, most AI agent deployments look like this. Actions happen, and
+            nobody can prove what actually ran.
           </p>
 
           {/* Incident log header strip — echoes the hero receipt's masthead */}
           <div className="relative mb-5 overflow-hidden rounded-t-xl border border-border bg-background/40">
             <div className="flex items-center justify-between px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
               <div className="flex items-center gap-2">
-                <span
-                  aria-hidden="true"
-                  className="relative flex h-1.5 w-1.5"
-                >
+                <span aria-hidden="true" className="relative flex h-1.5 w-1.5">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-500 opacity-60" />
                   <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-rose-500" />
                 </span>
@@ -1358,9 +1356,7 @@ export default function LandingPage() {
                 aria-hidden="true"
                 className="h-px w-8 bg-gradient-to-r from-transparent to-border"
               />
-              <span>
-                signed · block c72e…f031
-              </span>
+              <span>signed · block c72e…f031</span>
               <span
                 aria-hidden="true"
                 className="h-px w-8 bg-gradient-to-l from-transparent to-border"
@@ -1371,15 +1367,16 @@ export default function LandingPage() {
               aria-hidden="true"
               className="flex h-4 items-end gap-[2px] opacity-50"
             >
-              {[3, 5, 2, 6, 4, 3, 5, 2, 6, 3, 4, 2, 5, 6, 3, 4, 2, 5, 3, 6, 2, 4].map(
-                (h, i) => (
-                  <span
-                    key={i}
-                    className="block w-[2px] bg-muted-foreground"
-                    style={{ height: `${h * 2.5}px` }}
-                  />
-                )
-              )}
+              {[
+                3, 5, 2, 6, 4, 3, 5, 2, 6, 3, 4, 2, 5, 6, 3, 4, 2, 5, 3, 6, 2,
+                4,
+              ].map((h, i) => (
+                <span
+                  key={i}
+                  className="block w-[2px] bg-muted-foreground"
+                  style={{ height: `${h * 2.5}px` }}
+                />
+              ))}
             </div>
           </div>
         </div>

@@ -14,5 +14,13 @@ export const createProjectSchema = z.object({
 
 export const updateProjectSchema = createProjectSchema.partial();
 
+export const createApiKeySchema = z.object({
+  name: z
+    .string()
+    .min(1, "API key name is required.")
+    .max(100, "API key name must be 100 characters or less."),
+});
+
 export type CreateProjectInput = z.infer<typeof createProjectSchema>;
 export type UpdateProjectInput = z.infer<typeof updateProjectSchema>;
+export type CreateApiKeyInput = z.infer<typeof createApiKeySchema>;

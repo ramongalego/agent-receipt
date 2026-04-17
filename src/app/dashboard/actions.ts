@@ -12,6 +12,7 @@ import { createApiKey, revokeApiKey } from "@/db/queries/api-keys";
 import {
   createProjectSchema,
   updateProjectSchema,
+  createApiKeySchema,
 } from "@/lib/validations/project";
 import { getUserTeam, assertOwner } from "@/lib/access";
 
@@ -127,6 +128,13 @@ export async function createApiKeyAction(
     return { error: "You must be signed in." };
   }
 
+  const parsed = createApiKeySchema.safeParse({ name });
+  if (!parsed.success) {
+    return {
+      error: parsed.error.issues[0]?.message ?? "Invalid API key name.",
+    };
+  }
+
   const team = await getUserTeam(session.user.id);
 
   try {
@@ -140,7 +148,7 @@ export async function createApiKeyAction(
     return { error: "Project not found." };
   }
 
-  const { key } = await createApiKey(projectId, name);
+  const { key } = await createApiKey(projectId, parsed.data.name);
   return { key };
 }
 

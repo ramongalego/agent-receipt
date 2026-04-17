@@ -90,10 +90,7 @@ describe("processIngestEvent", () => {
       .mockResolvedValueOnce([]) // session lookup
       .mockResolvedValueOnce([]); // previous events
 
-    // Mock insert().values().returning()
-    mockValues.mockReturnValue({
-      returning: jest.fn().mockResolvedValue([{ id: "evt-hr-1" }]),
-    });
+    mockValues.mockResolvedValue(undefined);
 
     const input = {
       sessionId: "550e8400-e29b-41d4-a716-446655440000",
@@ -120,9 +117,7 @@ describe("processIngestEvent", () => {
       .mockResolvedValueOnce([]) // session lookup
       .mockResolvedValueOnce([]); // previous events
 
-    mockValues.mockReturnValue({
-      returning: jest.fn().mockResolvedValue([{ id: "evt-tc-1" }]),
-    });
+    mockValues.mockResolvedValue(undefined);
 
     mockPutPayload.mockResolvedValue({ ok: true, value: undefined });
 
@@ -139,10 +134,45 @@ describe("processIngestEvent", () => {
 
     await processIngestEvent("proj-1", "key-1", input);
 
-    expect(mockPutPayload).toHaveBeenCalledWith("evt-tc-1", {
+    expect(mockPutPayload).toHaveBeenCalledWith(expect.any(String), {
       input: { foo: "bar" },
       output: { result: true },
     });
+  });
+
+  it("does not insert the event row when R2 upload fails", async () => {
+    mockLimit
+      .mockResolvedValueOnce([]) // session lookup
+      .mockResolvedValueOnce([]); // previous events
+
+    mockValues.mockResolvedValue(undefined);
+    mockPutPayload.mockResolvedValue({
+      ok: false,
+      error: "Storage operation failed.",
+      code: "R2_UPLOAD_ERROR",
+    });
+
+    const input = {
+      sessionId: "550e8400-e29b-41d4-a716-446655440000",
+      event: {
+        type: "tool_call" as const,
+        name: "test-tool",
+        input: { foo: "bar" },
+        output: { result: true },
+        durationMs: 100,
+      },
+    };
+
+    const result = await processIngestEvent("proj-1", "key-1", input);
+
+    expect(mockPutPayload).toHaveBeenCalled();
+    // Only the session-insert (existing mock returned 0 rows, triggering an insert)
+    // should have happened; no event-row insert after R2 failure.
+    const eventInserts = mockValues.mock.calls.filter(
+      (call) => (call[0] as { sessionId?: unknown }).sessionId !== undefined,
+    );
+    expect(eventInserts).toHaveLength(0);
+    expect(result.ok).toBe(false);
   });
 
   it("sets explicitlyCompletedAt when session.end event is received", async () => {
@@ -150,9 +180,7 @@ describe("processIngestEvent", () => {
       .mockResolvedValueOnce([{ id: "existing-session" }]) // session exists
       .mockResolvedValueOnce([{ hash: "prev-hash" }]); // previous events
 
-    mockValues.mockReturnValue({
-      returning: jest.fn().mockResolvedValue([{ id: "evt-end-1" }]),
-    });
+    mockValues.mockResolvedValue(undefined);
 
     mockPutPayload.mockResolvedValue({ ok: true, value: undefined });
 
@@ -181,9 +209,7 @@ describe("processIngestEvent", () => {
       .mockResolvedValueOnce([]) // new session
       .mockResolvedValueOnce([]); // no previous events
 
-    mockValues.mockReturnValue({
-      returning: jest.fn().mockResolvedValue([{ id: "evt-reg-1" }]),
-    });
+    mockValues.mockResolvedValue(undefined);
 
     mockPutPayload.mockResolvedValue({ ok: true, value: undefined });
 

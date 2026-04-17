@@ -74,7 +74,7 @@ export default function LandingPage() {
       <PublicNav />
 
       {/* Hero */}
-      <section className="relative overflow-hidden px-6 pb-32 pt-24 sm:pb-40 sm:pt-32">
+      <section className="relative overflow-hidden px-6 pb-32 pt-24 sm:pb-40 sm:pt-28">
         {/* Dot grid background */}
         <div
           className="pointer-events-none absolute inset-0"
@@ -107,68 +107,313 @@ export default function LandingPage() {
           <div className="h-7 w-7 border-r border-t border-current" />
         </div>
 
-        <div className="relative mx-auto max-w-3xl text-center">
-          <p className="mb-6 text-sm font-medium uppercase tracking-widest text-indigo-500 dark:text-indigo-400">
-            AI agent audit trail
-          </p>
-          <h1 className="text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl lg:text-[4rem]">
-            Know exactly what your{" "}
-            <span className="relative inline-block">
-              <span className="relative z-10">AI agent</span>
-              <svg
-                className="absolute -bottom-2 left-0 z-0 h-3 w-full overflow-visible text-indigo-500"
-                viewBox="0 0 200 12"
-                preserveAspectRatio="none"
-                aria-hidden="true"
-              >
-                <path
-                  d="M3 8 Q 50 2, 100 6 T 197 5"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  fill="none"
-                  strokeLinecap="round"
+        <div className="relative mx-auto max-w-6xl">
+          <div className="grid items-center gap-16 lg:grid-cols-[1.05fr_0.95fr]">
+            {/* Left: copy */}
+            <div className="text-center lg:text-left">
+              <p className="mb-6 inline-flex items-center gap-2 text-sm font-medium uppercase tracking-widest text-indigo-500 dark:text-indigo-400">
+                <span
+                  aria-hidden="true"
+                  className="h-px w-8 bg-indigo-500/60"
                 />
-              </svg>
-            </span>{" "}
-            did
-          </h1>
-          <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-            Your agents send emails, trigger payments, and modify data.
-            AgentReceipt captures every action as a tamper-proof receipt. When
-            something goes wrong, you have proof.
-          </p>
-          <div className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Link
-              href="/sign-in"
-              className="inline-flex w-full items-center justify-center rounded-lg bg-foreground px-8 py-3.5 text-sm font-semibold text-background transition-all hover:bg-foreground/85 hover:shadow-[0_0_0_4px_rgba(99,102,241,0.18)] sm:w-auto"
-            >
-              Start for free
-            </Link>
-            <Link
-              href="/demo"
-              className="group inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-border px-8 py-3.5 text-sm font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground sm:w-auto"
-            >
-              See a sample receipt
-              <span
+                AI agent audit trail
+              </p>
+              <h1 className="text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl lg:text-[3.75rem]">
+                Know exactly what your{" "}
+                <span className="relative inline-block">
+                  <span className="relative z-10">AI agent</span>
+                  <svg
+                    className="absolute -bottom-2 left-0 z-0 h-3 w-full overflow-visible text-indigo-500"
+                    viewBox="0 0 200 12"
+                    preserveAspectRatio="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M3 8 Q 50 2, 100 6 T 197 5"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      fill="none"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </span>{" "}
+                did
+              </h1>
+              <p className="mx-auto mt-8 max-w-xl text-lg leading-relaxed text-muted-foreground lg:mx-0">
+                Your agents send emails, trigger payments, and modify data.
+                AgentReceipt captures every action as a tamper-proof receipt.
+                When something goes wrong, you have proof.
+              </p>
+              <div className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row lg:justify-start">
+                <Link
+                  href="/sign-in"
+                  className="inline-flex w-full items-center justify-center rounded-lg bg-foreground px-8 py-3.5 text-sm font-semibold text-background transition-all hover:bg-foreground/85 hover:shadow-[0_0_0_4px_rgba(99,102,241,0.18)] sm:w-auto"
+                >
+                  Start for free
+                </Link>
+                <Link
+                  href="/demo"
+                  className="group inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-border px-8 py-3.5 text-sm font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground sm:w-auto"
+                >
+                  See a sample receipt
+                  <span
+                    aria-hidden="true"
+                    className="inline-block transition-transform group-hover:translate-x-0.5"
+                  >
+                    →
+                  </span>
+                </Link>
+              </div>
+            </div>
+
+            {/* Right: receipt artifact */}
+            <div className="relative hidden lg:block">
+              {/* Soft indigo halo */}
+              <div
                 aria-hidden="true"
-                className="inline-block transition-transform group-hover:translate-x-0.5"
-              >
-                →
-              </span>
-            </Link>
+                className="pointer-events-none absolute -inset-10 bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.18),transparent_65%)]"
+              />
+
+              <div className="relative mx-auto w-full max-w-sm rotate-[1.5deg] transition-transform duration-500 hover:rotate-0">
+                {/* Top perforated/zigzag edge */}
+                <div
+                  aria-hidden="true"
+                  className="h-3 w-full bg-card"
+                  style={{
+                    WebkitMaskImage:
+                      "linear-gradient(135deg, transparent 25%, black 25%, black 50%, transparent 50%, transparent 75%, black 75%), linear-gradient(45deg, transparent 25%, black 25%, black 50%, transparent 50%, transparent 75%, black 75%)",
+                    maskImage:
+                      "linear-gradient(135deg, transparent 25%, black 25%, black 50%, transparent 50%, transparent 75%, black 75%), linear-gradient(45deg, transparent 25%, black 25%, black 50%, transparent 50%, transparent 75%, black 75%)",
+                    WebkitMaskSize: "12px 12px",
+                    maskSize: "12px 12px",
+                    WebkitMaskPosition: "0 -3px",
+                    maskPosition: "0 -3px",
+                    filter:
+                      "drop-shadow(0 -1px 0 rgb(var(--border-rgb, 212 212 220)))",
+                  }}
+                />
+
+                {/* Paper body */}
+                <div className="relative border-x border-border bg-card px-6 pt-5 pb-6 font-mono text-[11.5px] leading-[1.7] text-foreground shadow-[0_30px_60px_-20px_rgba(99,102,241,0.25),0_12px_30px_-15px_rgba(0,0,0,0.25)]">
+                  {/* Masthead */}
+                  <div className="text-center">
+                    <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-foreground">
+                      AgentReceipt
+                    </div>
+                    <div className="mt-0.5 text-[10px] text-muted-foreground">
+                      agentreceipt.co · session #A7F3
+                    </div>
+                  </div>
+
+                  <div className="my-3 border-t border-dashed border-border" />
+
+                  {/* Session meta */}
+                  <div className="space-y-0.5 text-muted-foreground">
+                    <div className="flex justify-between">
+                      <span>WORKFLOW</span>
+                      <span className="text-foreground">invoice-process</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>AGENT</span>
+                      <span className="text-foreground">gpt-4o</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>STARTED</span>
+                      <span className="text-foreground">14:02:11 UTC</span>
+                    </div>
+                  </div>
+
+                  <div className="my-3 border-t border-dashed border-border" />
+
+                  {/* Events — line items */}
+                  <div className="space-y-1">
+                    <div className="flex gap-2">
+                      <span className="text-muted-foreground/70">14:02:14</span>
+                      <span className="flex-1 truncate">llm.call gpt-4o</span>
+                      <span className="text-emerald-600 dark:text-emerald-400">
+                        OK
+                      </span>
+                    </div>
+                    <div className="flex gap-2">
+                      <span className="text-muted-foreground/70">14:02:17</span>
+                      <span className="flex-1 truncate">
+                        tool stripe.charge
+                      </span>
+                      <span className="text-foreground">$248.50</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <span className="text-muted-foreground/70">14:02:19</span>
+                      <span className="flex-1 truncate">
+                        tool email.send
+                        <span className="ml-1 rounded-sm bg-amber-500/15 px-1 py-[1px] text-[10px] font-semibold text-amber-600 dark:text-amber-400">
+                          PII
+                        </span>
+                      </span>
+                      <span className="text-foreground">2 rcpts</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <span className="text-muted-foreground/70">14:02:20</span>
+                      <span className="flex-1 truncate">decision route=ok</span>
+                      <span className="text-emerald-600 dark:text-emerald-400">
+                        ✓
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="my-3 border-t border-dashed border-border" />
+
+                  {/* Totals */}
+                  <div className="space-y-0.5">
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>EVENTS</span>
+                      <span className="text-foreground">4</span>
+                    </div>
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>DURATION</span>
+                      <span className="text-foreground">9.2s</span>
+                    </div>
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>EXIT</span>
+                      <span className="text-emerald-600 dark:text-emerald-400">
+                        0
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="my-3 border-t border-dashed border-border" />
+
+                  {/* Hash footer */}
+                  <div className="text-[10px] text-muted-foreground">
+                    <div>HASH c72e…f031</div>
+                    <div>PREV b8d0…4a71</div>
+                    <div className="mt-2 flex items-center gap-1.5 text-emerald-600 dark:text-emerald-500">
+                      <span className="relative flex h-1.5 w-1.5">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
+                        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                      </span>
+                      <span>anchored · sigstore rekor</span>
+                    </div>
+                  </div>
+
+                  {/* Barcode */}
+                  <div className="mt-4 flex h-7 items-end justify-center gap-[2px]">
+                    {[3, 5, 2, 6, 3, 4, 2, 5, 3, 6, 2, 4, 5, 3, 6, 2, 4, 3, 5, 2, 6, 4, 3, 5, 2, 6, 3, 4].map(
+                      (h, i) => (
+                        <span
+                          key={i}
+                          className="block w-[2px] bg-foreground"
+                          style={{ height: `${h * 4}px` }}
+                        />
+                      )
+                    )}
+                  </div>
+                  <div className="mt-1 text-center text-[10px] tracking-[0.25em] text-muted-foreground">
+                    24296FB2·AD77A
+                  </div>
+                </div>
+
+                {/* Bottom perforated edge */}
+                <div
+                  aria-hidden="true"
+                  className="h-3 w-full bg-card"
+                  style={{
+                    WebkitMaskImage:
+                      "linear-gradient(45deg, transparent 25%, black 25%, black 50%, transparent 50%, transparent 75%, black 75%), linear-gradient(135deg, transparent 25%, black 25%, black 50%, transparent 50%, transparent 75%, black 75%)",
+                    maskImage:
+                      "linear-gradient(45deg, transparent 25%, black 25%, black 50%, transparent 50%, transparent 75%, black 75%), linear-gradient(135deg, transparent 25%, black 25%, black 50%, transparent 50%, transparent 75%, black 75%)",
+                    WebkitMaskSize: "12px 12px",
+                    maskSize: "12px 12px",
+                    WebkitMaskPosition: "0 0",
+                    maskPosition: "0 0",
+                  }}
+                />
+
+                {/* VERIFIED stamp — tilted */}
+                <div
+                  aria-hidden="true"
+                  className="absolute -right-5 top-36 -rotate-[10deg] rounded-sm border-2 border-indigo-500/70 bg-background/95 px-3 py-1.5 shadow-md"
+                >
+                  <div className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-600 dark:text-indigo-400">
+                    Verified
+                  </div>
+                  <div className="font-mono text-[8px] uppercase tracking-wider text-indigo-600/70 dark:text-indigo-400/70">
+                    hash-chain · ok
+                  </div>
+                </div>
+
+                {/* Hand-drawn margin annotation with arrow */}
+                <div
+                  aria-hidden="true"
+                  className="absolute -left-6 top-24 w-32 -rotate-[4deg] text-left"
+                >
+                  <svg
+                    viewBox="0 0 140 40"
+                    className="h-6 w-24 text-indigo-500/80"
+                    fill="none"
+                  >
+                    <path
+                      d="M 4 4 C 50 12, 100 18, 134 34"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                    />
+                    <path
+                      d="M 126 28 L 134 34 L 126 38"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  <p className="mt-1 font-mono text-[10px] uppercase tracking-wider text-indigo-600/90 dark:text-indigo-400/80">
+                    every action
+                  </p>
+                  <p className="font-mono text-[10px] uppercase tracking-wider text-indigo-600/90 dark:text-indigo-400/80">
+                    captured
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Problem */}
+      {/* Problem — framed as an incident log */}
       <section className="bg-surface px-6 py-24 sm:py-32">
         <div className="mx-auto max-w-5xl">
-          <p className="mb-4 text-center text-sm font-medium uppercase tracking-widest text-muted-foreground">
+          <div className="mb-4 flex items-center justify-center gap-3 text-sm font-medium uppercase tracking-widest text-muted-foreground">
+            <span aria-hidden="true" className="h-px w-8 bg-border" />
             The problem
-          </p>
-          <h2 className="mb-16 text-center text-2xl font-bold tracking-tight sm:text-3xl">
+            <span aria-hidden="true" className="h-px w-8 bg-border" />
+          </div>
+          <h2 className="mb-4 text-center text-2xl font-bold tracking-tight sm:text-3xl">
             Agents act. Nobody knows what they did.
           </h2>
+          <p className="mx-auto mb-12 max-w-xl text-center text-sm text-muted-foreground">
+            Today, most AI agent deployments look like this. Actions happen,
+            and nobody can prove what actually ran.
+          </p>
+
+          {/* Incident log header strip — echoes the hero receipt's masthead */}
+          <div className="relative mb-5 overflow-hidden rounded-t-xl border border-border bg-background/40">
+            <div className="flex items-center justify-between px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <span
+                  aria-hidden="true"
+                  className="relative flex h-1.5 w-1.5"
+                >
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-500 opacity-60" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-rose-500" />
+                </span>
+                <span>Incident Log · Session #????</span>
+              </div>
+              <span className="hidden sm:inline text-rose-600/80 dark:text-rose-400/80">
+                no receipt found
+              </span>
+            </div>
+            <div className="h-px w-full bg-[linear-gradient(90deg,transparent_0,transparent_4px,var(--color-border,#d4d4dc)_4px,var(--color-border,#d4d4dc)_8px)] bg-[length:8px_1px]" />
+          </div>
+
           <div className="grid gap-5 sm:grid-cols-3">
             {/* 01 — amber */}
             <article className="group relative rounded-2xl border border-border bg-card p-7 transition-all duration-300 hover:-translate-y-1 hover:border-amber-500/40 hover:shadow-[0_10px_30px_-12px_rgba(245,158,11,0.18)]">
@@ -190,9 +435,14 @@ export default function LandingPage() {
                     <line x1="12" y1="17" x2="12.01" y2="17" />
                   </svg>
                 </div>
-                <span className="font-mono text-xs text-muted-foreground/50">
-                  01
-                </span>
+                <div className="flex flex-col items-end gap-1">
+                  <span className="rounded-sm bg-amber-500/10 px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">
+                    Warn
+                  </span>
+                  <span className="font-mono text-xs text-muted-foreground/50">
+                    01
+                  </span>
+                </div>
               </div>
               <h3 className="mb-2 text-base font-semibold">
                 Agents take real actions
@@ -224,9 +474,14 @@ export default function LandingPage() {
                     <line x1="12" y1="16" x2="12.01" y2="16" />
                   </svg>
                 </div>
-                <span className="font-mono text-xs text-muted-foreground/50">
-                  02
-                </span>
+                <div className="flex flex-col items-end gap-1">
+                  <span className="rounded-sm bg-rose-500/10 px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400">
+                    Miss
+                  </span>
+                  <span className="font-mono text-xs text-muted-foreground/50">
+                    02
+                  </span>
+                </div>
               </div>
               <h3 className="mb-2 text-base font-semibold">
                 No readable record exists
@@ -258,9 +513,14 @@ export default function LandingPage() {
                     <line x1="12" y1="16" x2="12.01" y2="16" />
                   </svg>
                 </div>
-                <span className="font-mono text-xs text-muted-foreground/50">
-                  03
-                </span>
+                <div className="flex flex-col items-end gap-1">
+                  <span className="rounded-sm bg-indigo-500/10 px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                    Audit
+                  </span>
+                  <span className="font-mono text-xs text-muted-foreground/50">
+                    03
+                  </span>
+                </div>
               </div>
               <h3 className="mb-2 text-base font-semibold">
                 Audits need answers
@@ -273,15 +533,30 @@ export default function LandingPage() {
               </p>
             </article>
           </div>
+
+          {/* Bottom meta strip — tears off the incident log */}
+          <div className="mt-5 flex items-center justify-center gap-3 font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground/60">
+            <span
+              aria-hidden="true"
+              className="h-px flex-1 max-w-24 bg-gradient-to-r from-transparent to-border"
+            />
+            <span>End of log · unresolved</span>
+            <span
+              aria-hidden="true"
+              className="h-px flex-1 max-w-24 bg-gradient-to-l from-transparent to-border"
+            />
+          </div>
         </div>
       </section>
 
       {/* How it works */}
       <section className="px-6 py-24 sm:py-32">
         <div className="mx-auto max-w-3xl lg:max-w-4xl">
-          <p className="mb-4 text-center text-sm font-medium uppercase tracking-widest text-muted-foreground">
+          <div className="mb-4 flex items-center justify-center gap-3 text-sm font-medium uppercase tracking-widest text-muted-foreground">
+            <span aria-hidden="true" className="h-px w-8 bg-border" />
             How it works
-          </p>
+            <span aria-hidden="true" className="h-px w-8 bg-border" />
+          </div>
           <h2 className="mb-20 text-center text-2xl font-bold tracking-tight sm:text-3xl">
             Three steps. Five minutes.
           </h2>
@@ -364,16 +639,77 @@ export default function LandingPage() {
               <div className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-muted font-mono text-sm font-bold text-muted-foreground">
                 2
               </div>
-              <div className="flex-1 pt-1.5">
+              <div className="min-w-0 flex-1 pt-1.5">
                 <h3 className="mb-2 text-lg font-semibold">
                   Your agent runs as usual
                 </h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">
+                <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
                   Every LLM call, tool call, and decision is captured
                   automatically as an LLM audit log. Your agent code does not
                   change. If the SDK cannot reach our servers, it fails
                   silently. Your agent keeps running.
                 </p>
+                {/* Live session indicator — ticking events */}
+                <div className="overflow-hidden rounded-xl border border-border bg-background/40">
+                  <div className="flex items-center justify-between border-b border-border px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <span className="relative flex h-1.5 w-1.5">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
+                        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                      </span>
+                      <span>Session #A7F3 · capturing</span>
+                    </div>
+                    <span className="hidden sm:inline">23 events</span>
+                  </div>
+                  <div className="divide-y divide-border font-mono text-[11.5px]">
+                    <div className="flex items-center justify-between px-4 py-2">
+                      <div className="flex items-center gap-3 text-muted-foreground">
+                        <span className="text-muted-foreground/60">
+                          14:02:14
+                        </span>
+                        <span className="text-foreground">llm.call</span>
+                        <span className="hidden sm:inline text-muted-foreground/70">
+                          gpt-4o
+                        </span>
+                      </div>
+                      <span className="text-emerald-600 dark:text-emerald-400">
+                        ok
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between px-4 py-2">
+                      <div className="flex items-center gap-3 text-muted-foreground">
+                        <span className="text-muted-foreground/60">
+                          14:02:17
+                        </span>
+                        <span className="text-foreground">tool.call</span>
+                        <span className="hidden sm:inline text-muted-foreground/70">
+                          stripe.charge
+                        </span>
+                      </div>
+                      <span className="text-emerald-600 dark:text-emerald-400">
+                        ok
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between bg-indigo-500/[0.04] px-4 py-2">
+                      <div className="flex items-center gap-3 text-muted-foreground">
+                        <span className="text-muted-foreground/60">
+                          14:02:19
+                        </span>
+                        <span className="text-foreground">tool.call</span>
+                        <span className="hidden sm:inline text-muted-foreground/70">
+                          email.send
+                        </span>
+                      </div>
+                      <span className="flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400">
+                        <span
+                          aria-hidden="true"
+                          className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-indigo-500"
+                        />
+                        writing
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -382,9 +718,9 @@ export default function LandingPage() {
               <div className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-muted font-mono text-sm font-bold text-muted-foreground">
                 3
               </div>
-              <div className="flex-1 pt-1.5">
+              <div className="min-w-0 flex-1 pt-1.5">
                 <h3 className="mb-2 text-lg font-semibold">View the receipt</h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">
+                <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
                   Open the dashboard and see a human-readable timeline of
                   everything your agent did. Each receipt shows the full
                   decision context: the rules, permissions, and state your agent
@@ -392,6 +728,70 @@ export default function LandingPage() {
                   for tamper-proof verification. Share any receipt with a
                   one-click link.
                 </p>
+                {/* Mini receipt card preview */}
+                <div className="rounded-xl border border-border bg-card p-5 shadow-[0_10px_30px_-15px_rgba(99,102,241,0.2)]">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                        <span>Receipt</span>
+                        <span aria-hidden="true" className="text-border">
+                          ·
+                        </span>
+                        <span>A7F3</span>
+                        <span aria-hidden="true" className="text-border">
+                          ·
+                        </span>
+                        <span>14:02 UTC</span>
+                      </div>
+                      <p className="mt-2 truncate text-sm font-semibold">
+                        Process invoice #441
+                      </p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        4 events · 9.2s · exit 0
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1.5 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                      <svg
+                        width="10"
+                        height="10"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      Verified
+                    </div>
+                  </div>
+                  <div className="mt-4 flex items-center justify-between border-t border-dashed border-border pt-3 font-mono text-[10px] text-muted-foreground">
+                    <span>hash c72e…f031</span>
+                    <span className="hidden sm:inline">
+                      anchored · sigstore
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-foreground/70 transition-colors hover:text-foreground">
+                      share link
+                      <svg
+                        width="10"
+                        height="10"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M5 12h14M13 6l6 6-6 6"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -401,9 +801,11 @@ export default function LandingPage() {
       {/* Trust section */}
       <section className="bg-surface px-6 py-24 sm:py-32">
         <div className="mx-auto max-w-5xl">
-          <p className="mb-4 text-center text-sm font-medium uppercase tracking-widest text-muted-foreground">
+          <div className="mb-4 flex items-center justify-center gap-3 text-sm font-medium uppercase tracking-widest text-muted-foreground">
+            <span aria-hidden="true" className="h-px w-8 bg-border" />
             How receipts stay honest
-          </p>
+            <span aria-hidden="true" className="h-px w-8 bg-border" />
+          </div>
           <h2 className="mb-20 text-center text-2xl font-bold tracking-tight sm:text-3xl">
             Every receipt is tamper-proof
           </h2>
@@ -616,9 +1018,11 @@ export default function LandingPage() {
       {/* Pricing */}
       <section id="pricing" className="px-6 py-24 sm:py-32">
         <div className="mx-auto max-w-5xl">
-          <p className="mb-4 text-center text-sm font-medium uppercase tracking-widest text-muted-foreground">
+          <div className="mb-4 flex items-center justify-center gap-3 text-sm font-medium uppercase tracking-widest text-muted-foreground">
+            <span aria-hidden="true" className="h-px w-8 bg-border" />
             Pricing
-          </p>
+            <span aria-hidden="true" className="h-px w-8 bg-border" />
+          </div>
           <h2 className="mb-4 text-center text-2xl font-bold tracking-tight sm:text-3xl">
             Flat monthly pricing. No per-seat fees.
           </h2>
@@ -635,15 +1039,20 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* FAQ */}
+      {/* FAQ — framed as a receipt docket */}
       <section className="bg-surface px-6 py-24 sm:py-32">
         <div className="mx-auto max-w-3xl">
-          <p className="mb-4 text-center text-sm font-medium uppercase tracking-widest text-muted-foreground">
-            FAQ
-          </p>
-          <h2 className="mb-16 text-center text-2xl font-bold tracking-tight sm:text-3xl">
+          <div className="mb-4 flex items-center justify-center gap-3 text-sm font-medium uppercase tracking-widest text-muted-foreground">
+            <span aria-hidden="true" className="h-px w-8 bg-border" />
+            FAQ · Docket
+            <span aria-hidden="true" className="h-px w-8 bg-border" />
+          </div>
+          <h2 className="mb-4 text-center text-2xl font-bold tracking-tight sm:text-3xl">
             Common questions
           </h2>
+          <p className="mx-auto mb-16 max-w-md text-center text-sm text-muted-foreground">
+            Everything we get asked before the first integration.
+          </p>
           <div className="space-y-3">
             <details className="group rounded-xl border border-border bg-card transition-colors hover:border-foreground/20 open:border-foreground/20">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-6 [&::-webkit-details-marker]:hidden">
@@ -846,7 +1255,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Final CTA — mirrors the hero's visual language */}
+      {/* Final CTA — closing receipt, bookend to the hero */}
       <section className="relative overflow-hidden px-6 py-24 sm:py-32">
         {/* Dot grid background */}
         <div
@@ -881,7 +1290,20 @@ export default function LandingPage() {
         </div>
 
         <div className="relative mx-auto max-w-2xl text-center">
-          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+          {/* End-of-receipt marker — echoes the hero receipt */}
+          <div className="mb-8 flex items-center justify-center gap-3 font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
+            <span
+              aria-hidden="true"
+              className="h-px w-12 bg-gradient-to-r from-transparent to-border"
+            />
+            End of Receipt
+            <span
+              aria-hidden="true"
+              className="h-px w-12 bg-gradient-to-l from-transparent to-border"
+            />
+          </div>
+
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl leading-[1.1]">
             Your agents are{" "}
             <span className="relative inline-block">
               <span className="relative z-10">already</span>
@@ -900,7 +1322,7 @@ export default function LandingPage() {
                 />
               </svg>
             </span>{" "}
-            taking actions
+            taking actions.
           </h2>
           <p className="mx-auto mt-6 max-w-lg text-base text-muted-foreground">
             Start keeping a record of them. Free plan, no credit card, five
@@ -909,10 +1331,56 @@ export default function LandingPage() {
           <div className="mt-10">
             <Link
               href="/sign-in"
-              className="inline-flex rounded-lg bg-foreground px-8 py-3.5 text-sm font-semibold text-background transition-all hover:bg-foreground/85 hover:shadow-[0_0_0_4px_rgba(99,102,241,0.18)]"
+              className="group inline-flex items-center gap-2 rounded-lg bg-foreground px-8 py-3.5 text-sm font-semibold text-background transition-all hover:bg-foreground/85 hover:shadow-[0_0_0_4px_rgba(99,102,241,0.18)]"
             >
               Get started for free
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 20 20"
+                className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path
+                  d="M4 10h12M12 6l4 4-4 4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             </Link>
+          </div>
+
+          {/* Receipt-style footer line — timestamp + hash, echoes the hero receipt */}
+          <div className="mt-14 flex flex-col items-center gap-2 font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground/70">
+            <div className="flex items-center gap-3">
+              <span
+                aria-hidden="true"
+                className="h-px w-8 bg-gradient-to-r from-transparent to-border"
+              />
+              <span>
+                signed · block c72e…f031
+              </span>
+              <span
+                aria-hidden="true"
+                className="h-px w-8 bg-gradient-to-l from-transparent to-border"
+              />
+            </div>
+            {/* Mini barcode */}
+            <div
+              aria-hidden="true"
+              className="flex h-4 items-end gap-[2px] opacity-50"
+            >
+              {[3, 5, 2, 6, 4, 3, 5, 2, 6, 3, 4, 2, 5, 6, 3, 4, 2, 5, 3, 6, 2, 4].map(
+                (h, i) => (
+                  <span
+                    key={i}
+                    className="block w-[2px] bg-muted-foreground"
+                    style={{ height: `${h * 2.5}px` }}
+                  />
+                )
+              )}
+            </div>
           </div>
         </div>
       </section>

@@ -108,25 +108,30 @@ export function wrapGemini<T extends object>(
 
                 async function* wrappedStream(): AsyncGenerator<unknown> {
                   const textChunks: string[] = [];
-                  for await (const chunk of originalIterable) {
-                    const c = chunk as { text?: string };
-                    textChunks.push(c.text ?? "");
-                    yield chunk;
+                  // Send in finally so the event is recorded even when the
+                  // consumer breaks out of the stream early.
+                  try {
+                    for await (const chunk of originalIterable) {
+                      const c = chunk as { text?: string };
+                      textChunks.push(c.text ?? "");
+                      yield chunk;
+                    }
+                  } finally {
+                    const durationMs = Date.now() - start;
+                    ingest
+                      .send({
+                        sessionId,
+                        sessionName,
+                        event: {
+                          type: "llm_call",
+                          name: modelName,
+                          input: params.contents,
+                          output: textChunks.join(""),
+                          durationMs,
+                        },
+                      })
+                      .catch(() => {});
                   }
-                  const durationMs = Date.now() - start;
-                  ingest
-                    .send({
-                      sessionId,
-                      sessionName,
-                      event: {
-                        type: "llm_call",
-                        name: modelName,
-                        input: params.contents,
-                        output: textChunks.join(""),
-                        durationMs,
-                      },
-                    })
-                    .catch(() => {});
                 }
 
                 return wrappedStream();

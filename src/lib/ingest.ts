@@ -19,7 +19,7 @@ export async function validateApiKey(
 ): Promise<Result<{ projectId: string; keyId: string }>> {
   // Note: SQL string comparison is not constant-time, but the key is SHA-256 hashed
   // before comparison. Exploiting timing differences would require reversing the hash.
-  // Accepted risk — not fixing to avoid fetching all keys into memory.
+  // Accepted risk, not fixing to avoid fetching all keys into memory.
   const keyHash = hashApiKey(bearerToken);
 
   const rows = await db
@@ -41,7 +41,7 @@ export async function processIngestEvent(
   input: IngestEventInput,
 ): Promise<Result<IngestResult>> {
   // Upsert session and get previous hash in parallel.
-  // Order by timestamp desc then id desc — the id tiebreaker ensures a
+  // Order by timestamp desc then id desc, the id tiebreaker ensures a
   // deterministic pick when two events share the same millisecond.
   const [existingSession, previousEvents] = await Promise.all([
     db
@@ -92,7 +92,7 @@ export async function processIngestEvent(
   const hash = hashEvent(eventData, previousHash);
 
   // Pre-generate the event id so we can upload the payload to R2 before
-  // committing the row. If R2 fails we never insert — no orphaned rows with
+  // committing the row. If R2 fails we never insert, no orphaned rows with
   // no payload, which would otherwise break the hash chain's audit promise
   // and cause SDK retries to create duplicates.
   const eventId = randomUUID();
@@ -141,8 +141,11 @@ export async function processIngestEvent(
       .where(eq(agentSessions.id, input.sessionId));
   }
 
-  // Update API key last used (fire-and-forget, non-critical)
-  void updateApiKeyLastUsed(keyId);
+  // Update API key last used (fire-and-forget, non-critical).
+  // Catch so a DB failure here cannot become an unhandled rejection.
+  updateApiKeyLastUsed(keyId).catch((e) => {
+    console.warn("[ingest] Failed to update API key lastUsedAt:", e);
+  });
 
   return ok({ eventId, sessionId: input.sessionId });
 }

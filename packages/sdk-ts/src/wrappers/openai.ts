@@ -129,6 +129,28 @@ function wrapStream(
     [Symbol.asyncIterator]() {
       const iterator = stream[Symbol.asyncIterator]();
       const chunks: unknown[] = [];
+      let sent = false;
+
+      function sendEvent(metadata?: Record<string, unknown>): void {
+        if (sent) return;
+        sent = true;
+        const durationMs = Date.now() - start;
+        ingest
+          .send({
+            sessionId,
+            sessionName,
+            event: {
+              type: "llm_call",
+              name: (params?.model as string) ?? "openai",
+              input: params,
+              output: { chunks },
+              durationMs,
+              metadata,
+              context: eventContext,
+            },
+          })
+          .catch(() => {});
+      }
 
       return {
         async next() {
@@ -139,27 +161,16 @@ function wrapStream(
           }
 
           if (result.done) {
-            const durationMs = Date.now() - start;
-            ingest
-              .send({
-                sessionId,
-                sessionName,
-                event: {
-                  type: "llm_call",
-                  name: (params?.model as string) ?? "openai",
-                  input: params,
-                  output: { chunks },
-                  durationMs,
-                  context: eventContext,
-                },
-              })
-              .catch(() => {});
+            sendEvent();
           }
 
           return result;
         },
 
         async return(value?: unknown) {
+          // The consumer stopped early (break or abort). Record what we
+          // have so the audit trail does not lose the call.
+          sendEvent({ streamEndedEarly: true });
           if (iterator.return) {
             return iterator.return(value);
           }

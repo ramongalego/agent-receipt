@@ -28,10 +28,14 @@ jest.mock("@/lib/r2", () => ({
   getPayload: (eventId: string) => mockGetPayload(eventId),
 }));
 jest.mock("@/db/queries/sessions", () => ({
-  updateSessionSummary: jest.fn(),
   generateShareToken: (...args: unknown[]) =>
     mockGenerateShareTokenQuery(...args),
   revokeShareToken: (...args: unknown[]) => mockRevokeShareTokenQuery(...args),
+}));
+const mockGenerateAndStoreSummary = jest.fn();
+jest.mock("@/lib/summary", () => ({
+  generateAndStoreSummary: (sessionId: string) =>
+    mockGenerateAndStoreSummary(sessionId),
 }));
 jest.mock("@/lib/anchor-session", () => ({
   anchorSessionIfEligible: (...args: unknown[]) =>
@@ -137,7 +141,7 @@ describe("fetchEventPayload", () => {
   it("returns FORBIDDEN when event belongs to another team", async () => {
     mockAuth.mockResolvedValue({ user: { id: "user_A" } });
     mockGetUserTeam.mockResolvedValue({ id: "team_A", name: "Team A" });
-    // DB returns no rows — event does not belong to team_A
+    // DB returns no rows, event does not belong to team_A
     mockDbThen.mockImplementation((fn: (rows: unknown[]) => unknown) =>
       Promise.resolve(fn([])),
     );
@@ -154,7 +158,7 @@ describe("fetchEventPayload", () => {
   it("returns payload when event belongs to the user's team", async () => {
     mockAuth.mockResolvedValue({ user: { id: "user_A" } });
     mockGetUserTeam.mockResolvedValue({ id: "team_A", name: "Team A" });
-    // DB returns a row — event belongs to team_A
+    // DB returns a row, event belongs to team_A
     mockDbThen.mockImplementation((fn: (rows: unknown[]) => unknown) =>
       Promise.resolve(fn([{ id: "evt_1" }])),
     );
@@ -180,19 +184,33 @@ describe("generateSessionSummary", () => {
   it("returns FORBIDDEN when session belongs to another team", async () => {
     mockAuth.mockResolvedValue({ user: { id: "user_A" } });
     mockGetUserTeam.mockResolvedValue({ id: "team_A", name: "Team A" });
-    // DB returns no rows — session does not belong to team_A
+    // DB returns no rows, session does not belong to team_A
     mockDbThen.mockImplementation((fn: (rows: unknown[]) => unknown) =>
       Promise.resolve(fn([])),
     );
 
-    const result = await generateSessionSummary("session_from_team_B", null, [
-      { id: "evt_1", type: "llm_call", name: "Parse", durationMs: 100 },
-    ]);
+    const result = await generateSessionSummary("session_from_team_B");
 
     expect(result).toEqual({
       error: "You do not have access to this session.",
       code: "FORBIDDEN",
     });
+    expect(mockGenerateAndStoreSummary).not.toHaveBeenCalled();
+  });
+
+  it("generates the summary server-side when access is verified", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user_A" } });
+    mockGetUserTeam.mockResolvedValue({ id: "team_A", name: "Team A" });
+    // DB returns a row, session belongs to team_A
+    mockDbThen.mockImplementation((fn: (rows: unknown[]) => unknown) =>
+      Promise.resolve(fn([{ id: "session_1" }])),
+    );
+    mockGenerateAndStoreSummary.mockResolvedValue("The agent did things.");
+
+    const result = await generateSessionSummary("session_1");
+
+    expect(result).toEqual({ summary: "The agent did things." });
+    expect(mockGenerateAndStoreSummary).toHaveBeenCalledWith("session_1");
   });
 });
 

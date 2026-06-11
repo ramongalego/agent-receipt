@@ -225,7 +225,7 @@ export default function LandingPage() {
 
                   <div className="my-3 border-t border-dashed border-border" />
 
-                  {/* Events — line items */}
+                  {/* Events, line items */}
                   <div className="space-y-1">
                     <div className="flex gap-2">
                       <span className="text-muted-foreground/70">14:02:14</span>
@@ -329,7 +329,7 @@ export default function LandingPage() {
                   }}
                 />
 
-                {/* VERIFIED stamp — tilted */}
+                {/* VERIFIED stamp, tilted */}
                 <div
                   aria-hidden="true"
                   className="absolute -right-5 top-36 -rotate-[10deg] rounded-sm border-2 border-indigo-500/70 bg-background/95 px-3 py-1.5 shadow-md"
@@ -379,7 +379,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Problem — framed as an incident log */}
+      {/* Problem, framed as an incident log */}
       <section className="bg-surface px-6 py-24 sm:py-32">
         <div className="mx-auto max-w-5xl">
           <div className="mb-4 flex items-center justify-center gap-3 text-sm font-medium uppercase tracking-widest text-muted-foreground">
@@ -395,7 +395,7 @@ export default function LandingPage() {
             nobody can prove what actually ran.
           </p>
 
-          {/* Incident log header strip — echoes the hero receipt's masthead */}
+          {/* Incident log header strip, echoes the hero receipt's masthead */}
           <div className="relative mb-5 overflow-hidden rounded-t-xl border border-border bg-background/40">
             <div className="flex items-center justify-between px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
               <div className="flex items-center gap-2">
@@ -413,7 +413,7 @@ export default function LandingPage() {
           </div>
 
           <div className="grid gap-5 sm:grid-cols-3">
-            {/* 01 — amber */}
+            {/* 01, amber */}
             <article className="group relative rounded-2xl border border-border bg-card p-7 transition-all duration-300 hover:-translate-y-1 hover:border-amber-500/40 hover:shadow-[0_10px_30px_-12px_rgba(245,158,11,0.18)]">
               <div className="mb-5 flex items-start justify-between">
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-105 dark:text-amber-400">
@@ -452,7 +452,7 @@ export default function LandingPage() {
               </p>
             </article>
 
-            {/* 02 — rose */}
+            {/* 02, rose */}
             <article className="group relative rounded-2xl border border-border bg-card p-7 transition-all duration-300 hover:-translate-y-1 hover:border-rose-500/40 hover:shadow-[0_10px_30px_-12px_rgba(244,63,94,0.18)]">
               <div className="mb-5 flex items-start justify-between">
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-rose-500/10 text-rose-600 transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-105 dark:text-rose-400">
@@ -491,7 +491,7 @@ export default function LandingPage() {
               </p>
             </article>
 
-            {/* 03 — indigo */}
+            {/* 03, indigo */}
             <article className="group relative rounded-2xl border border-border bg-card p-7 transition-all duration-300 hover:-translate-y-1 hover:border-indigo-500/40 hover:shadow-[0_10px_30px_-12px_rgba(99,102,241,0.18)]">
               <div className="mb-5 flex items-start justify-between">
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-600 transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-105 dark:text-indigo-400">
@@ -532,7 +532,7 @@ export default function LandingPage() {
             </article>
           </div>
 
-          {/* Bottom meta strip — tears off the incident log */}
+          {/* Bottom meta strip, tears off the incident log */}
           <div className="mt-5 flex items-center justify-center gap-3 font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground/60">
             <span
               aria-hidden="true"
@@ -647,7 +647,7 @@ export default function LandingPage() {
                   change. If the SDK cannot reach our servers, it fails
                   silently. Your agent keeps running.
                 </p>
-                {/* Live session indicator — ticking events */}
+                {/* Live session indicator, ticking events */}
                 <div className="overflow-hidden rounded-xl border border-border bg-background/40">
                   <div className="flex items-center justify-between border-b border-border px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                     <div className="flex items-center gap-2">
@@ -808,7 +808,7 @@ export default function LandingPage() {
             Every receipt is tamper-proof
           </h2>
           <div className="grid gap-4 md:grid-cols-3">
-            {/* Featured — Tamper-proof (span 2) */}
+            {/* Featured, Tamper-proof (span 2) */}
             <section className="group relative overflow-hidden rounded-2xl border border-border bg-card p-8 transition-colors hover:border-foreground/20 md:col-span-2">
               <div className="relative z-10">
                 <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-border bg-background/40 px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
@@ -957,7 +957,7 @@ export default function LandingPage() {
               </p>
             </section>
 
-            {/* Featured — Sigstore (span 3) */}
+            {/* Featured, Sigstore (span 3) */}
             <section className="group relative overflow-hidden rounded-2xl border border-border bg-card p-8 transition-colors hover:border-foreground/20 md:col-span-3">
               <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
                 <div className="max-w-xl">
@@ -1037,7 +1037,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* FAQ — framed as a receipt docket */}
+      {/* FAQ, framed as a receipt docket */}
       <section className="bg-surface px-6 py-24 sm:py-32">
         <div className="mx-auto max-w-3xl">
           <div className="mb-4 flex items-center justify-center gap-3 text-sm font-medium uppercase tracking-widest text-muted-foreground">
@@ -1253,7 +1253,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Final CTA — closing receipt, bookend to the hero */}
+      {/* Final CTA, closing receipt, bookend to the hero */}
       <section className="relative overflow-hidden px-6 py-24 sm:py-32">
         {/* Dot grid background */}
         <div
@@ -1278,7 +1278,7 @@ export default function LandingPage() {
               "radial-gradient(ellipse at center, rgba(99, 102, 241, 0.14) 0%, rgba(99, 102, 241, 0.05) 40%, transparent 70%)",
           }}
         />
-        {/* Bottom corner annotation marks — bookend to the hero */}
+        {/* Bottom corner annotation marks, bookend to the hero */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 bottom-20 hidden justify-between px-6 text-muted-foreground/25 sm:flex"
@@ -1288,7 +1288,7 @@ export default function LandingPage() {
         </div>
 
         <div className="relative mx-auto max-w-2xl text-center">
-          {/* End-of-receipt marker — echoes the hero receipt */}
+          {/* End-of-receipt marker, echoes the hero receipt */}
           <div className="mb-8 flex items-center justify-center gap-3 font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
             <span
               aria-hidden="true"
@@ -1349,7 +1349,7 @@ export default function LandingPage() {
             </Link>
           </div>
 
-          {/* Receipt-style footer line — timestamp + hash, echoes the hero receipt */}
+          {/* Receipt-style footer line, timestamp + hash, echoes the hero receipt */}
           <div className="mt-14 flex flex-col items-center gap-2 font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground/70">
             <div className="flex items-center gap-3">
               <span

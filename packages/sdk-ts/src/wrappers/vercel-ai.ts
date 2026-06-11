@@ -32,7 +32,7 @@ export function wrapVercelAI<T extends VercelAIFunctions>(
   ingest: IngestClient,
   options?: WrapperOptions,
 ): WrappedVercelAI<T> {
-  const sessionId = options?.sessionName ? randomUUID() : randomUUID();
+  const sessionId = randomUUID();
   const sessionName = options?.sessionName;
 
   function send(
@@ -42,9 +42,6 @@ export function wrapVercelAI<T extends VercelAIFunctions>(
     durationMs: number,
     metadata?: Record<string, unknown>,
   ): void {
-    if (!sessionId) {
-      console.warn("[AgentReceipt] Missing sessionId, skipping ingest.");
-    }
     ingest
       .send({
         sessionId,

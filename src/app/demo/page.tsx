@@ -211,7 +211,7 @@ export default function DemoPage() {
           </div>
         </Card>
 
-        {/* Decision Context — collapsible */}
+        {/* Decision Context, collapsible */}
         <div className="mt-6">
           <DemoContextCard context={DEMO_SESSION_CONTEXT} />
         </div>

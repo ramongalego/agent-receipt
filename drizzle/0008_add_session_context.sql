@@ -1,1 +1,1 @@
-ALTER TABLE "agent_sessions" ADD COLUMN "context" jsonb;
+ALTER TABLE "agent_sessions" ADD COLUMN IF NOT EXISTS "context" jsonb;

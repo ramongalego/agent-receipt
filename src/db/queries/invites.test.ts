@@ -244,7 +244,11 @@ describe("invite queries", () => {
         },
       ]);
 
-      const result = await acceptInvite("abc123", "new-user");
+      const result = await acceptInvite(
+        "abc123",
+        "new-user",
+        "user@example.com",
+      );
 
       expect(result).not.toBeNull();
       expect(mockUpdate).toHaveBeenCalled();
@@ -256,6 +260,60 @@ describe("invite queries", () => {
       expect(memberValues.userId).toBe("new-user");
       expect(memberValues.role).toBe("viewer");
       expect(memberValues.invitedBy).toBe("inviter-1");
+    });
+
+    it("rejects when the user's email does not match the invite", async () => {
+      mockThen.mockImplementation((cb: (rows: unknown[]) => unknown) =>
+        Promise.resolve(
+          cb([
+            {
+              id: "inv-1",
+              teamId: "team-1",
+              email: "invited@example.com",
+              role: "viewer",
+              token: "abc123",
+              invitedBy: "inviter-1",
+              acceptedAt: null,
+              expiresAt: new Date("2030-01-01"),
+              teamName: "Test Team",
+            },
+          ]),
+        ),
+      );
+
+      const result = await acceptInvite(
+        "abc123",
+        "new-user",
+        "other@example.com",
+      );
+
+      expect(result).toBeNull();
+      expect(mockInsert).not.toHaveBeenCalled();
+    });
+
+    it("rejects when the user has no email address", async () => {
+      mockThen.mockImplementation((cb: (rows: unknown[]) => unknown) =>
+        Promise.resolve(
+          cb([
+            {
+              id: "inv-1",
+              teamId: "team-1",
+              email: "invited@example.com",
+              role: "viewer",
+              token: "abc123",
+              invitedBy: "inviter-1",
+              acceptedAt: null,
+              expiresAt: new Date("2030-01-01"),
+              teamName: "Test Team",
+            },
+          ]),
+        ),
+      );
+
+      const result = await acceptInvite("abc123", "new-user", null);
+
+      expect(result).toBeNull();
+      expect(mockInsert).not.toHaveBeenCalled();
     });
   });
 });

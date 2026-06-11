@@ -202,6 +202,40 @@ describe("wrapMistral", () => {
       expect(payload.event.input).toEqual([{ role: "user", content: "Hi" }]);
     });
 
+    it("still sends one event when the consumer breaks out early", async () => {
+      const ingest = createMockIngest();
+      const events = [
+        { data: { choices: [{ delta: { content: "Hello " } }] } },
+        { data: { choices: [{ delta: { content: "world" } }] } },
+      ];
+
+      async function* fakeStream() {
+        for (const event of events) {
+          yield event;
+        }
+      }
+
+      const mockStream = jest.fn().mockResolvedValue(fakeStream());
+      const client = { chat: { complete: jest.fn(), stream: mockStream } };
+      const wrapped = wrapMistral(client, ingest);
+
+      const stream = await wrapped.chat.stream({
+        model: "mistral-large-latest",
+        messages: [{ role: "user", content: "Hi" }],
+      });
+
+      for await (const event of stream as AsyncIterable<unknown>) {
+        void event;
+        break;
+      }
+      await tick();
+
+      expect(ingest.send).toHaveBeenCalledTimes(1);
+      const payload = (ingest.send as jest.Mock).mock.calls[0][0];
+      expect(payload.event.type).toBe("llm_call");
+      expect(payload.event.output).toBe("Hello ");
+    });
+
     it("yields all original events unchanged", async () => {
       const ingest = createMockIngest();
       const events = [

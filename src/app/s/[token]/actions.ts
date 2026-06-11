@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { db } from "@/db";
 import { events, agentSessions } from "@/db/schema";
 import { getPayload } from "@/lib/r2";
@@ -14,8 +14,11 @@ export async function fetchPublicEventPayload(
     .select({ id: events.id, compliance: events.compliance })
     .from(events)
     .innerJoin(agentSessions, eq(agentSessions.id, events.sessionId))
-    .where(eq(agentSessions.shareToken, shareToken))
-    .then((rows) => rows.find((r) => r.id === eventId) ?? null);
+    .where(
+      and(eq(events.id, eventId), eq(agentSessions.shareToken, shareToken)),
+    )
+    .limit(1)
+    .then((rows) => rows[0] ?? null);
 
   if (!row) {
     return { error: "Event not found.", code: "NOT_FOUND" };

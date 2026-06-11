@@ -23,8 +23,9 @@ const ERROR_MESSAGES: Record<string, { title: string; description: string }> = {
 };
 
 const DEFAULT_ERROR = {
-  title: "Something went wrong",
-  description: "An error occurred during sign in. Try again.",
+  title: "Sign in did not complete",
+  description:
+    "Something interrupted the sign-in. Go back and try again. If it keeps failing, contact support.",
 };
 
 function ErrorContent() {

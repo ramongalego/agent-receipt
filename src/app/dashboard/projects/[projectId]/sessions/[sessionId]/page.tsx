@@ -194,7 +194,7 @@ export default async function SessionDetailPage({
 
         <AnchorTrigger shouldAnchor={shouldAnchor} sessionId={sessionId} />
 
-        {/* Receipt Summary — only shown for complete/error sessions */}
+        {/* Receipt Summary, only shown for complete/error sessions */}
         {status !== "running" && (
           <Card>
             <div className="px-5 py-4">
@@ -222,25 +222,14 @@ export default async function SessionDetailPage({
             <div className="border-t border-border px-5 pb-5 pt-4">
               <ReceiptSummary
                 sessionId={sessionId}
-                sessionName={agentSession.name}
                 existingSummary={agentSession.summary}
                 autoGenerate={status === "complete" && !agentSession.summary}
-                events={events.map((e) => ({
-                  id: e.id,
-                  type: e.type,
-                  name: e.name,
-                  durationMs: e.durationMs,
-                  metadata: e.metadata as
-                    | Record<string, unknown>
-                    | null
-                    | undefined,
-                }))}
               />
             </div>
           </Card>
         )}
 
-        {/* Decision Context — collapsible, shown when session has context */}
+        {/* Decision Context, collapsible, shown when session has context */}
         {agentSession.context && (
           <div className="mt-6">
             <CollapsibleContextCard context={agentSession.context} />

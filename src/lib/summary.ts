@@ -42,33 +42,26 @@ function generateFallbackSummary(
 
 /**
  * Generate a summary for a session and persist it.
- * Can be called from the dashboard (with pre-fetched events) or from
- * the ingest handler (events fetched from DB).
+ * Events, payloads, and the session name are always fetched server-side.
+ * Callers must verify the caller's access to the session first.
  */
 export async function generateAndStoreSummary(
   sessionId: string,
-  sessionName?: string | null,
-  events?: SummaryEvent[],
 ): Promise<string> {
-  // Fetch session name from DB if not provided
-  const name: string | null =
-    sessionName ??
-    (await db
-      .select({ name: agentSessions.name })
-      .from(agentSessions)
-      .where(eq(agentSessions.id, sessionId))
-      .limit(1)
-      .then((rows) => rows[0]?.name ?? null));
+  const name: string | null = await db
+    .select({ name: agentSessions.name })
+    .from(agentSessions)
+    .where(eq(agentSessions.id, sessionId))
+    .limit(1)
+    .then((rows) => rows[0]?.name ?? null);
 
-  const eventList =
-    events ??
-    (await getEventsBySession(sessionId)).map((e) => ({
-      id: e.id,
-      type: e.type,
-      name: e.name,
-      durationMs: e.durationMs,
-      metadata: e.metadata as Record<string, unknown> | null,
-    }));
+  const eventList = (await getEventsBySession(sessionId)).map((e) => ({
+    id: e.id,
+    type: e.type,
+    name: e.name,
+    durationMs: e.durationMs,
+    metadata: e.metadata as Record<string, unknown> | null,
+  }));
 
   const filtered = eventList.filter((e) => e.name !== "session.end");
 

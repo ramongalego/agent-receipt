@@ -74,7 +74,7 @@ describe("POST /api/anchor-session", () => {
       ownerId: "user-1",
       createdAt: new Date(),
     });
-    // DB returns no rows — session not found in team
+    // DB returns no rows, session not found in team
     mockDbThen.mockImplementation((fn: (rows: unknown[]) => unknown) =>
       Promise.resolve(fn([])),
     );

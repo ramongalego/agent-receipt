@@ -212,7 +212,16 @@ export const events = pgTable(
     }>(),
     timestamp: timestamp("timestamp", { mode: "date" }).defaultNow().notNull(),
   },
-  (table) => [index("events_session_id_idx").on(table.sessionId)],
+  (table) => [
+    index("events_session_id_idx").on(table.sessionId),
+    // Supports the previous-hash lookup on ingest and the timeline query,
+    // both of which order by (timestamp, id) within a session.
+    index("events_session_id_timestamp_id_idx").on(
+      table.sessionId,
+      table.timestamp,
+      table.id,
+    ),
+  ],
 );
 
 // Feedback

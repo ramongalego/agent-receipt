@@ -109,7 +109,7 @@ describe("POST /api/sessions/[sessionId]/share", () => {
       ok: true,
       value: { projectId: "project-1", keyId: "key-1" },
     });
-    // DB returns no rows — session not in this project
+    // DB returns no rows, session not in this project
     mockDbThen.mockImplementation((fn: (rows: unknown[]) => unknown) =>
       Promise.resolve(fn([])),
     );

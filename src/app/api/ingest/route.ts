@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Check usage limits — find the team owner for billing
+  // Check usage limits, find the team owner for billing
   const projectRow = await db
     .select({ ownerId: teams.ownerId })
     .from(projects)

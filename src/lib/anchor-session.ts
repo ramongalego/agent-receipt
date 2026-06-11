@@ -98,8 +98,13 @@ export async function anchorSessionIfEligible(
         .update(agentSessions)
         .set({ rekorStatus: "failed" })
         .where(eq(agentSessions.id, sessionId));
-    } catch {
-      // Swallow DB update error in cleanup
+    } catch (dbErr) {
+      // The session stays in an ambiguous anchor state. Log it so the
+      // stuck state is at least traceable.
+      console.error(
+        `[rekor] Could not mark session ${sessionId} as failed:`,
+        dbErr,
+      );
     }
   }
 }

@@ -184,6 +184,44 @@ describe("wrapGemini", () => {
       expect(payload.event.input).toBe("Why is the sky blue?");
     });
 
+    it("still sends one event when the consumer breaks out early", async () => {
+      const ingest = createMockIngest();
+      const chunks = [{ text: "The sky " }, { text: "is blue." }];
+
+      async function* fakeStream() {
+        for (const chunk of chunks) {
+          yield chunk;
+        }
+      }
+
+      const mockGenerateContentStream = jest
+        .fn()
+        .mockResolvedValue(fakeStream());
+      const client = {
+        models: {
+          generateContent: jest.fn(),
+          generateContentStream: mockGenerateContentStream,
+        },
+      };
+      const wrapped = wrapGemini(client, ingest);
+
+      const stream = await wrapped.models.generateContentStream({
+        model: "gemini-2.5-flash",
+        contents: "Why is the sky blue?",
+      });
+
+      for await (const chunk of stream as AsyncIterable<unknown>) {
+        void chunk;
+        break;
+      }
+      await tick();
+
+      expect(ingest.send).toHaveBeenCalledTimes(1);
+      const payload = (ingest.send as jest.Mock).mock.calls[0][0];
+      expect(payload.event.type).toBe("llm_call");
+      expect(payload.event.output).toBe("The sky ");
+    });
+
     it("yields all original chunks unchanged", async () => {
       const ingest = createMockIngest();
       const chunks = [

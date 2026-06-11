@@ -95,7 +95,7 @@ export default async function InvitePage({
   }
 
   if (
-    session.user.email &&
+    !session.user.email ||
     invite.email.toLowerCase() !== session.user.email.toLowerCase()
   ) {
     return (
@@ -118,11 +118,19 @@ export default async function InvitePage({
           <p className="mt-3 text-sm text-muted-foreground">
             This invite was sent to{" "}
             <span className="font-medium text-foreground">{invite.email}</span>.
-            You are signed in as{" "}
-            <span className="font-medium text-foreground">
-              {session.user.email}
-            </span>
-            . Sign in with the invited address to accept.
+            {session.user.email ? (
+              <>
+                {" "}
+                You are signed in as{" "}
+                <span className="font-medium text-foreground">
+                  {session.user.email}
+                </span>
+                .
+              </>
+            ) : (
+              <> Your account has no email address on file.</>
+            )}{" "}
+            Sign in with the invited address to accept.
           </p>
         </div>
         <div className="flex justify-center">
@@ -137,6 +145,6 @@ export default async function InvitePage({
     );
   }
 
-  await acceptInvite(token, session.user.id!);
+  await acceptInvite(token, session.user.id!, session.user.email);
   redirect("/dashboard");
 }

@@ -92,7 +92,7 @@ export async function generateShareToken(
   // Return existing token if one already exists (idempotent)
   if (session.shareToken) return session.shareToken;
 
-  const token = crypto.randomBytes(24).toString("base64url");
+  const token = crypto.randomBytes(32).toString("base64url");
 
   await db
     .update(agentSessions)

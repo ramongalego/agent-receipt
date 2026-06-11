@@ -76,7 +76,11 @@ function SignInForm() {
         }}
         className="space-y-3"
       >
+        <label htmlFor="sign-in-email" className="sr-only">
+          Email address
+        </label>
         <input
+          id="sign-in-email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}

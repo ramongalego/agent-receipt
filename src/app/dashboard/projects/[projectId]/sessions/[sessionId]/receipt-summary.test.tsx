@@ -10,11 +10,6 @@ jest.mock("./actions", () => ({
 const mockGenerateSessionSummary = generateSessionSummary as jest.Mock;
 
 describe("ReceiptSummary", () => {
-  const events = [
-    { id: "evt_1", type: "llm_call", name: "Parse invoice", durationMs: 2340 },
-    { id: "evt_2", type: "tool_call", name: "Look up vendor", durationMs: 180 },
-  ];
-
   beforeEach(() => {
     mockGenerateSessionSummary.mockClear();
   });
@@ -23,10 +18,8 @@ describe("ReceiptSummary", () => {
     render(
       <ReceiptSummary
         sessionId="s_1"
-        sessionName="Process invoice #441"
         existingSummary="The agent processed an invoice."
         autoGenerate={false}
-        events={events}
       />,
     );
 
@@ -41,10 +34,8 @@ describe("ReceiptSummary", () => {
     render(
       <ReceiptSummary
         sessionId="s_1"
-        sessionName={null}
         existingSummary={null}
         autoGenerate={false}
-        events={events}
       />,
     );
 
@@ -59,17 +50,13 @@ describe("ReceiptSummary", () => {
     render(
       <ReceiptSummary
         sessionId="s_1"
-        sessionName="Process invoice"
         existingSummary={null}
         autoGenerate={true}
-        events={events}
       />,
     );
 
-    expect(mockGenerateSessionSummary).toHaveBeenCalledWith(
-      "s_1",
-      "Process invoice",
-      events,
-    );
+    // Only the session id crosses the client boundary. Events are fetched
+    // server-side by the action.
+    expect(mockGenerateSessionSummary).toHaveBeenCalledWith("s_1");
   });
 });

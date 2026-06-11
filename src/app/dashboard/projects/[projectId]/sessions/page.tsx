@@ -45,7 +45,7 @@ export default async function SessionsListPage({
   }
 
   function formatDuration(start: Date, end: Date | string | null) {
-    if (!end) return "—";
+    if (!end) return "-";
     const endDate = end instanceof Date ? end : new Date(end);
     const ms = endDate.getTime() - new Date(start).getTime();
     if (ms < 1000) return `${ms}ms`;

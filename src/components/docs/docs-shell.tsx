@@ -282,7 +282,7 @@ export function DocsShell({ children }: DocsShellProps) {
             <div className="mx-auto max-w-3xl">{children}</div>
           </main>
 
-          {/* On this page (desktop only) — always rendered to avoid layout shift */}
+          {/* On this page (desktop only), always rendered to avoid layout shift */}
           <aside className="hidden w-52 shrink-0 xl:block">
             <div className="sticky top-[65px] h-[calc(100vh-65px)] overflow-y-auto p-6 pt-10">
               {tocItems.length > 0 && (

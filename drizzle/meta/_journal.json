@@ -64,6 +64,13 @@
       "when": 1774828800000,
       "tag": "0008_add_session_context",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1774915200000,
+      "tag": "0009_add_events_composite_index",
+      "breakpoints": true
     }
   ]
 }

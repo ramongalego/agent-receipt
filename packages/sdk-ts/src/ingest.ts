@@ -84,6 +84,11 @@ export function createIngestClient(
           // Never throw from background flush
         });
       }, FLUSH_INTERVAL_MS);
+      // In Node a pending timer keeps the process alive. Unref it so a
+      // short-lived script can exit. Browsers return a number, no unref.
+      if (typeof flushTimer === "object" && flushTimer !== null) {
+        flushTimer.unref?.();
+      }
     }
 
     return { ok: true, value: "queued" };

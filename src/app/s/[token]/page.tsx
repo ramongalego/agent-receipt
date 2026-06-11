@@ -235,7 +235,7 @@ export default async function SharedReceiptPage({ params }: PageProps) {
           </Card>
         )}
 
-        {/* Decision Context — collapsible */}
+        {/* Decision Context, collapsible */}
         {session.context && (
           <div className="mt-6">
             <CollapsibleContextCard context={session.context} />

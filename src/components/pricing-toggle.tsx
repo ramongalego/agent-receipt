@@ -164,7 +164,7 @@ export function PricingCards({ plans }: PricingCardsProps) {
         })}
       </div>
 
-      {/* Enterprise — horizontal banner, sits outside the plan grid */}
+      {/* Enterprise, horizontal banner, sits outside the plan grid */}
       <div className="mt-6 rounded-2xl border border-border bg-card p-6 md:p-8">
         <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
           <div className="min-w-0 flex-1">

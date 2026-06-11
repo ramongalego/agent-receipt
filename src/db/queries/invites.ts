@@ -46,9 +46,19 @@ export async function getInviteByToken(token: string) {
   return invite;
 }
 
-export async function acceptInvite(token: string, userId: string) {
+export async function acceptInvite(
+  token: string,
+  userId: string,
+  userEmail: string | null | undefined,
+) {
   const invite = await getInviteByToken(token);
   if (!invite) return null;
+
+  // The invite is bound to an email address. Enforce the match here, not
+  // only in the page, so no caller can accept an invite for someone else.
+  if (!userEmail || invite.email.toLowerCase() !== userEmail.toLowerCase()) {
+    return null;
+  }
 
   await db
     .update(inviteTokens)

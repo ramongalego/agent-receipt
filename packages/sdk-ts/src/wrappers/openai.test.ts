@@ -173,6 +173,45 @@ describe("wrapOpenAI", () => {
     expect(payload.event.output).toEqual({ chunks });
   });
 
+  it("still sends one event when the consumer breaks out of the stream early", async () => {
+    const ingest = createMockIngest();
+    const chunks = [
+      { choices: [{ delta: { content: "Hel" } }] },
+      { choices: [{ delta: { content: "lo" } }] },
+      { choices: [{ delta: { content: "!" } }] },
+    ];
+
+    async function* fakeStream() {
+      for (const chunk of chunks) {
+        yield chunk;
+      }
+    }
+
+    const mockCreate = jest.fn().mockResolvedValue(fakeStream());
+    const client = { chat: { completions: { create: mockCreate } } };
+    const wrapped = wrapOpenAI(client, ingest);
+
+    const stream = await wrapped.chat.completions.create({
+      model: "gpt-4o",
+      messages: [],
+      stream: true,
+    });
+
+    // Consume only the first chunk, then break
+    for await (const chunk of stream as AsyncIterable<unknown>) {
+      void chunk;
+      break;
+    }
+
+    await tick();
+
+    expect(ingest.send).toHaveBeenCalledTimes(1);
+    const payload = (ingest.send as jest.Mock).mock.calls[0][0];
+    expect(payload.event.type).toBe("llm_call");
+    expect(payload.event.output).toEqual({ chunks: [chunks[0]] });
+    expect(payload.event.metadata).toEqual({ streamEndedEarly: true });
+  });
+
   describe("tool use", () => {
     it("captures one llm_call and one tool_call for a single tool call", async () => {
       const ingest = createMockIngest();

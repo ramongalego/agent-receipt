@@ -149,31 +149,36 @@ export function wrapMistral<T extends object>(
 
                 async function* wrapped(): AsyncGenerator<unknown> {
                   const textChunks: string[] = [];
-                  for await (const event of originalIterable) {
-                    const evt = event as {
-                      data?: {
-                        choices?: { delta?: { content?: string } }[];
+                  // Send in finally so the event is recorded even when the
+                  // consumer breaks out of the stream early.
+                  try {
+                    for await (const event of originalIterable) {
+                      const evt = event as {
+                        data?: {
+                          choices?: { delta?: { content?: string } }[];
+                        };
                       };
-                    };
-                    textChunks.push(
-                      evt.data?.choices?.[0]?.delta?.content ?? "",
-                    );
-                    yield event;
+                      textChunks.push(
+                        evt.data?.choices?.[0]?.delta?.content ?? "",
+                      );
+                      yield event;
+                    }
+                  } finally {
+                    const durationMs = Date.now() - start;
+                    ingest
+                      .send({
+                        sessionId,
+                        sessionName,
+                        event: {
+                          type: "llm_call",
+                          name: modelName,
+                          input: params.messages,
+                          output: textChunks.join(""),
+                          durationMs,
+                        },
+                      })
+                      .catch(() => {});
                   }
-                  const durationMs = Date.now() - start;
-                  ingest
-                    .send({
-                      sessionId,
-                      sessionName,
-                      event: {
-                        type: "llm_call",
-                        name: modelName,
-                        input: params.messages,
-                        output: textChunks.join(""),
-                        durationMs,
-                      },
-                    })
-                    .catch(() => {});
                 }
 
                 return wrapped();

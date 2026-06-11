@@ -65,7 +65,7 @@ jest.mock("./api-key", () => ({
 }));
 
 jest.mock("@/db/queries/api-keys", () => ({
-  updateApiKeyLastUsed: jest.fn(),
+  updateApiKeyLastUsed: jest.fn().mockResolvedValue(undefined),
 }));
 
 import { insertSystemErrorEvent, processIngestEvent } from "./ingest";

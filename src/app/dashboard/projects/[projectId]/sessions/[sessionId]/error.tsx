@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 
 export default function SessionDetailError({
-  error,
   reset,
 }: {
   error: Error;
@@ -12,10 +11,10 @@ export default function SessionDetailError({
   return (
     <div className="flex min-h-[50vh] flex-col items-center justify-center p-6">
       <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-        Failed to load session
+        We couldn&apos;t load this session
       </h2>
       <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-        {error.message || "Something went wrong. Try again."}
+        Try again. If it keeps failing, email support@agentreceipt.co.
       </p>
       <Button onClick={reset} variant="secondary" className="mt-4">
         Try again

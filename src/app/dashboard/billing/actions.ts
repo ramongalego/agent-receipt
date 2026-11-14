@@ -36,7 +36,10 @@ export async function createCheckoutSession(
 ) {
   const session = await auth();
   if (!session?.user?.id) {
-    return { error: "Not authenticated.", code: "UNAUTHORIZED" };
+    return {
+      error: "You're signed out. Sign in and try again.",
+      code: "UNAUTHORIZED",
+    };
   }
 
   const priceId =
@@ -46,7 +49,10 @@ export async function createCheckoutSession(
       : undefined;
 
   if (!priceId) {
-    return { error: "Invalid plan.", code: "INVALID_PRICE_ID" };
+    return {
+      error: "That plan isn't available. Refresh the page and try again.",
+      code: "INVALID_PRICE_ID",
+    };
   }
 
   const user = await db
@@ -100,7 +106,10 @@ export async function createCheckoutSession(
 export async function createPortalSession() {
   const session = await auth();
   if (!session?.user?.id) {
-    return { error: "Not authenticated.", code: "UNAUTHORIZED" };
+    return {
+      error: "You're signed out. Sign in and try again.",
+      code: "UNAUTHORIZED",
+    };
   }
 
   const user = await db

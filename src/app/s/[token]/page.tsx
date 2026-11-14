@@ -25,7 +25,7 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${result.session.name || "Untitled session"} · AgentReceipt`,
+    title: result.session.name || "Untitled session",
     description: `AI agent receipt shared by ${result.session.teamName}. View the full audit trail of every action.`,
   };
 }
@@ -172,17 +172,19 @@ export default async function SharedReceiptPage({ params }: PageProps) {
                 >
                   {status}
                 </Badge>
-                <span className="text-muted-foreground/40">|</span>
-                <span className="text-xs text-muted-foreground/70">
+                <span aria-hidden="true" className="text-muted-foreground">
+                  |
+                </span>
+                <span className="text-xs text-muted-foreground">
                   {session.projectName}
                 </span>
-                <span className="text-xs text-muted-foreground/70">
-                  {events.length} events
+                <span className="text-xs text-muted-foreground">
+                  {events.length} event{events.length !== 1 ? "s" : ""}
                 </span>
-                <span className="text-xs text-muted-foreground/70">
+                <span className="text-xs text-muted-foreground">
                   {formatDuration(totalDuration)} total
                 </span>
-                <span className="text-xs text-muted-foreground/70">
+                <span className="text-xs text-muted-foreground">
                   {session.startedAt.toLocaleDateString(undefined, {
                     year: "numeric",
                     month: "short",
@@ -268,15 +270,13 @@ export default async function SharedReceiptPage({ params }: PageProps) {
             events={events.map((e) => ({
               ...e,
               metadata: e.metadata as
-                | Record<string, unknown>
-                | null
-                | undefined,
+                Record<string, unknown> | null | undefined,
               compliance: e.compliance ?? null,
             }))}
           />
         </Card>
 
-        <p className="mt-8 text-xs text-muted-foreground/60">
+        <p className="mt-8 max-w-[65ch] text-pretty text-xs text-muted-foreground">
           Event metadata and hash records are immutable. Raw payload content is
           stored separately and can be deleted on request to comply with GDPR
           Article 17.

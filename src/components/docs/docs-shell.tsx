@@ -279,7 +279,9 @@ export function DocsShell({ children }: DocsShellProps) {
             className="min-w-0 flex-1 px-6 py-10 sm:px-8 lg:px-12"
             ref={contentRef}
           >
-            <div className="mx-auto max-w-3xl">{children}</div>
+            <div className="mx-auto max-w-3xl [&_li]:max-w-[65ch] [&_p]:max-w-[65ch] [&_li]:text-pretty [&_p]:text-pretty">
+              {children}
+            </div>
           </main>
 
           {/* On this page (desktop only), always rendered to avoid layout shift */}

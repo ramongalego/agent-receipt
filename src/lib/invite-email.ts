@@ -11,7 +11,7 @@ export async function sendInviteEmail(
   const inviteUrl = `${appUrl}/invite/${token}`;
 
   await resend.emails.send({
-    from: process.env.EMAIL_FROM ?? "AgentReceipt <noreply@agentreceipt.dev>",
+    from: process.env.EMAIL_FROM ?? "AgentReceipt <noreply@agentreceipt.co>",
     to: email,
     subject: `You've been invited to ${teamName} on AgentReceipt`,
     text: `You've been invited to join the "${teamName}" workspace on AgentReceipt.

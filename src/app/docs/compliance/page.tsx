@@ -23,8 +23,8 @@ export default function CompliancePage() {
       <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
         Article 19 of the EU AI Act requires providers of high-risk AI systems
         to retain automatically generated logs for a minimum of six months. The
-        logs must be sufficient to reconstruct what the system did and why.
-        Enforcement begins in August 2026.
+        logs must be sufficient to reconstruct what the system did and why. It
+        applies from August 2026.
       </p>
       <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
         AgentReceipt stores events in an append-only database with configurable

@@ -165,7 +165,7 @@ function UpgradeModal({ onClose }: { onClose: () => void }) {
                 key={plan.name}
                 className={`flex flex-col rounded-xl border p-6 ${
                   plan.highlighted
-                    ? "border-indigo-400/50 bg-gradient-to-b from-indigo-50 to-card ring-1 ring-indigo-400/20 dark:border-indigo-500/40 dark:from-indigo-950/20 dark:to-card dark:ring-indigo-500/10"
+                    ? "border-indigo-500/50 dark:border-indigo-500/40"
                     : "border-border"
                 }`}
               >
@@ -251,7 +251,7 @@ function UpgradeModal({ onClose }: { onClose: () => void }) {
               </li>
             </ul>
             <a
-              href="mailto:sales@agentreceipt.com"
+              href="mailto:sales@agentreceipt.co"
               className="mt-6 block w-full rounded-lg border border-border py-2.5 text-center text-sm font-semibold text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
             >
               Contact sales

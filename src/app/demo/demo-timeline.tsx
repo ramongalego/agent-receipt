@@ -25,10 +25,10 @@ const eventTypeBadge: Record<string, EventTypeBadgeVariant> = {
 };
 
 const eventTypeLabel: Record<string, string> = {
-  llm_call: "LLM Call",
-  tool_call: "Tool Call",
+  llm_call: "LLM call",
+  tool_call: "Tool call",
   decision: "Decision",
-  context_change: "Context Changed",
+  context_change: "Context change",
 };
 
 const STRING_LIMIT = 500;

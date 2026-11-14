@@ -47,7 +47,10 @@ async function verifySessionAccess(
 export async function fetchEventPayload(eventId: string) {
   const session = await auth();
   if (!session?.user?.id) {
-    return { error: "Not authenticated.", code: "UNAUTHORIZED" };
+    return {
+      error: "You're signed out. Sign in and try again.",
+      code: "UNAUTHORIZED",
+    };
   }
 
   const team = await getUserTeam(session.user.id);
@@ -73,7 +76,10 @@ export async function generateSessionSummary(
 ): Promise<{ summary: string } | { error: string; code: string }> {
   const session = await auth();
   if (!session?.user?.id) {
-    return { error: "Not authenticated.", code: "UNAUTHORIZED" };
+    return {
+      error: "You're signed out. Sign in and try again.",
+      code: "UNAUTHORIZED",
+    };
   }
 
   const team = await getUserTeam(session.user.id);
@@ -96,7 +102,7 @@ export async function retryRekorAnchor(
 ): Promise<{ error?: string }> {
   const session = await auth();
   if (!session?.user?.id) {
-    return { error: "Not authenticated." };
+    return { error: "You're signed out. Sign in and try again." };
   }
 
   const team = await getUserTeam(session.user.id);
@@ -140,7 +146,7 @@ export async function generateShareLink(
 ): Promise<{ token: string; url: string } | { error: string }> {
   const session = await auth();
   if (!session?.user?.id) {
-    return { error: "Not authenticated." };
+    return { error: "You're signed out. Sign in and try again." };
   }
 
   const team = await getUserTeam(session.user.id);
@@ -159,7 +165,7 @@ export async function revokeShareLink(
 ): Promise<{ success: boolean } | { error: string }> {
   const session = await auth();
   if (!session?.user?.id) {
-    return { error: "Not authenticated." };
+    return { error: "You're signed out. Sign in and try again." };
   }
 
   const team = await getUserTeam(session.user.id);

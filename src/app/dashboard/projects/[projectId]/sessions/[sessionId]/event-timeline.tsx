@@ -25,11 +25,7 @@ type EventTimelineProps = {
 };
 
 type EventTypeBadgeVariant =
-  | "info"
-  | "default"
-  | "warning"
-  | "error"
-  | "purple";
+  "info" | "default" | "warning" | "error" | "purple";
 
 const eventTypeBadge: Record<string, EventTypeBadgeVariant> = {
   llm_call: "info",
@@ -41,12 +37,12 @@ const eventTypeBadge: Record<string, EventTypeBadgeVariant> = {
 };
 
 const eventTypeLabel: Record<string, string> = {
-  llm_call: "LLM Call",
-  tool_call: "Tool Call",
+  llm_call: "LLM call",
+  tool_call: "Tool call",
   decision: "Decision",
   error: "Error",
-  human_review: "Human Review",
-  context_change: "Context Changed",
+  human_review: "Human review",
+  context_change: "Context change",
 };
 
 const STRING_LIMIT = 500;
@@ -218,6 +214,7 @@ export function EventTimeline({ events: rawEvents }: EventTimelineProps) {
     context?: unknown;
   } | null>(null);
   const [loadingPayload, setLoadingPayload] = useState(false);
+  const [payloadFailed, setPayloadFailed] = useState(false);
   const [piiRevealed, setPiiRevealed] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<"payload" | "context">("payload");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
@@ -239,10 +236,10 @@ export function EventTimeline({ events: rawEvents }: EventTimelineProps) {
           },
         );
       } else {
-        setPayload({ input: { error: "Failed to load payload." } });
+        setPayloadFailed(true);
       }
     } catch {
-      setPayload({ input: { error: "Failed to load payload." } });
+      setPayloadFailed(true);
     } finally {
       setLoadingPayload(false);
     }
@@ -252,6 +249,7 @@ export function EventTimeline({ events: rawEvents }: EventTimelineProps) {
     if (expandedId === eventId) {
       setExpandedId(null);
       setPayload(null);
+      setPayloadFailed(false);
       return;
     }
 
@@ -259,6 +257,7 @@ export function EventTimeline({ events: rawEvents }: EventTimelineProps) {
     setExpandedId(eventId);
     setActiveTab("payload");
     setPayload(null);
+    setPayloadFailed(false);
 
     if (event && hasPii(event) && !piiRevealed.has(eventId)) {
       return;
@@ -413,6 +412,11 @@ export function EventTimeline({ events: rawEvents }: EventTimelineProps) {
                     </svg>
                     Loading payload...
                   </div>
+                ) : payloadFailed ? (
+                  <p className="text-sm text-red-600 dark:text-red-400">
+                    Couldn&apos;t load this event&apos;s input and output. Close
+                    the event and open it again to retry.
+                  </p>
                 ) : (
                   <div>
                     {payload?.context != null && (

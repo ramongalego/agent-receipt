@@ -6,7 +6,8 @@ export default function SettingsError() {
       <div className="mx-auto max-w-xl">
         <h1 className="mb-4 text-2xl font-bold text-foreground">Settings</h1>
         <p className="text-sm text-muted-foreground">
-          Something went wrong loading settings. Try refreshing the page.
+          We couldn&apos;t load settings. Refresh the page. If it keeps failing,
+          email support@agentreceipt.co.
         </p>
       </div>
     </div>

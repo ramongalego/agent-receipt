@@ -161,14 +161,14 @@ export default function DemoPage() {
               </h1>
               <div className="mt-3 flex flex-wrap items-center gap-3">
                 <Badge variant="success">complete</Badge>
-                <span className="text-muted-foreground/40">|</span>
-                <span className="text-xs text-muted-foreground/70">
-                  4 events
+                <span aria-hidden="true" className="text-muted-foreground">
+                  |
                 </span>
-                <span className="text-xs text-muted-foreground/70">
+                <span className="text-xs text-muted-foreground">4 events</span>
+                <span className="text-xs text-muted-foreground">
                   3.7s total
                 </span>
-                <span className="text-xs text-muted-foreground/70">
+                <span className="text-xs text-muted-foreground">
                   Mar 13, 2026, 10:00 AM
                 </span>
               </div>
@@ -205,7 +205,7 @@ export default function DemoPage() {
             </div>
           </div>
           <div className="border-t border-border px-5 pb-5 pt-4">
-            <p className="text-sm leading-relaxed text-muted-foreground">
+            <p className="max-w-[65ch] text-sm leading-relaxed text-muted-foreground">
               {DEMO_SUMMARY}
             </p>
           </div>
@@ -240,7 +240,7 @@ export default function DemoPage() {
           <DemoTimeline events={DEMO_EVENTS} />
         </Card>
 
-        <p className="mt-8 text-xs text-muted-foreground/60">
+        <p className="mt-8 max-w-[65ch] text-pretty text-xs text-muted-foreground">
           Event metadata and hash records are immutable. Raw payload content is
           stored separately and can be deleted on request to comply with GDPR
           Article 17.
@@ -249,11 +249,10 @@ export default function DemoPage() {
         {/* CTA */}
         <div className="mt-16 rounded-2xl border border-border bg-muted/50 p-10 text-center sm:p-14">
           <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
-            This is what every agent run looks like in AgentReceipt
+            Every session gets a receipt like this
           </h2>
           <p className="mx-auto mt-4 max-w-md text-sm text-muted-foreground">
-            Get a clear, tamper-proof record of every action your AI agent
-            takes. Free plan includes 100 sessions per month.
+            The Free plan includes 100 sessions a month.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link

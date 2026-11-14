@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Sign In",
+  title: "Sign in",
   description:
     "Sign in to your AgentReceipt account to view audit trails, manage projects, and configure your AI agent monitoring.",
   alternates: {

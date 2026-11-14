@@ -74,7 +74,7 @@ export function PricingCards({ plans }: PricingCardsProps) {
               className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
                 isYearly
                   ? "bg-green-600 text-white dark:bg-green-500"
-                  : "bg-green-600/10 text-green-600 dark:bg-green-500/15 dark:text-green-400"
+                  : "bg-green-600/10 text-green-700 dark:bg-green-500/15 dark:text-green-400"
               }`}
             >
               Save 20%
@@ -92,17 +92,12 @@ export function PricingCards({ plans }: PricingCardsProps) {
               key={plan.name}
               className={`relative flex flex-col rounded-2xl border p-8 ${
                 plan.highlighted
-                  ? "border-indigo-400/50 bg-gradient-to-b from-indigo-50 to-card shadow-md ring-1 ring-indigo-400/20 dark:border-indigo-500/40 dark:from-indigo-950/20 dark:to-card dark:shadow-[0_0_40px_-12px_rgba(99,102,241,0.15)] dark:ring-indigo-500/10"
+                  ? "border-indigo-500/50 bg-card dark:border-indigo-500/40"
                   : "border-border bg-card"
               }`}
             >
-              {plan.highlighted && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-indigo-500 px-4 py-1 text-xs font-semibold text-white">
-                  Most popular
-                </span>
-              )}
               <h3 className="text-lg font-semibold">{plan.name}</h3>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="mt-1 text-pretty text-xs text-muted-foreground">
                 {plan.audience}
               </p>
               <div className="mt-4">
@@ -153,7 +148,7 @@ export function PricingCards({ plans }: PricingCardsProps) {
                 href={plan.href}
                 className={`mt-10 block w-full rounded-xl py-3 text-center text-sm font-semibold transition-colors ${
                   plan.highlighted
-                    ? "bg-indigo-500 text-white hover:bg-indigo-600"
+                    ? "bg-indigo-600 text-white hover:bg-indigo-700"
                     : "border border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground"
                 }`}
               >
@@ -170,9 +165,6 @@ export function PricingCards({ plans }: PricingCardsProps) {
           <div className="min-w-0 flex-1">
             <div className="mb-2 flex items-center gap-3">
               <h3 className="text-lg font-semibold">Enterprise</h3>
-              <span className="rounded-full border border-border bg-background/40 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-                Custom
-              </span>
             </div>
             <p className="mb-5 text-sm text-muted-foreground">
               For regulated industries and large-scale deployments.
@@ -201,16 +193,24 @@ export function PricingCards({ plans }: PricingCardsProps) {
             </ul>
           </div>
           <Link
-            href="mailto:sales@agentreceipt.com"
-            className="group inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-border bg-background/50 px-6 py-3 text-sm font-semibold text-foreground transition-all hover:border-foreground/30 hover:shadow-[0_0_0_4px_rgba(99,102,241,0.12)]"
+            href="mailto:sales@agentreceipt.co"
+            className="group inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-border px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:border-foreground/30"
           >
             Contact sales
-            <span
+            <svg
               aria-hidden="true"
-              className="inline-block transition-transform group-hover:translate-x-0.5"
+              viewBox="0 0 20 20"
+              className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
             >
-              →
-            </span>
+              <path
+                d="M4 10h12M12 6l4 4-4 4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           </Link>
         </div>
       </div>

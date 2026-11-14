@@ -88,7 +88,7 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
         return;
       }
 
-      toast.success("Thanks for your feedback!");
+      toast.success("Feedback sent. Thanks.");
       setMessage("");
       setType("feedback");
       onOpenChange(false);
@@ -142,7 +142,7 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
         <textarea
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          placeholder="Tell us what's on your mind..."
+          placeholder="What should we fix or add?"
           rows={4}
           maxLength={2000}
           className="mt-4 w-full resize-none rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"

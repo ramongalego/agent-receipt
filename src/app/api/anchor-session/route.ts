@@ -10,7 +10,10 @@ export async function POST(request: NextRequest) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json(
-      { error: "Not authenticated.", code: "UNAUTHORIZED" },
+      {
+        error: "You're signed out. Sign in and try again.",
+        code: "UNAUTHORIZED",
+      },
       { status: 401 },
     );
   }

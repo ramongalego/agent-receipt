@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
+import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { PublicNav } from "@/components/layout/public-nav";
@@ -120,7 +121,7 @@ export default function SignInPage() {
               Sign in to AgentReceipt
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Create an account or sign in to get started.
+              New here? Signing in creates your account.
             </p>
           </div>
 
@@ -129,7 +130,21 @@ export default function SignInPage() {
           </Suspense>
 
           <p className="text-center text-xs text-muted-foreground">
-            By signing in, you agree to our terms of service.
+            By signing in, you agree to our{" "}
+            <Link
+              href="/terms"
+              className="underline underline-offset-4 transition-colors hover:text-foreground"
+            >
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link
+              href="/privacy"
+              className="underline underline-offset-4 transition-colors hover:text-foreground"
+            >
+              Privacy Policy
+            </Link>
+            .
           </p>
         </div>
       </div>

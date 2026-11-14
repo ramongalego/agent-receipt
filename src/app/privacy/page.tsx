@@ -3,7 +3,7 @@ import Link from "next/link";
 import { PublicNav } from "@/components/layout/public-nav";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy · AgentReceipt",
+  title: "Privacy Policy",
   description:
     "What data AgentReceipt collects, how it is used, and what rights you have over it.",
   alternates: {
@@ -16,7 +16,7 @@ export default function PrivacyPage() {
     <div className="min-h-screen">
       <PublicNav />
 
-      <main className="mx-auto max-w-3xl px-6 py-20 sm:py-28">
+      <main className="mx-auto max-w-3xl px-6 py-20 sm:py-28 [&_li]:max-w-[65ch] [&_p]:max-w-[65ch] [&_li]:text-pretty [&_p]:text-pretty">
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
           Privacy Policy
         </h1>
@@ -297,13 +297,12 @@ export default function PrivacyPage() {
                 AgentReceipt
               </span>
               <p className="mt-3 max-w-xs text-sm text-muted-foreground">
-                Immutable audit trails for AI agent actions. AI accountability
-                starts with knowing what happened, when, and why.
+                Immutable audit trails for AI agent actions.
               </p>
             </div>
             <div className="flex gap-16">
               <div>
-                <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <p className="mb-4 text-sm font-semibold text-foreground">
                   Product
                 </p>
                 <ul className="space-y-3 text-sm text-muted-foreground">
@@ -334,7 +333,7 @@ export default function PrivacyPage() {
                 </ul>
               </div>
               <div>
-                <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <p className="mb-4 text-sm font-semibold text-foreground">
                   Company
                 </p>
                 <ul className="space-y-3 text-sm text-muted-foreground">
@@ -367,7 +366,7 @@ export default function PrivacyPage() {
             </div>
           </div>
           <div className="mt-16 border-t border-border pt-8">
-            <p className="text-xs text-muted-foreground/60">
+            <p className="text-xs text-muted-foreground">
               &copy; {new Date().getFullYear()} AgentReceipt. All rights
               reserved.
             </p>

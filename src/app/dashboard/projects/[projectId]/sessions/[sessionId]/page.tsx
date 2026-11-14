@@ -157,7 +157,7 @@ export default async function SessionDetailPage({
                 </Badge>
                 <span className="text-muted-foreground/40">|</span>
                 <span className="text-xs text-muted-foreground/70">
-                  {events.length} events
+                  {events.length} event{events.length !== 1 ? "s" : ""}
                 </span>
                 <span className="text-xs text-muted-foreground/70">
                   {formatDuration(totalDuration)} total
@@ -261,9 +261,7 @@ export default async function SessionDetailPage({
             events={events.map((e) => ({
               ...e,
               metadata: e.metadata as
-                | Record<string, unknown>
-                | null
-                | undefined,
+                Record<string, unknown> | null | undefined,
               compliance: e.compliance ?? null,
             }))}
           />

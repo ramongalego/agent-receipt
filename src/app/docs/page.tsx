@@ -3,7 +3,7 @@ import Link from "next/link";
 import { CodeBlock } from "@/components/docs/code-block";
 
 export const metadata: Metadata = {
-  title: "Documentation · AgentReceipt",
+  title: "Documentation",
   description:
     "Learn how to integrate AgentReceipt into your AI agent. Get started in five minutes.",
 };
@@ -13,7 +13,7 @@ export default function DocsPage() {
     <article>
       <h1 className="text-3xl font-bold tracking-tight">Documentation</h1>
       <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-        Everything you need to capture, store, and verify AI agent actions.
+        Install the SDK, send events and read receipts.
       </p>
 
       {/* Overview */}

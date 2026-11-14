@@ -3,7 +3,7 @@ import Link from "next/link";
 import { PublicNav } from "@/components/layout/public-nav";
 
 export const metadata: Metadata = {
-  title: "Terms of Service · AgentReceipt",
+  title: "Terms of Service",
   description: "Terms governing your use of AgentReceipt.",
   alternates: {
     canonical: "/terms",
@@ -15,7 +15,7 @@ export default function TermsPage() {
     <div className="min-h-screen">
       <PublicNav />
 
-      <main className="mx-auto max-w-3xl px-6 py-20 sm:py-28">
+      <main className="mx-auto max-w-3xl px-6 py-20 sm:py-28 [&_li]:max-w-[65ch] [&_p]:max-w-[65ch] [&_li]:text-pretty [&_p]:text-pretty">
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
           Terms of Service
         </h1>
@@ -251,13 +251,12 @@ export default function TermsPage() {
                 AgentReceipt
               </span>
               <p className="mt-3 max-w-xs text-sm text-muted-foreground">
-                Immutable audit trails for AI agent actions. AI accountability
-                starts with knowing what happened, when, and why.
+                Immutable audit trails for AI agent actions.
               </p>
             </div>
             <div className="flex gap-16">
               <div>
-                <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <p className="mb-4 text-sm font-semibold text-foreground">
                   Product
                 </p>
                 <ul className="space-y-3 text-sm text-muted-foreground">
@@ -288,7 +287,7 @@ export default function TermsPage() {
                 </ul>
               </div>
               <div>
-                <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <p className="mb-4 text-sm font-semibold text-foreground">
                   Company
                 </p>
                 <ul className="space-y-3 text-sm text-muted-foreground">
@@ -321,7 +320,7 @@ export default function TermsPage() {
             </div>
           </div>
           <div className="mt-16 border-t border-border pt-8">
-            <p className="text-xs text-muted-foreground/60">
+            <p className="text-xs text-muted-foreground">
               &copy; {new Date().getFullYear()} AgentReceipt. All rights
               reserved.
             </p>

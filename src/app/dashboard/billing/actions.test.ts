@@ -72,7 +72,7 @@ describe("createCheckoutSession", () => {
     );
 
     expect(result).toEqual({
-      error: "Invalid plan.",
+      error: "That plan isn't available. Refresh the page and try again.",
       code: "INVALID_PRICE_ID",
     });
     expect(mockStripeCheckoutCreate).not.toHaveBeenCalled();
@@ -82,7 +82,7 @@ describe("createCheckoutSession", () => {
     const result = await createCheckoutSession("pro", "weekly" as never);
 
     expect(result).toEqual({
-      error: "Invalid plan.",
+      error: "That plan isn't available. Refresh the page and try again.",
       code: "INVALID_PRICE_ID",
     });
     expect(mockStripeCheckoutCreate).not.toHaveBeenCalled();

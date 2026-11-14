@@ -69,7 +69,7 @@ function processLine(line: string): string {
   while (i < line.length) {
     // Single-line comments
     if (line[i] === "/" && line[i + 1] === "/") {
-      result += `<span class="text-zinc-500">${esc(line.slice(i))}</span>`;
+      result += `<span class="text-zinc-400">${esc(line.slice(i))}</span>`;
       break;
     }
 

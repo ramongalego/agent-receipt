@@ -133,7 +133,7 @@ describe("fetchEventPayload", () => {
     const result = await fetchEventPayload("evt_1");
 
     expect(result).toEqual({
-      error: "Not authenticated.",
+      error: "You're signed out. Sign in and try again.",
       code: "UNAUTHORIZED",
     });
   });
@@ -224,7 +224,9 @@ describe("retryRekorAnchor", () => {
 
     const result = await retryRekorAnchor("session-1");
 
-    expect(result).toEqual({ error: "Not authenticated." });
+    expect(result).toEqual({
+      error: "You're signed out. Sign in and try again.",
+    });
     expect(mockAnchorSessionIfEligible).not.toHaveBeenCalled();
   });
 
@@ -301,7 +303,9 @@ describe("generateShareLink", () => {
 
     const result = await generateShareLink("session-1");
 
-    expect(result).toEqual({ error: "Not authenticated." });
+    expect(result).toEqual({
+      error: "You're signed out. Sign in and try again.",
+    });
   });
 
   it("throws if called by a viewer (not owner)", async () => {
@@ -347,7 +351,9 @@ describe("revokeShareLink", () => {
 
     const result = await revokeShareLink("session-1");
 
-    expect(result).toEqual({ error: "Not authenticated." });
+    expect(result).toEqual({
+      error: "You're signed out. Sign in and try again.",
+    });
   });
 
   it("throws if called by a viewer", async () => {

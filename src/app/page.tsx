@@ -648,8 +648,8 @@ export default function LandingPage() {
               <p className="text-pretty text-sm leading-relaxed text-muted-foreground">
                 Article 19 requires high-risk AI systems to retain logs for at
                 least six months. AgentReceipt stores receipts with configurable
-                retention and an immutable hash chain. It applies from August
-                2026.
+                retention and an immutable hash chain. The rule applies to
+                stand-alone high-risk systems from 2 December 2027.
               </p>
             </section>
 

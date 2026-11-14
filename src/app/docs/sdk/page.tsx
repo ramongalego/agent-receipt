@@ -48,7 +48,7 @@ export default function SdkReferencePage() {
       <CodeBlock
         code={`function createClient(options: {
   apiKey: string
-  baseUrl?: string  // defaults to https://agentreceipt.io
+  baseUrl?: string  // defaults to https://agentreceipt.co
 }): AgentReceiptClient`}
       />
       <ParamTable
@@ -65,7 +65,7 @@ export default function SdkReferencePage() {
             type: "string",
             required: false,
             description:
-              "Override the API endpoint. Defaults to https://agentreceipt.io.",
+              "Override the API endpoint. Defaults to https://agentreceipt.co.",
           },
         ]}
       />

@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { eq, and } from "drizzle-orm";
+import { eq, and, asc, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { teams, teamMembers } from "@/db/schema";
 
@@ -23,6 +23,10 @@ export async function getUserTeam(userId: string): Promise<Team> {
     .from(teamMembers)
     .innerJoin(teams, eq(teams.id, teamMembers.teamId))
     .where(eq(teamMembers.userId, userId))
+    // A user can belong to more than one team (their own, plus one they were
+    // invited to). Pick the same one on every request: a team they own first,
+    // then the oldest.
+    .orderBy(sql`${teams.ownerId} = ${userId} desc`, asc(teams.createdAt))
     .limit(1)
     .then((rows) => rows[0] ?? null);
 

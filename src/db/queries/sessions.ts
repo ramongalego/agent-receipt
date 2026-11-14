@@ -3,6 +3,18 @@ import { eq, and, desc, asc, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { agentSessions, events, projects, teams } from "@/db/schema";
 
+/** The project a session belongs to, or null if the session doesn't exist. */
+export async function getSessionProjectId(
+  sessionId: string,
+): Promise<string | null> {
+  const rows = await db
+    .select({ projectId: agentSessions.projectId })
+    .from(agentSessions)
+    .where(eq(agentSessions.id, sessionId))
+    .limit(1);
+  return rows[0]?.projectId ?? null;
+}
+
 export async function getSessionsByProject(projectId: string, limit?: number) {
   let query = db
     .select({

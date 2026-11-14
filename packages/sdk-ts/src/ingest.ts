@@ -15,7 +15,19 @@ export function createIngestClient(
   const queue: IngestPayload[] = [];
   let flushTimer: ReturnType<typeof setTimeout> | null = null;
 
-  async function flush(): Promise<Result<string>> {
+  // Flushes run one after another. Without this, a timer flush could still
+  // be sending when a batch-size flush or end() started a second loop, so
+  // events (and session.end) reached the server out of order and two events
+  // could chain onto the same previous hash.
+  let inFlight: Promise<unknown> = Promise.resolve();
+
+  function flush(): Promise<Result<string>> {
+    const run = inFlight.then(drain, drain);
+    inFlight = run;
+    return run;
+  }
+
+  async function drain(): Promise<Result<string>> {
     if (flushTimer) {
       clearTimeout(flushTimer);
       flushTimer = null;

@@ -21,9 +21,15 @@ jest.mock("@/db", () => {
   selectChain.where.mockReturnValue(selectChain);
   selectChain.orderBy.mockReturnValue(selectChain);
 
+  // values() is awaited directly for event rows and chained with
+  // onConflictDoNothing() for the session row.
+  const values = (...args: unknown[]) => {
+    const result = Promise.resolve(mockValues(...args));
+    return Object.assign(result, { onConflictDoNothing: () => result });
+  };
   const insertChain = {
     insert: jest.fn(),
-    values: mockValues,
+    values,
   };
   insertChain.insert.mockReturnValue(insertChain);
 

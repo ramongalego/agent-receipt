@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import { apiKeys, agentSessions, events } from "@/db/schema";
 import { hashApiKey } from "./api-key";
@@ -63,20 +63,30 @@ export async function processIngestEvent(
   ]);
 
   if (existingSession.length === 0) {
-    await db.insert(agentSessions).values({
-      id: input.sessionId,
-      projectId,
-      name: input.sessionName,
-      status: "running",
-      context: input.sessionContext ?? null,
-    });
+    // Two first events can arrive at once; the loser must not fail.
+    await db
+      .insert(agentSessions)
+      .values({
+        id: input.sessionId,
+        projectId,
+        name: input.sessionName,
+        status: "running",
+        context: input.sessionContext ?? null,
+      })
+      .onConflictDoNothing({ target: agentSessions.id });
   } else if (input.sessionContext) {
-    // Update context if provided on a subsequent event (first one wins for safety,
-    // but allow setting it if it was not set on session creation)
+    // Context is write-once: a later event may set it if it was never set,
+    // but can't replace it.
     await db
       .update(agentSessions)
       .set({ context: input.sessionContext })
-      .where(eq(agentSessions.id, input.sessionId));
+      .where(
+        and(
+          eq(agentSessions.id, input.sessionId),
+          eq(agentSessions.projectId, projectId),
+          isNull(agentSessions.context),
+        ),
+      );
   }
 
   const previousHash =
@@ -138,7 +148,12 @@ export async function processIngestEvent(
     await db
       .update(agentSessions)
       .set({ explicitlyCompletedAt: new Date() })
-      .where(eq(agentSessions.id, input.sessionId));
+      .where(
+        and(
+          eq(agentSessions.id, input.sessionId),
+          eq(agentSessions.projectId, projectId),
+        ),
+      );
   }
 
   // Update API key last used (fire-and-forget, non-critical).

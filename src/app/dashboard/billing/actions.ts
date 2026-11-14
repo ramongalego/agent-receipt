@@ -6,32 +6,69 @@ import { stripe } from "@/lib/stripe";
 import { db } from "@/db";
 import { users } from "@/db/schema";
 
-export async function createCheckoutSession(priceId: string) {
+export type CheckoutPlan = "pro" | "business";
+export type CheckoutInterval = "monthly" | "yearly";
+
+// Price IDs stay on the server. The client only says which plan it wants.
+function priceIdFor(
+  plan: CheckoutPlan,
+  interval: CheckoutInterval,
+): string | undefined {
+  const prices: Record<
+    CheckoutPlan,
+    Record<CheckoutInterval, string | undefined>
+  > = {
+    pro: {
+      monthly: process.env.STRIPE_PRICE_PRO_MONTHLY,
+      yearly: process.env.STRIPE_PRICE_PRO_YEARLY,
+    },
+    business: {
+      monthly: process.env.STRIPE_PRICE_BUSINESS_MONTHLY,
+      yearly: process.env.STRIPE_PRICE_BUSINESS_YEARLY,
+    },
+  };
+  return prices[plan]?.[interval];
+}
+
+export async function createCheckoutSession(
+  plan: CheckoutPlan,
+  interval: CheckoutInterval,
+) {
   const session = await auth();
   if (!session?.user?.id) {
     return { error: "Not authenticated.", code: "UNAUTHORIZED" };
   }
 
-  const validPriceIds = [
-    process.env.STRIPE_PRICE_PRO_MONTHLY,
-    process.env.STRIPE_PRICE_PRO_YEARLY,
-    process.env.STRIPE_PRICE_BUSINESS_MONTHLY,
-    process.env.STRIPE_PRICE_BUSINESS_YEARLY,
-  ].filter(Boolean);
+  const priceId =
+    (plan === "pro" || plan === "business") &&
+    (interval === "monthly" || interval === "yearly")
+      ? priceIdFor(plan, interval)
+      : undefined;
 
-  if (!priceId || !validPriceIds.includes(priceId)) {
+  if (!priceId) {
     return { error: "Invalid plan.", code: "INVALID_PRICE_ID" };
   }
 
   const user = await db
     .select({
       stripeCustomerId: users.stripeCustomerId,
+      stripeSubscriptionId: users.stripeSubscriptionId,
       email: users.email,
     })
     .from(users)
     .where(eq(users.id, session.user.id))
     .limit(1)
     .then((rows) => rows[0]);
+
+  // A second checkout would start a second subscription billed alongside
+  // the first. Plan changes go through the billing portal instead.
+  if (user?.stripeSubscriptionId) {
+    return {
+      error:
+        "You already have a subscription. Use Manage billing to change plans.",
+      code: "ALREADY_SUBSCRIBED",
+    };
+  }
 
   let customerId = user?.stripeCustomerId;
 

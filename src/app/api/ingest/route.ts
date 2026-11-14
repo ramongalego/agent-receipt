@@ -9,6 +9,7 @@ import {
 import { checkR2Config } from "@/lib/r2";
 import { isOverLimit, MAX_EVENTS_PER_SESSION } from "@/lib/billing";
 import { getEventCountBySessionId } from "@/db/queries/events";
+import { getSessionProjectId } from "@/db/queries/sessions";
 import { checkRateLimit, ingestRateLimit } from "@/lib/rate-limit";
 import { db } from "@/db";
 import { projects, teams } from "@/db/schema";
@@ -77,29 +78,22 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Check usage limits, find the team owner for billing
-  const projectRow = await db
-    .select({ ownerId: teams.ownerId })
-    .from(projects)
-    .innerJoin(teams, eq(teams.id, projects.teamId))
-    .where(eq(projects.id, keyResult.value.projectId))
-    .limit(1)
-    .then((rows) => rows[0]);
-
-  if (projectRow && (await isOverLimit(projectRow.ownerId))) {
+  // Parse and validate body
+  // content-length is optional (chunked bodies), so check the real size too.
+  const rawBody = await request.text();
+  if (Buffer.byteLength(rawBody, "utf8") > MAX_PAYLOAD_BYTES) {
     return NextResponse.json(
       {
-        error: "Monthly session limit reached. Upgrade your plan.",
-        code: "LIMIT_REACHED",
+        error: "Payload too large. Maximum size is 512KB.",
+        code: "PAYLOAD_TOO_LARGE",
       },
-      { status: 429 },
+      { status: 413 },
     );
   }
 
-  // Parse and validate body
   let body: unknown;
   try {
-    body = await request.json();
+    body = JSON.parse(rawBody);
   } catch {
     return NextResponse.json(
       { error: "Request body must be valid JSON.", code: "INVALID_JSON" },
@@ -119,8 +113,48 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // A session ID is owned by the project that created it. Another project's
+  // key must not be able to append to (or probe) that session's chain.
+  const sessionProjectId = await getSessionProjectId(parsed.data.sessionId);
+  if (sessionProjectId && sessionProjectId !== keyResult.value.projectId) {
+    return NextResponse.json(
+      {
+        error:
+          "This session ID is already used by another project. Generate a new session ID.",
+        code: "SESSION_CONFLICT",
+      },
+      { status: 409 },
+    );
+  }
+  const isNewSession = sessionProjectId === null;
+
+  // The monthly limit counts sessions, so it only stops new ones. Events for
+  // a session that's already running are still accepted.
+  if (isNewSession) {
+    // Check usage limits, find the team owner for billing
+    const projectRow = await db
+      .select({ ownerId: teams.ownerId })
+      .from(projects)
+      .innerJoin(teams, eq(teams.id, projects.teamId))
+      .where(eq(projects.id, keyResult.value.projectId))
+      .limit(1)
+      .then((rows) => rows[0]);
+
+    if (projectRow && (await isOverLimit(projectRow.ownerId))) {
+      return NextResponse.json(
+        {
+          error: "Monthly session limit reached. Upgrade your plan.",
+          code: "LIMIT_REACHED",
+        },
+        { status: 429 },
+      );
+    }
+  }
+
   // Check session event limit
-  const eventCount = await getEventCountBySessionId(parsed.data.sessionId);
+  const eventCount = isNewSession
+    ? 0
+    : await getEventCountBySessionId(parsed.data.sessionId);
   if (eventCount >= MAX_EVENTS_PER_SESSION) {
     await insertSystemErrorEvent(
       parsed.data.sessionId,

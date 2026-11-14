@@ -35,6 +35,10 @@ jest.mock("@/db/queries/events", () => ({
   getEventCountBySessionId: jest.fn(),
 }));
 
+jest.mock("@/db/queries/sessions", () => ({
+  getSessionProjectId: jest.fn().mockResolvedValue(null),
+}));
+
 jest.mock("@/lib/r2", () => ({
   checkR2Config: jest.fn().mockReturnValue({ ok: true }),
 }));
@@ -49,6 +53,11 @@ import {
 import { isOverLimit } from "@/lib/billing";
 import { getEventCountBySessionId } from "@/db/queries/events";
 import { db } from "@/db";
+import { getSessionProjectId } from "@/db/queries/sessions";
+
+const mockGetSessionProjectId = getSessionProjectId as jest.MockedFunction<
+  typeof getSessionProjectId
+>;
 
 const mockValidateApiKey = validateApiKey as jest.MockedFunction<
   typeof validateApiKey
@@ -230,7 +239,40 @@ describe("POST /api/ingest", () => {
       expect(mockIsOverLimit).toHaveBeenCalledWith("user-001");
     });
 
+    it("accepts events for a running session even when over the monthly limit", async () => {
+      setupHappyPath();
+      mockIsOverLimit.mockResolvedValue(true);
+      mockGetSessionProjectId.mockResolvedValueOnce("proj-123");
+
+      const req = createRequest({
+        body: VALID_BODY,
+        headers: { authorization: `Bearer ${VALID_API_KEY}` },
+      });
+      const res = await POST(req);
+
+      expect(res.status).toBe(201);
+      expect(mockIsOverLimit).not.toHaveBeenCalled();
+    });
+
+    it("returns 409 when the session belongs to another project", async () => {
+      setupHappyPath();
+      mockGetSessionProjectId.mockResolvedValueOnce("someone-elses-project");
+
+      const req = createRequest({
+        body: VALID_BODY,
+        headers: { authorization: `Bearer ${VALID_API_KEY}` },
+      });
+      const res = await POST(req);
+      const json = await res.json();
+
+      expect(res.status).toBe(409);
+      expect(json.code).toBe("SESSION_CONFLICT");
+      expect(mockInsertSystemErrorEvent).not.toHaveBeenCalled();
+      expect(mockProcessIngestEvent).not.toHaveBeenCalled();
+    });
+
     it("returns 429 and inserts an error event when a session already has 200 events", async () => {
+      mockGetSessionProjectId.mockResolvedValueOnce("proj-123");
       mockValidateApiKey.mockResolvedValue(VALID_KEY_RESULT);
       mockDb.then.mockResolvedValue({ ownerId: "user-001" });
       mockIsOverLimit.mockResolvedValue(false);
@@ -256,6 +298,7 @@ describe("POST /api/ingest", () => {
     });
 
     it("succeeds when a session has 199 events", async () => {
+      mockGetSessionProjectId.mockResolvedValueOnce("proj-123");
       mockValidateApiKey.mockResolvedValue(VALID_KEY_RESULT);
       mockDb.then.mockResolvedValue({ ownerId: "user-001" });
       mockIsOverLimit.mockResolvedValue(false);

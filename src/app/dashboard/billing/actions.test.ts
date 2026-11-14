@@ -65,8 +65,11 @@ describe("createCheckoutSession", () => {
     mockAuth.mockResolvedValue({ user: { id: "user_1" } });
   });
 
-  it("rejects an invalid price ID without calling Stripe", async () => {
-    const result = await createCheckoutSession("price_attacker_fake");
+  it("rejects an unknown plan without calling Stripe", async () => {
+    const result = await createCheckoutSession(
+      "enterprise" as never,
+      "monthly",
+    );
 
     expect(result).toEqual({
       error: "Invalid plan.",
@@ -75,8 +78,8 @@ describe("createCheckoutSession", () => {
     expect(mockStripeCheckoutCreate).not.toHaveBeenCalled();
   });
 
-  it("rejects an empty price ID", async () => {
-    const result = await createCheckoutSession("");
+  it("rejects an unknown billing interval", async () => {
+    const result = await createCheckoutSession("pro", "weekly" as never);
 
     expect(result).toEqual({
       error: "Invalid plan.",
@@ -85,14 +88,18 @@ describe("createCheckoutSession", () => {
     expect(mockStripeCheckoutCreate).not.toHaveBeenCalled();
   });
 
-  it("accepts a valid price ID", async () => {
+  it("uses the server-side price for the chosen plan", async () => {
     mockStripeCheckoutCreate.mockResolvedValue({
       url: "https://checkout.stripe.com/test",
     });
 
-    const result = await createCheckoutSession("price_pro_test");
+    const result = await createCheckoutSession("pro", "monthly");
 
-    expect(mockStripeCheckoutCreate).toHaveBeenCalled();
+    expect(mockStripeCheckoutCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        line_items: [{ price: "price_pro_test", quantity: 1 }],
+      }),
+    );
     expect(result).toEqual({
       data: { url: "https://checkout.stripe.com/test" },
     });

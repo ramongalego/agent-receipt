@@ -4,7 +4,7 @@ import { useState, useEffect, useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { getPlanLimits } from "@/lib/billing-plans";
-import { createCheckoutSession } from "./actions";
+import { createCheckoutSession, type CheckoutPlan } from "./actions";
 
 type UpgradePlan = {
   name: string;
@@ -14,8 +14,7 @@ type UpgradePlan = {
   yearlySavings: string;
   audience: string;
   highlighted?: boolean;
-  monthlyPriceId: string | null;
-  yearlyPriceId: string | null;
+  plan: CheckoutPlan;
 };
 
 const PLANS: UpgradePlan[] = [
@@ -27,8 +26,7 @@ const PLANS: UpgradePlan[] = [
     yearlySavings: "$118",
     audience: "For small teams shipping agents in production.",
     highlighted: true,
-    monthlyPriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO ?? null,
-    yearlyPriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY ?? null,
+    plan: "pro",
   },
   {
     name: "Business",
@@ -37,9 +35,7 @@ const PLANS: UpgradePlan[] = [
     yearlyTotal: "$1,910",
     yearlySavings: "$478",
     audience: "For teams running agents across multiple workflows.",
-    monthlyPriceId:
-      process.env.NEXT_PUBLIC_STRIPE_PRICE_BUSINESS_MONTHLY ?? null,
-    yearlyPriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_BUSINESS_YEARLY ?? null,
+    plan: "business",
   },
 ];
 
@@ -67,13 +63,11 @@ function UpgradeModal({ onClose }: { onClose: () => void }) {
   }, [onClose]);
 
   function handleUpgrade(plan: UpgradePlan) {
-    const priceId = isYearly ? plan.yearlyPriceId : plan.monthlyPriceId;
-    if (!priceId) {
-      toast.error("Billing is not configured. Contact support.");
-      return;
-    }
     startTransition(async () => {
-      const result = await createCheckoutSession(priceId);
+      const result = await createCheckoutSession(
+        plan.plan,
+        isYearly ? "yearly" : "monthly",
+      );
       if ("data" in result && result.data?.url) {
         window.location.href = result.data.url;
       } else if ("error" in result) {

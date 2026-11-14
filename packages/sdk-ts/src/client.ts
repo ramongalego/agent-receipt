@@ -15,7 +15,7 @@ import type {
   VercelAIFunctions,
 } from "./types";
 
-const DEFAULT_BASE_URL = "https://agentreceipt.com";
+const DEFAULT_BASE_URL = "https://agentreceipt.co";
 
 export function createClient(options: ClientOptions): Client {
   const baseUrl = options.baseUrl ?? DEFAULT_BASE_URL;

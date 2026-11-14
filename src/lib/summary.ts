@@ -61,6 +61,7 @@ export async function generateAndStoreSummary(
     name: e.name,
     durationMs: e.durationMs,
     metadata: e.metadata as Record<string, unknown> | null,
+    sensitive: Boolean(e.compliance?.containsPII || e.compliance?.dataCategory),
   }));
 
   const filtered = eventList.filter((e) => e.name !== "session.end");
@@ -73,6 +74,9 @@ export async function generateAndStoreSummary(
 
   const payloads = await Promise.all(
     filtered.map(async (e) => {
+      // Events flagged as personal data never leave our storage. The summary
+      // is shown on public share pages, which also withhold these payloads.
+      if (e.sensitive) return null;
       const result = await getPayload(e.id);
       if (!result.ok) return null;
       return result.value as { input?: unknown; output?: unknown } | null;

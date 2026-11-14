@@ -89,11 +89,7 @@ export async function sendInviteAction(
     session.user.id,
   );
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-  console.log(
-    `[invite] Invite link for ${trimmedEmail}: ${appUrl}/invite/${token}`,
-  );
-
+  // Invite links are bearer tokens, so they're never logged.
   try {
     await sendInviteEmail(trimmedEmail, team.name, token);
   } catch (e) {
@@ -123,6 +119,13 @@ export async function removeMemberAction(
     return { error: "You cannot remove yourself from the workspace." };
   }
 
+  // The workspace creator holds the billing and must always stay an owner.
+  if (userId === team.ownerId) {
+    return {
+      error: "The workspace creator can't be removed or made a viewer.",
+    };
+  }
+
   const removed = await removeTeamMember(userId, team.id);
   if (!removed) {
     return { error: "Member not found." };
@@ -150,6 +153,13 @@ export async function changeMemberRoleAction(
 
   if (userId === session.user.id) {
     return { error: "You cannot change your own role." };
+  }
+
+  // The workspace creator holds the billing and must always stay an owner.
+  if (userId === team.ownerId) {
+    return {
+      error: "The workspace creator can't be removed or made a viewer.",
+    };
   }
 
   const updated = await updateMemberRole(userId, team.id, role);

@@ -87,6 +87,17 @@ describe("highlightJson", () => {
     expect(result).not.toContain("<b>");
   });
 
+  it("escapes text the token pattern doesn't match", () => {
+    // The pretty view turns an escaped \n into a real newline before
+    // highlighting, which used to desync the string pattern and let the
+    // rest of the payload through as raw HTML.
+    const payload = JSON.stringify({ out: "\\n<img src=x onerror=alert(1)>" });
+    const pretty = payload.replace(/\\n/g, "\n");
+    const result = highlightJson(pretty);
+    expect(result).not.toContain("<img");
+    expect(result).toContain("&lt;img");
+  });
+
   it("handles a complete JSON object", () => {
     const json = JSON.stringify({ name: "test", count: 5, ok: true }, null, 2);
     const result = highlightJson(json);
